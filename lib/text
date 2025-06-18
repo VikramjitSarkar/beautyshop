@@ -1,0 +1,23 @@
+final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
+  final List<String> smileyLabels = ["Very Bad", "Bad", "Good", "Very Good"];
+   RatingBar.builder(
+            initialRating: _selectedRating.toDouble(),
+            minRating: 1,
+            direction: Axis.horizontal,
+            allowHalfRating: false,
+            itemCount: 4,
+            itemBuilder: (context, index) {
+              return Text(smileys[index], style: TextStyle(fontSize: 24));
+            },
+            itemSize: 30,
+            onRatingUpdate: (rating) {
+              setState(() {
+                _selectedRating = rating.toInt();
+              });
+            },
+          ),
+          SizedBox(height: 4),
+          Text(
+            smileyLabels[_selectedRating - 1],
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),

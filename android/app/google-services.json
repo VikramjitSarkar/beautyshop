@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "916801022458",
+    "project_id": "beautician-50d49",
+    "storage_bucket": "beautician-50d49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:916801022458:android:200c499718cbfd334b9c43",
+        "android_client_info": {
+          "package_name": "com.beautician.beautician_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUNMGI0DR9qq_FtdewSk5W8uMbjmwcmfk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
