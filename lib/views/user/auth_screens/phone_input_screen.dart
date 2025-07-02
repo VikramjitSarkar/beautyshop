@@ -43,18 +43,23 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Row(
-          children: [
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: SvgPicture.asset('assets/back icon.svg'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
             ),
-          ],
+            elevation: 0,
+          ),
         ),
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -62,7 +67,7 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset('assets/app icon 2.png'),
+              Center(child: Image.asset('assets/app icon 2.png')),
               const SizedBox(height: 10),
               Text('Verify your phone number', style: kHeadingStyle),
               const SizedBox(height: 8),

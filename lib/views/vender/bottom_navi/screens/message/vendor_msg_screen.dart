@@ -17,12 +17,15 @@ class VendorMsgScreen extends StatelessWidget {
           title: Text(
             'Messages',
             style: kHeadingStyle.copyWith(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        body: TabBarView(children: [VendorMessageTabScreen()]),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: TabBarView(children: [VendorMessageTabScreen()]),
+        ),
       ),
     );
   }

@@ -133,7 +133,7 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                         buildScrollView(
                           isDesktop
                               ? SalonServicesCard2(vedorId: widget.vendorId)
-                              : SalonServicesCard(vedorId: widget.vendorId, status: widget.status,),
+                              : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,),
                         ),
                         buildScrollView(
                           SalonGalleryCard(galleryMedia: widget.galleryImage),

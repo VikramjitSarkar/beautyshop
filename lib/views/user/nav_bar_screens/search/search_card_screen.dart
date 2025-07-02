@@ -248,7 +248,9 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
               height: 120,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.grey[200],
+                color: Colors.white,
+                border: shopBanner != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
+
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
@@ -259,9 +261,19 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                           fit: BoxFit.cover,
                           errorBuilder:
                               (context, error, stackTrace) =>
-                                  const Icon(Icons.broken_image, size: 50),
+                                  Image.asset(
+                                    'assets/app icon 2.png',
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
                         )
-                        : const Icon(Icons.image_not_supported, size: 50),
+                        : Image.asset(
+                      'assets/app icon 2.png',
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
               ),
             ),
             const SizedBox(width: 8),

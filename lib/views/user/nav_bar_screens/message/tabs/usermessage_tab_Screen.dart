@@ -43,208 +43,222 @@ class _UserMessageTabScreenState extends State<UserMessageTabScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // 🔍 Search Field
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: TextField(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 15),
+      child: Column(
+        children: [
+          // 🔍 Search Field
+          TextField(
             onChanged:
                 (value) =>
                     chatController.searchQuery.value =
                         value.trim().toLowerCase(),
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: "Search user...",
+              hintText: 'Search user...',
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 15,
+                horizontal: 16,
+              ),
               filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+              fillColor: const Color(0xffFFFFFF),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(40),
+                borderSide: const BorderSide(
+                  color: Color(0xFFC0C0C0),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(40),
+                borderSide: const BorderSide(
+                  color: Color(0xFFC0C0C0),
+                  width: 1.5,
+                ),
               ),
             ),
+            style: const TextStyle(color: Colors.black),
           ),
-        ),
 
-        // 📦 Chat List
-        Flexible(
-          child: Center(
-            child: Obx(() {
-              if (chatController.isLoading.value) {
-                return Center(child: CircularProgressIndicator());
-              }
+          // 📦 Chat List
+          Flexible(
+            child: Center(
+              child: Obx(() {
+                if (chatController.isLoading.value) {
+                  return Center(child: CircularProgressIndicator());
+                }
 
-              if (chatController.errorMessage.isNotEmpty) {
-                return Text(
-                  'No chat available',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                if (chatController.errorMessage.isNotEmpty) {
+                  return Text(
+                    'No chat available',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  );
+                }
+
+                final filteredChats =
+                    chatController.vendorChats.where((chat) {
+                      final otherUser = chat['other'] ?? {};
+                      final name =
+                          (otherUser['userName'] ?? '').toString().toLowerCase();
+                      final query = chatController.searchQuery.value;
+                      return name.contains(query);
+                    }).toList();
+
+                if (filteredChats.isEmpty) {
+                  return Center(child: Text("No users found"));
+                }
+
+                return ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    // horizontal: padding,
+                    vertical: 20,
                   ),
-                );
-              }
-
-              final filteredChats =
-                  chatController.vendorChats.where((chat) {
+                  itemCount: filteredChats.length,
+                  itemBuilder: (context, index) {
+                    final chat = filteredChats[index];
                     final otherUser = chat['other'] ?? {};
-                    final name =
-                        (otherUser['userName'] ?? '').toString().toLowerCase();
-                    final query = chatController.searchQuery.value;
-                    return name.contains(query);
-                  }).toList();
+                    final lastMessage = chat['lastMessage'];
+                    final unreadCount = chat['unread'] ?? 0;
+                    final chatId = chat['chatId'];
+                    final lastMessageText =
+                        lastMessage?['content'] ?? 'No messages yet';
+                    final lastMessageTime =
+                        lastMessage != null
+                            ? _formatTime(lastMessage['createdAt'] ?? '')
+                            : '--:--';
 
-              if (filteredChats.isEmpty) {
-                return Center(child: Text("No users found"));
-              }
-
-              return ListView.builder(
-                physics: BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: padding,
-                  vertical: 10,
-                ),
-                itemCount: filteredChats.length,
-                itemBuilder: (context, index) {
-                  final chat = filteredChats[index];
-                  final otherUser = chat['other'] ?? {};
-                  final lastMessage = chat['lastMessage'];
-                  final unreadCount = chat['unread'] ?? 0;
-                  final chatId = chat['chatId'];
-                  final lastMessageText =
-                      lastMessage?['content'] ?? 'No messages yet';
-                  final lastMessageTime =
-                      lastMessage != null
-                          ? _formatTime(lastMessage['createdAt'] ?? '')
-                          : '--:--';
-
-                  return GestureDetector(
-                    onTap: () async {
-                      await Get.to(
-                        () => UserChatScreen(
-                          vendorName: otherUser['userName'],
-                          reciverId: chat['receiverId'],
-                          chatId: chatId,
-                          currentUser: chat['senderId'],
-                        ),
-                      );
-                      // Refresh again after returning from chat
-                      chatController.fetchVendorChats(vendorId ?? '');
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 6),
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
+                    return GestureDetector(
+                      onTap: () async {
+                        await Get.to(
+                          () => UserChatScreen(
+                            vendorName: otherUser['userName'],
+                            reciverId: chat['receiverId'],
+                            chatId: chatId,
+                            currentUser: chat['senderId'],
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: kGreyColor,
-                                child: Icon(Icons.person, color: Colors.white),
+                        );
+                        // Refresh again after returning from chat
+                        chatController.fetchVendorChats(vendorId ?? '');
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 6),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: kGreyColor,
+                                  child: Icon(Icons.person, color: Colors.white),
+                                ),
+                                if (unreadCount > 0)
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        unreadCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    otherUser['userName'] ?? 'Unknown',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    lastMessageText,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: kGreyColor,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              if (unreadCount > 0)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(4),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  lastMessageTime,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: kGreyColor,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                if (unreadCount > 0)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.red,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
-                                      ),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       unreadCount.toString(),
                                       style: TextStyle(
-                                        fontSize: 10,
                                         color: Colors.white,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ),
-                                ),
-                            ],
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  otherUser['userName'] ?? 'Unknown',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  lastMessageText,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: kGreyColor,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
                               ],
                             ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                lastMessageTime,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: kGreyColor,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              if (unreadCount > 0)
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    unreadCount.toString(),
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            }),
+                    );
+                  },
+                );
+              }),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

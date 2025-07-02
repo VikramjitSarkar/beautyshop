@@ -90,6 +90,7 @@ class _SalonSpecialistDetailScreenState
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
               SliverAppBar(
+                surfaceTintColor: Colors.transparent,
                 expandedHeight: 210,
                 floating: false,
                 pinned: true,
@@ -163,9 +164,9 @@ class _SalonSpecialistDetailScreenState
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 10,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 30,
+                          horizontal: padding,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -347,7 +348,7 @@ class _SalonSpecialistDetailScreenState
                     children: [
                       SalonGalleryCard(galleryMedia: galleyImages),
                       SalonServicesCard(
-                        vedorId: widget.vendorId,
+                        vendorId: widget.vendorId,
                         status: status,
                       ),
                       SalonReviewCard(vendorId: widget.vendorId),

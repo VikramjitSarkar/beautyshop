@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/utils/colors.dart';
+import 'package:beautician_app/utils/constants.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/dashboard/update_vendor_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
@@ -55,23 +57,39 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Vendor Profile"),
-        actions: [
-          if (!isLoading && vendorData != null)
-            IconButton(
-              tooltip: "Edit Profile",
-              icon: const Icon(Icons.edit_note_rounded, size: 28),
-              onPressed: () {
-                Get.to(
-                  () => VendorUpdateProfileScreen(
-                    vendorId: widget.vendorId,
-                    token: GlobalsVariables.vendorLoginToken!,
-                  ),
-                );
-              },
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
             ),
-        ],
+            title: const Text("Vendor Profile"),
+            actions: [
+              if (!isLoading && vendorData != null)
+                IconButton(
+                  tooltip: "Edit Profile",
+                  icon: const Icon(Icons.edit_note_rounded, size: 28),
+                  onPressed: () {
+                    Get.to(
+                      () => VendorUpdateProfileScreen(
+                        vendorId: widget.vendorId,
+                        token: GlobalsVariables.vendorLoginToken!,
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
       ),
       body:
           isLoading
@@ -84,6 +102,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Card(
+                      color: Colors.white,
                       elevation: 6,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),

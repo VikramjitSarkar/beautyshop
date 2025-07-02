@@ -87,15 +87,25 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       onWillPop: _handleBackPressed,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text('Profile Setup'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              final shouldPop = await _handleBackPressed();
-              if (shouldPop) Get.back();
-            },
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(55),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            child: AppBar(
+              backgroundColor: Colors.white,
+              title: const Text('Profile Setup'),
+              leading: Row(
+                children: [
+                  GestureDetector(
+                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                    onTap: () async {
+                      final shouldPop = await _handleBackPressed();
+                      if (shouldPop) Get.back();
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
         body: SingleChildScrollView(

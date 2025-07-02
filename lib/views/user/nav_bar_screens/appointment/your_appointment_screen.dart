@@ -109,7 +109,7 @@ class _YourAppointmentScreenState extends State<YourAppointmentScreen>
   Widget _buildAppBarTitle() {
     return Text(
       'Your appointments',
-      style: kHeadingStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+      style: kHeadingStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
     );
   }
 }

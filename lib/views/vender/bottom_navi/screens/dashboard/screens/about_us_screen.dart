@@ -25,7 +25,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.symmetric(horizontal: padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -53,19 +53,28 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            Obx(
-              () => Text(
-                dashCtrl.shopeDes.value.isNotEmpty
-                    ? dashCtrl.shopeDes.value
-                    : '',
-                style: kSubheadingStyle,
-                softWrap: true,
-                maxLines: 8,
+            Container(
+              width: double.maxFinite,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kGreyColor2),
+              ),
+
+              child: Obx(
+                () => Text(
+                  dashCtrl.shopeDes.value.isNotEmpty
+                      ? dashCtrl.shopeDes.value
+                      : '',
+                  style: kSubheadingStyle,
+                  softWrap: true,
+                  maxLines: 8,
+                ),
               ),
             ),
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               decoration: BoxDecoration(

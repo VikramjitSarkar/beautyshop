@@ -49,7 +49,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 25),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -242,7 +242,10 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                   height: 110,
                   width: 110,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white,
+                    border: booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
+
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -255,14 +258,14 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (context, error, stackTrace) => Image.asset(
-                                    'assets/saloon.png',
+                                    'assets/app icon 2.png',
                                     height: 100,
                                     width: 100,
                                     fit: BoxFit.cover,
                                   ),
                             )
                             : Image.asset(
-                              'assets/saloon.png',
+                          'assets/app icon 2.png',
                               height: 100,
                               width: 100,
                               fit: BoxFit.cover,

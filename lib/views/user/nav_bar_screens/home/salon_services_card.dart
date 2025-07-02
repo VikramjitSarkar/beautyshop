@@ -13,12 +13,12 @@ import '../../../../controllers/users/home/categoryController.dart'
 import 'book_appointment_screen.dart';
 
 class SalonServicesCard extends StatefulWidget {
-  final String vedorId;
+  final String vendorId;
   final String status;
 
   const SalonServicesCard({
     super.key,
-    required this.vedorId,
+    required this.vendorId,
     required this.status,
   });
 
@@ -35,7 +35,7 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _catCtrl.fetchAndStoreServicesByVendorId(widget.vedorId);
+      _catCtrl.fetchAndStoreServicesByVendorId(widget.vendorId);
     });
   }
 
@@ -80,62 +80,132 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                 itemBuilder: (context, idx) {
                   final service = services[idx];
                   final cat = service['categoryId'];
-                  final isSel = selectedServices.containsKey(idx);
+                  bool isSel = selectedServices.containsKey(idx);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Container(
-                      height: isSel ? 84 : 54,
+                      height: 54,
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isSel ? kPrimaryColor : Colors.white,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: isSel ? Border.all(color: kPrimaryColor) : null,
+                        // border: isSel ? Border.all(color: kPrimaryColor) : null,
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(width: 10),
-                          Text(
-                            cat['name'],
-                            style: kHeadingStyle.copyWith(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          ),
-                          Spacer(),
                           Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (isSel) ...[
-                                Text(
-                                  "\$${selectedPrices[idx]?.toStringAsFixed(2) ?? service['charges']}",
-                                  style: kSubheadingStyle.copyWith(
-                                    fontSize: 12,
-                                  ),
+                              Text(
+                                cat['name'],
+                                style: kHeadingStyle.copyWith(
+                                  fontSize: 14,
+                                  color: Colors.black,
                                 ),
-                                Text(
-                                  service['subcategoryId']['name'],
-                                  style: kSubheadingStyle.copyWith(
-                                    fontSize: 12,
-                                  ),
+                              ),
+                              SizedBox(height: 10,),
+                              Text(
+                                service['subcategoryId']['name'],
+                                style: kSubheadingStyle.copyWith(
+                                  fontSize: 12,
                                 ),
-                              ] else
-                                GestureDetector(
-                                  onTap: () {
-                                    showCustomBottomSheet(
-                                      context,
-                                      idx,
-                                      service,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 10.0),
-                                    child: Text('View'),
-                                  ),
-                                ),
+                              ),
                             ],
                           ),
+                          Spacer(),
+                          Text(
+                            "\$${(selectedPrices[idx] ?? double.tryParse(service['charges']) ?? 0).toString().replaceAll(RegExp(r"\.0+$"), "")}",
+                            style: kSubheadingStyle.copyWith(
+                              fontSize: 14,
+                            ),
+                          ),
+
+
+                          SizedBox(width: 10,),
+
+                          GestureDetector(
+                            onTap: (){
+                              setState(() {
+                                print("hello");
+                                isSel = !isSel;
+
+                                if (isSel) {
+                                  // Store the service _id instead of subcategory id
+                                  selectedServices[idx] =
+                                  service['_id'];
+                                  selectedPrices[idx] =
+                                      double.tryParse(service['charges']) ??
+                                          0.0;
+                                } else {
+                                  selectedServices.remove(idx);
+                                  selectedPrices.remove(idx);
+                                }
+                              });
+                            },
+                            child: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color:
+                                isSel
+                                    ? kPrimaryColor1.withOpacity(0.8)
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color:
+                                  isSel
+                                      ? kPrimaryColor1
+                                      : Colors.grey,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child:
+                              isSel
+                                  ? Icon(
+                                Icons.check,
+                                size: 16,
+                                color: kPrimaryColor,
+                              )
+                                  : null,
+                            ),
+                          ),
+                          // Column(
+                          //   // mainAxisAlignment: MainAxisAlignment.center,
+                          //   crossAxisAlignment: CrossAxisAlignment.end,
+                          //   children: [
+                          //
+                          //
+                          //     // if (isSel) ...[
+                          //     //   Text(
+                          //     //     "\$${selectedPrices[idx]?.toStringAsFixed(2) ?? service['charges']}",
+                          //     //     style: kSubheadingStyle.copyWith(
+                          //     //       fontSize: 12,
+                          //     //     ),
+                          //     //   ),
+                          //     //   Text(
+                          //     //     service['subcategoryId']['name'],
+                          //     //     style: kSubheadingStyle.copyWith(
+                          //     //       fontSize: 12,
+                          //     //     ),
+                          //     //   ),
+                          //     // ] else
+                          //     //   GestureDetector(
+                          //     //     onTap: () {
+                          //     //       showCustomBottomSheet(
+                          //     //         context,
+                          //     //         idx,
+                          //     //         service,
+                          //     //       );
+                          //     //     },
+                          //     //     child: Padding(
+                          //     //       padding: const EdgeInsets.only(right: 10.0),
+                          //     //       child: Text('View'),
+                          //     //     ),
+                          //     //   ),
+                          //   ],
+                          // ),
                         ],
                       ),
                     ),
@@ -165,7 +235,7 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                                   services:
                                       selected
                                           .toList(), // Pass the selected services with _ids
-                                  vendorId: widget.vedorId,
+                                  vendorId: widget.vendorId,
                                 )
                                 : UserVendorScreen(),
                       );
@@ -187,7 +257,7 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                             GlobalsVariables.token != null
                                 ? BookAppointmentScreen(
                                   services: selected.toList(),
-                                  vendorId: widget.vedorId,
+                                  vendorId: widget.vendorId,
                                 )
                                 : UserVendorScreen(),
                       );

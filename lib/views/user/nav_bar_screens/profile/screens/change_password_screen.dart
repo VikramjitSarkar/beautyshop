@@ -56,20 +56,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: SvgPicture.asset('assets/back icon.svg'),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          'Change Password',
-          style: kHeadingStyle.copyWith(fontSize: 18),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: Text(
+              'Change Password',
+              style: kHeadingStyle.copyWith(fontSize: 18),
+            ),
+          ),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: padding),
+        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
         child: Form(
           key: _formKey,
           child: Column(
@@ -167,6 +177,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   onPressed:
                       controller.isLoading.value ? null : _updatePassword,
                   style: ElevatedButton.styleFrom(
+                    elevation: 0,
                     backgroundColor: kPrimaryColor,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(

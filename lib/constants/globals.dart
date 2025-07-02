@@ -10,7 +10,7 @@ class GlobalsVariables {
   static String? paymentId;
   static String? userVendorIdForBooking;
 
-  static const baseUrlapp = 'https://my-app-eaaof2twqq-el.a.run.app';
+  static const baseUrlapp = 'https://api.thebeautyshop.io';
 
   static Future<void> loadToken() async {
     final prefs = await SharedPreferences.getInstance();

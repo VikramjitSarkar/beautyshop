@@ -18,22 +18,30 @@ class NotificationsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SvgPicture.asset('assets/back icon.svg', height: 24),
-          ),
-        ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: const Text(
+              'Notifications',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
           ),
         ),
       ),
@@ -79,6 +87,7 @@ class NotificationsScreen extends StatelessWidget {
                     final item = newNotifications[index];
                     return GestureDetector(
                       onTap: () {
+                        print("object");
                         Get.to(
                           () => NotificationDetailScreen(
                             notification: item,
@@ -103,7 +112,16 @@ class NotificationsScreen extends StatelessWidget {
                   itemCount: earlierNotifications.length,
                   itemBuilder: (context, index) {
                     final item = earlierNotifications[index];
-                    return _buildListTile(item);
+                    return GestureDetector(
+                      onTap: (){
+                        Get.to(
+                              () => NotificationDetailScreen(
+                            notification: item,
+                            bookingId: item['reference'] ?? '',
+                          ),
+                        );
+                      },
+                      child: _buildListTile(item));
                   },
                 ),
               ],

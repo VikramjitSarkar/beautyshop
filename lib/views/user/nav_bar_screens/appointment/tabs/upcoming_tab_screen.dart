@@ -271,7 +271,10 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                       height: 100,
                       width: 100,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
+                        border: booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
+
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
@@ -285,14 +288,14 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                                   errorBuilder:
                                       (context, error, stackTrace) =>
                                           Image.asset(
-                                            'assets/saloon.png',
+                                            'assets/app icon 2.png',
                                             height: 100,
                                             width: 100,
                                             fit: BoxFit.cover,
                                           ),
                                 )
                                 : Image.asset(
-                                  'assets/saloon.png',
+                              'assets/app icon 2.png',
                                   height: 100,
                                   width: 100,
                                   fit: BoxFit.cover,

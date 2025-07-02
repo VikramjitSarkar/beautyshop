@@ -22,10 +22,34 @@ class _HomeScreenState extends State<HomeScreen> {
   final userServicesController = Get.put(UserSubcategoryServiceController());
   final homeController = Get.put(HomeController());
 
+
+  String greetings = "";
+
+
+
+
+  String getGreetingBasedOnTime() {
+    final now = DateTime.now();
+    final hour = now.hour;
+
+    if (hour >= 5 && hour < 12) {
+      return "Good morning";
+    } else if (hour >= 12 && hour < 18) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
+  }
+
+
+
+
+
   // };
   @override
   void initState() {
     super.initState();
+    greetings = getGreetingBasedOnTime();
     userServicesController.fetchSubcategories();
     GlobalsVariables.loadToken();
   }
@@ -41,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(160),
-              child: CustomAppBar(title: 'My Custom AppBar'),
+              child: CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -197,10 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomAppBar(title: 'My Custom AppBar'),
+                    CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
 
                     SizedBox(
-                      height: 120,
+                      height: 130,
                       child: Obx(() {
                         if (userServicesController.isLoading.value) {
                           return Center(
@@ -230,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }),
                     ),
-                    SizedBox(height: 10),
+                    // SizedBox(height: 10),
                     Container(
                       height: 200,
                       width: double.maxFinite,

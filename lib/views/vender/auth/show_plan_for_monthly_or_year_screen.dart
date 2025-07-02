@@ -94,12 +94,7 @@ class _ShowPlanForMonthlyOrYearScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: SvgPicture.asset('assets/back icon.svg'),
-                  ),
-                  const SizedBox(width: 10),
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: Text('Skip', style: kSubheadingStyle),
+                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                   ),
                 ],
               ),

@@ -15,40 +15,45 @@ class _SkipPhoneNumberVerificationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: Row(
-          children: [
-            SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: SvgPicture.asset('assets/back icon.svg'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
             ),
-          ],
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Handle skip action
-              print('Skipped phone verification');
-              Get.to(() => CustomNavBar());
-            },
-            child: Text(
-              'Skip',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: kBlackColor,
+            // centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Handle skip action
+                  print('Skipped phone verification');
+                  Get.to(() => CustomNavBar());
+                },
+                child: Text(
+                  'Skip',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: kBlackColor,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: padding),
+        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

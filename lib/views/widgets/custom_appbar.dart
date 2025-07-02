@@ -7,13 +7,14 @@ import 'package:geolocator/geolocator.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final String greetings;
   final UserProfileController profileController = Get.put(
     UserProfileController(),
   );
   final RxString currentLocation = 'Locating...'.obs;
   final RxBool isLocationLoading = false.obs;
 
-  CustomAppBar({super.key, required this.title}) {
+  CustomAppBar({super.key, required this.title, required this.greetings}) {
     _getCurrentLocation();
   }
 
@@ -84,35 +85,101 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             const SizedBox(height: 10),
             // Top row with temperature and notification
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "$greetings,",
+                  style: kHeadingStyle.copyWith(fontSize: 22),
+                ),
+                SizedBox(width: 5,),
+                Text(
+                  profileController.name.value.isNotEmpty
+                      ? profileController.name.value
+                      : 'Guest',
+                  style: kHeadingStyle.copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 23,
+                  ),
+                ),
+                Spacer(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (GlobalsVariables.token == null) {
+                          Get.to(() => UserVendorScreen());
+                        } else {
+                          Get.to(() => NotificationsScreen());
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          GlobalsVariables.token == null
+                              ? SizedBox()
+                              : Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xffC0C0C0),
+                              ),
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                            child: SvgPicture.asset(
+                              'assets/notification.svg',
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.to(() => SearchScreen()),
+                      child: SvgPicture.asset('assets/search.svg'),
+                    ),
+                  ],
+                ),
                
               ],
             ),
-            const SizedBox(height: 15),
+            // const SizedBox(height: 15),
             // Profile info row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
+                // profileController.name.value.isNotEmpty? CircleAvatar(
+                //   radius: 30,
+                //   backgroundImage: profileController.imageUrl.value!=""? NetworkImage(profileController.imageUrl.value,) :
+                //
+                //   AssetImage("assets/empty pic.jpg", ),
+                // ) : Container(),
+                // SizedBox(width: 10,),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Hi,',
-                          style: kHeadingStyle.copyWith(fontSize: 23),
-                        ),
-                        Text(
-                          profileController.name.value.isNotEmpty
-                              ? profileController.name.value
-                              : 'Guest',
-                          style: kHeadingStyle.copyWith(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 23,
-                          ),
-                        ),
-                      ],
-                    ),
+                    
+
+                    
+                    // Row(
+                    //   children: [
+                    //
+                    //
+                    //     Text(
+                    //       'Hi,',
+                    //       style: kHeadingStyle.copyWith(fontSize: 23),
+                    //     ),
+                    //     Text(
+                    //       profileController.name.value.isNotEmpty
+                    //           ? profileController.name.value
+                    //           : 'Guest',
+                    //       style: kHeadingStyle.copyWith(
+                    //         fontWeight: FontWeight.w400,
+                    //         fontSize: 23,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -134,45 +201,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 6.0),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (GlobalsVariables.token == null) {
-                            Get.to(() => UserVendorScreen());
-                          } else {
-                            Get.to(() => NotificationsScreen());
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            GlobalsVariables.token == null
-                                ? SizedBox()
-                                : Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: const Color(0xffC0C0C0),
-                                    ),
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                  child: SvgPicture.asset(
-                                    'assets/notification.svg',
-                                  ),
-                                ),
-                            const SizedBox(width: 5),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => SearchScreen()),
-                        child: SvgPicture.asset('assets/search.svg'),
-                      ),
-                    ],
-                  ),
-                ),
+
               ],
             ),
             SizedBox(height: 30),

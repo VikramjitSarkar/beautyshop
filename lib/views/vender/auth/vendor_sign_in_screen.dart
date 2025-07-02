@@ -27,6 +27,24 @@ class _VendorSignInScreenState extends State<VendorSignInScreen> {
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(55),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: padding),
+              child: AppBar(
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: Colors.white,
+                leading: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           backgroundColor: Colors.white,
           body: SafeArea(
             child: Padding(
@@ -35,8 +53,12 @@ class _VendorSignInScreenState extends State<VendorSignInScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 20),
                     Image.asset('assets/app icon 2.png'),
+                    Text(
+                      'Welcome Back, Beauty Specialist!\nLog in to manage your bookings, update your services, and connect with new clients instantly. Keep growing your beauty business on the go.',
+                        style: kSubheadingStyle
+                    ),
+                    SizedBox(height: 10,),
                     CustomTextField(
                       hintText: "Email",
                       controller: emailController,

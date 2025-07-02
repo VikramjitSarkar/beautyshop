@@ -28,7 +28,8 @@ class SaloonCardThree extends StatelessWidget {
             height: 120,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: Colors.grey[200],
+              color: Colors.white,
+              border: imageUrl.isNotEmpty? null : Border.all(color: Colors.lightGreen, width: 0.5),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
@@ -38,9 +39,9 @@ class SaloonCardThree extends StatelessWidget {
                         imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder:
-                            (_, __, ___) => Image.asset('assets/saloon.png'),
+                            (_, __, ___) => Image.asset('assets/app icon 2.png'),
                       )
-                      : Image.asset('assets/saloon.png'),
+                      : Image.asset('assets/app icon 2.png'),
             ),
           ),
           const SizedBox(height: 8),

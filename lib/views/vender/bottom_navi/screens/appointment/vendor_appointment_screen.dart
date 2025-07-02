@@ -29,7 +29,7 @@ class _VendorAppointmentScreenState extends State<VendorAppointmentScreen> {
                 title: Text(
                   'Your appointments',
                   style: kHeadingStyle.copyWith(
-                      fontSize: 16, fontWeight: FontWeight.w700),
+                      fontSize: 18, fontWeight: FontWeight.w700),
                 ),
             
                 bottom: PreferredSize(

@@ -129,6 +129,8 @@ class _PastTabScreenState extends State<PastTabScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
+
+                  border: booking['vendor']['shopBanner'] != null?  null : Border.all(color: Colors.lightGreen, width: 0.5),
                 ),
                 child:
                     booking['vendor']['shopBanner'] != null
@@ -139,14 +141,14 @@ class _PastTabScreenState extends State<PastTabScreen> {
                           fit: BoxFit.cover,
                           errorBuilder:
                               (context, error, stackTrace) => Image.asset(
-                                'assets/saloon.png',
+                                'assets/app icon 2.png',
                                 height: 100,
                                 width: 100,
                                 fit: BoxFit.cover,
                               ),
                         )
                         : Image.asset(
-                          'assets/saloon.png',
+                      'assets/app icon 2.png',
                           height: 100,
                           width: 100,
                           fit: BoxFit.cover,

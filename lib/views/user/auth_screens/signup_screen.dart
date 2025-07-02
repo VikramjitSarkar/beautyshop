@@ -36,21 +36,27 @@ class _SignupScreenState extends State<SignupScreen> {
 
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar:
-              isDesktop
-                  ? null
-                  : AppBar(
-                    backgroundColor: Colors.white,
-                    leading: Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () => Get.back(),
-                          child: SvgPicture.asset('assets/back icon.svg'),
-                        ),
-                      ],
-                    ),
-                  ),
+          // appBar:
+          //     isDesktop
+          //         ? null
+          //         : PreferredSize(
+          //       preferredSize: Size.fromHeight(55),
+          //       child: Padding(
+          //         padding: EdgeInsets.symmetric(horizontal: padding),
+          //         child: AppBar(
+          //           surfaceTintColor: Colors.transparent,
+          //           backgroundColor: Colors.white,
+          //           leading: Row(
+          //             children: [
+          //               GestureDetector(
+          //                 onTap: () => Get.back(),
+          //                 child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ),
           body: SingleChildScrollView(
             child: Center(
               child: Container(
@@ -58,21 +64,24 @@ class _SignupScreenState extends State<SignupScreen> {
                     isDesktop
                         ? MediaQuery.of(context).size.width * 0.5
                         : double.infinity,
-                padding: EdgeInsets.all(padding),
+                padding: EdgeInsets.symmetric(horizontal: padding, vertical: 30),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+
+                      GestureDetector(
+                        onTap: () => Get.back(),
+                        child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                      ),
                       Center(
                         child: Image.asset(
                           'assets/app icon 2.png',
-                          fit: BoxFit.cover,
-                          height: 150,
                         ),
                       ),
                       Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.',
+                        'Join TheBeautyShop Community!\nCreate your free account and start exploring beauty services that come to you. Whether it\'s makeup, hair, nails, or skincare, the perfect specialist is just a tap away.',
                         style: kSubheadingStyle,
                       ),
                       const SizedBox(height: 20),

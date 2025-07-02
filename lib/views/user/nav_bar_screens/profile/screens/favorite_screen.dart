@@ -15,15 +15,26 @@ class FavoriteScreen extends StatelessWidget {
       builder: (context, sizingInformation) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            leading: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: SvgPicture.asset('assets/back icon.svg', height: 44),
-            ),
-            title: Text(
-              'Favorite',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(55),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: padding),
+              child: AppBar(
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: Colors.white,
+                leading: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                    ),
+                  ],
+                ),
+                title: Text(
+                  'Favorite',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ),
           body: Obx(() {
@@ -67,7 +78,7 @@ class FavoriteScreen extends StatelessWidget {
               );
             } else {
               return ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: padding),
+                padding: EdgeInsets.symmetric(horizontal: padding, vertical: 5),
                 itemCount: favoriteController.favorites.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {

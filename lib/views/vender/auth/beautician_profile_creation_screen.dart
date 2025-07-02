@@ -108,7 +108,7 @@ class _BeauticianProfileCreationScreenState
               children: [
                 GestureDetector(
                   onTap: () => Get.back(),
-                  child: SvgPicture.asset('assets/back icon.svg'),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                 ),
                 const SizedBox(height: 24),
 

@@ -83,21 +83,32 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Edit Service',
-          style: kHeadingStyle.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: const Text(
+              "Edit Service",
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700
+              ),
+            ),
+
           ),
         ),
-        centerTitle: true,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Get.back(),
-        ),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Form(
@@ -111,7 +122,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: kPrimaryColor,
+                  color: kPrimaryColor1,
                 ),
               ),
               SizedBox(height: 8),
@@ -324,11 +335,12 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 child: ElevatedButton(
                   onPressed: _onSave,
                   style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: kPrimaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 2,
+                    elevation: 0,
                   ),
                   child: Obx(() {
                     return servCtrl.isLoading.value
@@ -336,9 +348,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                         : Text(
                           'SAVE CHANGES',
                           style: kHeadingStyle.copyWith(
-                            fontSize: 16,
-                            // fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
                         );
                   }),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:beautician_app/utils/colors.dart'; // use your own color theme
-import 'package:beautician_app/utils/text_styles.dart'; // optional: or use TextStyle directly
+import 'package:beautician_app/utils/text_styles.dart';
+
+import '../../../../../utils/constants.dart'; // optional: or use TextStyle directly
 
 class AboutUsScreens extends StatelessWidget {
   const AboutUsScreens({super.key});
@@ -10,18 +13,31 @@ class AboutUsScreens extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: BackButton(color: Colors.black),
-        title: const Text(
-          "About Us",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.only(left: padding),
+          child: AppBar(
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: const Text(
+              "About Us",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+            ),
+          ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -122,7 +122,26 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Vendor Profile")),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: const Text("Edit Vendor Profile"),
+
+          ),
+        ),
+      ),
+      backgroundColor: Colors.white,
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())

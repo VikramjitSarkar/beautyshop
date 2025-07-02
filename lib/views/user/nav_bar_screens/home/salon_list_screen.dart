@@ -12,7 +12,6 @@ class SalonListScreen extends StatefulWidget {
   const SalonListScreen({
     super.key,
     required this.title,
-
     required this.categoryId,
   });
   final String title;
@@ -23,7 +22,7 @@ class SalonListScreen extends StatefulWidget {
 }
 
 class _SalonListScreenState extends State<SalonListScreen> {
-  final GenralController _genralController = Get.put(GenralController());
+  final GenralController _generalController = Get.put(GenralController());
   final TextEditingController _searchController = TextEditingController();
 
   // Filter states
@@ -48,11 +47,11 @@ class _SalonListScreenState extends State<SalonListScreen> {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         // Location services are not enabled, load without location
-        final result = await _genralController.fetchFilteredSubcategories(
+        final result = await _generalController.fetchFilteredSubcategories(
           categoryId: widget.categoryId,
         );
         print(result);
-        _genralController.filteredSubcategories.assignAll(result);
+        _generalController.filteredSubcategories.assignAll(result);
         return;
       }
 
@@ -62,20 +61,20 @@ class _SalonListScreenState extends State<SalonListScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           // Permissions are denied, load without location
-          final result = await _genralController.fetchFilteredSubcategories(
+          final result = await _generalController.fetchFilteredSubcategories(
             categoryId: widget.categoryId,
           );
-          _genralController.filteredSubcategories.assignAll(result);
+          _generalController.filteredSubcategories.assignAll(result);
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         // Permissions are permanently denied, load without location
-        final result = await _genralController.fetchFilteredSubcategories(
+        final result = await _generalController.fetchFilteredSubcategories(
           categoryId: widget.categoryId,
         );
-        _genralController.filteredSubcategories.assignAll(result);
+        _generalController.filteredSubcategories.assignAll(result);
         return;
       }
 
@@ -85,19 +84,19 @@ class _SalonListScreenState extends State<SalonListScreen> {
       );
 
       // Load vendors with location
-      final result = await _genralController.fetchFilteredSubcategories(
+      final result = await _generalController.fetchFilteredSubcategories(
         userLat: position.latitude.toString(),
         userLong: position.longitude.toString(),
         categoryId: widget.categoryId,
       );
       print(result);
-      _genralController.filteredSubcategories.assignAll(result);
+      _generalController.filteredSubcategories.assignAll(result);
     } catch (e) {
       // Fallback if any error occurs
-      final result = await _genralController.fetchFilteredSubcategories(
+      final result = await _generalController.fetchFilteredSubcategories(
         categoryId: widget.categoryId,
       );
-      _genralController.filteredSubcategories.assignAll(result);
+      _generalController.filteredSubcategories.assignAll(result);
       Get.snackbar('Location Error', 'Using default location: ${e.toString()}');
     }
   }
@@ -125,7 +124,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      await _genralController.fetchFilteredsSubcategories(
+      await _generalController.fetchFilteredsSubcategories(
         categoryId: widget.categoryId,
         status: onlineNow ? "online" : null,
         homeVisit:
@@ -151,115 +150,170 @@ class _SalonListScreenState extends State<SalonListScreen> {
   @override
   Widget build(BuildContext context) {
     _loadAllVendors();
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(backgroundColor: Colors.white),
-        backgroundColor: Colors.white,
-        body: Padding(
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80),
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
-          child: Column(
-            children: [
-              // Search Bar
-              TextField(
+          child: AppBar(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            titleSpacing: 0,
+            title: Container(
+              height: 50,
+              child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  prefixIcon: Image.asset('assets/search_Icon.png', scale: 4),
-                  // suffixIcon: Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  //   child: Image.asset('assets/mic.png', height: 44),
-                  // ),
-                  hintText: 'Search',
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 20,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 8),
+                    child: Image.asset('assets/search_Icon.png', scale: 4),
                   ),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  hintText: 'Search',
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                   filled: true,
                   fillColor: const Color(0xffFFFFFF),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(40),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFC0C0C0),
-                      width: 1,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFC0C0C0), width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(40),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFC0C0C0),
-                      width: 1.5,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFC0C0C0), width: 1.5),
                   ),
                 ),
                 style: const TextStyle(color: Colors.black),
                 onChanged: (value) {
                   final query = value.trim().toLowerCase();
                   if (query.isEmpty) {
-                    _loadAllVendors(); // Reset to all vendors when search is cleared
+                    _loadAllVendors();
                   } else {
-                    final filtered =
-                        _genralController.filteredSubcategories.where((vendor) {
-                          final name =
-                              (vendor['shopName'] ?? vendor['title'] ?? '')
-                                  .toString()
-                                  .toLowerCase();
-                          return name.contains(query);
-                        }).toList();
-                    _genralController.filteredSubcategories.assignAll(filtered);
+                    final filtered = _generalController.filteredSubcategories.where((vendor) {
+                      final name = (vendor['shopName'] ?? vendor['title'] ?? '')
+                          .toString()
+                          .toLowerCase();
+                      return name.contains(query);
+                    }).toList();
+                    _generalController.filteredSubcategories.assignAll(filtered);
                   }
                 },
               ),
-              const SizedBox(height: 15),
+            ),
+          ),
+        ),
+      ),
 
-              // Header and Filter Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.title,
-                    style: kHeadingStyle.copyWith(fontSize: 18),
-                  ),
-                  GestureDetector(
-                    onTap: _showFilterBottomSheet,
-                    child: Container(
-                      height: 44,
-                      width: 44,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF8F8F8),
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage('assets/filter1.png'),
-                          scale: 4,
-                        ),
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: padding),
+        child: Column(
+          children: [
+            // Search Bar
+            // TextField(
+            //   controller: _searchController,
+            //   decoration: InputDecoration(
+            //     prefixIcon: Image.asset('assets/search_Icon.png', scale: 4),
+            //     hintText: 'Search',
+            //     contentPadding: const EdgeInsets.symmetric(
+            //       vertical: 16,
+            //       horizontal: 20,
+            //     ),
+            //     filled: true,
+            //     fillColor: const Color(0xffFFFFFF),
+            //     enabledBorder: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(40),
+            //       borderSide: const BorderSide(
+            //         color: Color(0xFFC0C0C0),
+            //         width: 1,
+            //       ),
+            //     ),
+            //     focusedBorder: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(40),
+            //       borderSide: const BorderSide(
+            //         color: Color(0xFFC0C0C0),
+            //         width: 1.5,
+            //       ),
+            //     ),
+            //   ),
+            //   style: const TextStyle(color: Colors.black),
+            //   onChanged: (value) {
+            //     final query = value.trim().toLowerCase();
+            //     if (query.isEmpty) {
+            //       _loadAllVendors(); // Reset to all vendors when search is cleared
+            //     } else {
+            //       final filtered =
+            //           _genralController.filteredSubcategories.where((vendor) {
+            //             final name =
+            //                 (vendor['shopName'] ?? vendor['title'] ?? '')
+            //                     .toString()
+            //                     .toLowerCase();
+            //             return name.contains(query);
+            //           }).toList();
+            //       _genralController.filteredSubcategories.assignAll(filtered);
+            //     }
+            //   },
+            // ),
+
+            // Header and Filter Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title,
+                  style: kHeadingStyle.copyWith(fontSize: 18),
+                ),
+                GestureDetector(
+                  onTap: _showFilterBottomSheet,
+                  child: Container(
+                    height: 44,
+                    width: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xffF8F8F8),
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/filter1.png'),
+                        scale: 4,
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 15),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
 
-              // Salon List
-              Expanded(
-                child: Obx(() {
-                  if (_genralController.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+            // Salon List
+            Expanded(
+              child: Obx(() {
+                if (_generalController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  if (_genralController.filteredSubcategories.isEmpty) {
-                    return const Center(child: Text("No salons found"));
-                  }
+                if (_generalController.filteredSubcategories.isEmpty) {
+                  return const Center(child: Text("No salons found"));
+                }
 
-                  return ListView.builder(
-                    itemCount: _genralController.filteredSubcategories.length,
-                    itemBuilder: (context, index) {
-                      final vendor =
-                          _genralController.filteredSubcategories[index];
-                      return _buildSalonCard(vendor);
-                    },
-                  );
-                }),
-              ),
-            ],
-          ),
+                return ListView.builder(
+                  itemCount: _generalController.filteredSubcategories.length,
+                  itemBuilder: (context, index) {
+                    final vendor =
+                        _generalController.filteredSubcategories[index];
+                    return _buildSalonCard(vendor);
+                  },
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
@@ -279,7 +333,10 @@ class _SalonListScreenState extends State<SalonListScreen> {
               height: 120,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.grey[200],
+                color: Colors.white,
+                border: vendor['shopBanner'] != null &&
+                    vendor['shopBanner'].toString().isNotEmpty? null : Border.all(color: Colors.lightGreen, width: 0.5),
+
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
@@ -291,9 +348,19 @@ class _SalonListScreenState extends State<SalonListScreen> {
                           fit: BoxFit.cover,
                           errorBuilder:
                               (context, error, stackTrace) =>
-                                  const Icon(Icons.broken_image, size: 50),
+                                  Image.asset(
+                                    'assets/app icon 2.png',
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
                         )
-                        : const Icon(Icons.image_not_supported, size: 50),
+                        : Image.asset(
+                      'assets/app icon 2.png',
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
               ),
             ),
             const SizedBox(width: 8),

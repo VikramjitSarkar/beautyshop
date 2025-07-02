@@ -90,6 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               headerSliverBuilder:
                   (context, innerBoxIsScrolled) => [
                     SliverAppBar(
+                      surfaceTintColor: Colors.transparent,
                       pinned: true,
                       expandedHeight: 390,
                       automaticallyImplyLeading: false,

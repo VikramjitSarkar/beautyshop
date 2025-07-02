@@ -104,7 +104,7 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
                       await serviceController.fetchServices();
                       Get.back();
                     },
-                    child: SvgPicture.asset('assets/back icon.svg'),
+                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                   ),
                   const Spacer(),
                   TextButton(

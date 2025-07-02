@@ -239,22 +239,30 @@ class _FaqScreenState extends State<FaqScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: SvgPicture.asset('assets/back icon.svg', height: 30),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+            title: Text(
+              'FAQs',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
           ),
-        ),
-        title: Text(
-          'FAQs',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 20),
+        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 15),
         child: Column(
           children: [
             TextField(

@@ -65,7 +65,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: padding),
+              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
               child: Column(
                 children: [
                   _buildSearchField(),
@@ -150,6 +150,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       }
 
       return TabBar(
+        tabAlignment: TabAlignment.start,
         controller: _tabController,
         isScrollable: true,
         indicatorColor: kPrimaryColor,

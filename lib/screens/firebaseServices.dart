@@ -70,6 +70,7 @@ class FirebaseService {
     // Get and print FCM token
     String? token = await _firebaseMessaging.getToken();
     debugPrint('FCM Token: $token');
+    print("FCM TOKEN : $token");
     if (token != null) await sendToken(token);
 
     // Foreground message handler

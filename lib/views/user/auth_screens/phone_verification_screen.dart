@@ -41,16 +41,23 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Row(
-          children: [
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: SvgPicture.asset('assets/back icon.svg'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
             ),
-          ],
+            // centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+          ),
         ),
       ),
       body: Padding(

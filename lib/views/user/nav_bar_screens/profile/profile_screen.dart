@@ -179,25 +179,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.phone),
+                                  Icon(Icons.phone, size: 20,),
                                   Text('Verified Phone'),
                                 ],
                               ),
                               Icon(Icons.verified),
                             ],
                           )
-                          : _buildSettingsTile(
-                            'Add Phone Number',
-                            'assets/phone_outline.png',
-                            () => Get.to(() => PhoneNumberInputScreen()),
-                          ),
+                          : ListTile(
+                        // leading: Image.asset(iconPath, height: 24),
+                        title: Text("Add Phone Number"),
+                        leading: Icon(Icons.phone, size: 20,),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        contentPadding: EdgeInsets.zero,
+                        onTap: ()=> Get.to(()=> PhoneNumberInputScreen()),
+                      ),
                       const SizedBox(height: 5),
-                      // _buildSettingsTile(
-                      //   'Invite Friends',
-                      //   'assets/Invites Friends.png',
-                      //   () => Get.to(() => InviteFriendsScreen()),
-                      // ),
-                      // const SizedBox(height: 5),
                       _buildSettingsTile(
                         'FAQs',
                         'assets/FAQs.png',

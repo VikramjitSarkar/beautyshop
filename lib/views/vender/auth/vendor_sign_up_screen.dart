@@ -29,6 +29,21 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
       builder: (context, sizingInformation) {
         return Scaffold(
           backgroundColor: Colors.white,
+          // appBar: PreferredSize(
+          //   preferredSize: Size.fromHeight(55),
+          //   child: Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: padding),
+          //     child: AppBar(
+          //       surfaceTintColor: Colors.transparent,
+          //       backgroundColor: Colors.white,
+          //       leading: Row(
+          //         children: [
+          //
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -36,21 +51,18 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () => Get.back(),
-                            child: SvgPicture.asset('assets/back icon.svg'),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: () => Get.back(),
+                        child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                       ),
-                      const SizedBox(height: 10),
-                      Image.asset('assets/app icon 2.png'),
-                      const SizedBox(height: 8),
+                      Center(child: Image.asset('assets/app icon 2.png')),
+                      Text(
+                          'Become a Beauty Expert on TheBeautyShop!\nList your services, showcase your work, and grow your client base with our smart, location-based platform. Flexible plans, instant bookings, and full control at your fingertips.',
+                          style: kSubheadingStyle
+                      ),
+                      SizedBox(height: 10,),
 
                       // Name Field (optional if not needed)
                       CustomTextField(
@@ -163,7 +175,7 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                         icon: 'apple',
                       ),
 
-                      const SizedBox(height: 57),
+                      const SizedBox(height: 25),
 
                       // Already have account
                       Row(
@@ -183,6 +195,7 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                           ),
                         ],
                       ),
+
                     ],
                   ),
                 ),

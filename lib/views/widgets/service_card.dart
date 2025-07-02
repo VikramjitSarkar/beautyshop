@@ -20,9 +20,9 @@ class ServicesCard extends StatelessWidget {
     print('categoryId :');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 15),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
@@ -33,8 +33,13 @@ class ServicesCard extends StatelessWidget {
                 () => SalonListScreen(title: title, categoryId: categoryId),
               );
             },
-            child: SizedBox(
-              height: 40,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Color(0xffC0C0C0), width: 1)
+              ),
+              height: 50,
               child: Image.asset(image, fit: BoxFit.cover),
             ),
           ),
@@ -47,7 +52,7 @@ class ServicesCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11.5,
+                fontSize: 9,
               ), // slightly smaller for tight fit
             ),
           ),

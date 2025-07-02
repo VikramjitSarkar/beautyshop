@@ -31,7 +31,7 @@ class _FreeAndPaidListingServicesScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: SvgPicture.asset('assets/back icon.svg'),
+                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                   ),
                   SizedBox(width: 10),
                 ],

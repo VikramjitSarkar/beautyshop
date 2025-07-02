@@ -12,3 +12,7 @@ TextStyle kHeadingStyle = TextStyle(
   color: kBlackColor,
   fontWeight: FontWeight.bold
 );
+
+
+
+String emptyPic = 'assets/app icon 2.png';

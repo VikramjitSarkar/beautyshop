@@ -117,6 +117,7 @@ class _ServicesTabScreenState extends State<ServicesTabScreen> {
                           fontSize: 12,
                           color: Colors.grey,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       Text(
                         service['subcategoryId']['name']
@@ -127,6 +128,7 @@ class _ServicesTabScreenState extends State<ServicesTabScreen> {
                           fontSize: 12,
                           color: Colors.grey,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 4),
                       GestureDetector(

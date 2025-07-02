@@ -6,6 +6,8 @@ import 'package:beautician_app/views/user/nav_bar_screens/profile/profile_screen
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
 
+import 'nav_bar_screens/profile/screens/about_us_screen.dart';
+
 class CustomNavBar extends StatefulWidget {
   const CustomNavBar({super.key});
 
@@ -125,18 +127,45 @@ class _CustomNavBarState extends State<CustomNavBar> {
             body:
                 (_selectedIndex == 4 && GlobalsVariables.token == null)
                     ? Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Get.to(() => UserVendorScreen());
-                        },
-                        child: Text(
-                          'Please click to login',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+                        child: Column(
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/app icon 2.png'),
+                            GestureDetector(
+                              onTap: ()=> Get.to(()=> UserVendorScreen()),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  borderRadius: BorderRadius.circular(12),
+
+                                ),
+                                child: Text(
+                                  "LOGIN/SIGNUP",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800
+                                  ),
+
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10,),
+
+                            _buildSettingsTile(
+                              'FAQs',
+                              'assets/FAQs.png',
+                                  () => Get.to(() => const FaqScreen()),
+                            ),
+                            _buildSettingsTile('About Us', 'assets/About Us.png', () {
+                              Get.to(() => AboutUsScreens());
+                            }),
+                                          ],
+                                        ),
                       ),
                     )
                     : _pages[_selectedIndex],
@@ -170,6 +199,16 @@ class _CustomNavBarState extends State<CustomNavBar> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSettingsTile(String title, String iconPath, VoidCallback onTap) {
+    return ListTile(
+      leading: Image.asset(iconPath, height: 24),
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      contentPadding: EdgeInsets.zero,
+      onTap: onTap,
     );
   }
 }

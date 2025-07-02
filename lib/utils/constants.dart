@@ -1,5 +1,6 @@
 
 double padding = 20;
+double padding2 = 15;
 
 
 List<String> images = [

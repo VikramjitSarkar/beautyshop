@@ -42,9 +42,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: SvgPicture.asset('assets/back icon.svg'),
+                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                   ),
-                  const SizedBox(width: 10),
                   TextButton(
                     onPressed: () => Get.to(() => BottomNavBarScreen()),
                     child: Text('Skip', style: kSubheadingStyle),
@@ -81,7 +80,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           height: 100,
                           width: 100,
                           decoration: BoxDecoration(
-                            border: Border.all(color: kPrimaryColor),
+                            border: Border.all(color: kPrimaryColor1),
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: const Icon(Icons.add),

@@ -32,13 +32,21 @@ class _SignInScreenState extends State<SignInScreen> {
           appBar:
               isDesktop
                   ? null
-                  : AppBar(
-                    backgroundColor: Colors.white,
-                    leading: Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: GestureDetector(
-                        onTap: () => Get.back(),
-                        child: SvgPicture.asset('assets/back icon.svg'),
+                  : PreferredSize(
+                preferredSize: Size.fromHeight(55),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: padding),
+                      child: AppBar(
+                        surfaceTintColor: Colors.transparent,
+                        backgroundColor: Colors.white,
+                        leading: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => Get.back(),
+                              child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -64,10 +72,10 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
                       ),
-                    Image.asset('assets/app icon 2.png'),
+                    Center(child: Image.asset('assets/app icon 2.png')),
                     Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.',
-                      style: kSubheadingStyle,
+                      'Welcome Back to TheBeautyShop!\nDiscover top beauty specialists near you. Log in to book your favorite services, chat with experts, and manage your appointments effortlessly.',
+                      style: kSubheadingStyle
                     ),
                     SizedBox(height: 20),
                     CustomTextField(

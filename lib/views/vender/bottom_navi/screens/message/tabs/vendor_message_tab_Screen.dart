@@ -35,7 +35,7 @@ class _VendorMessageTabScreenState extends State<VendorMessageTabScreen> {
 
       return ListView.builder(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 10),
         itemCount: chatController.vendorChats.length,
         itemBuilder: (context, index) {
           final chat = chatController.vendorChats[index];
