@@ -47,6 +47,21 @@ class UserVendorScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Positioned(
+              top: 20,
+              left: 20,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
