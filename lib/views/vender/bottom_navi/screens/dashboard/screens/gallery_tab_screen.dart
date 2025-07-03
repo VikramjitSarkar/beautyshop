@@ -44,7 +44,7 @@ class GalleryTabScreen extends StatelessWidget {
                     isEnabled: !galleryCtrl.isLoading.value,
                     onPressed: () {
                       if (dashCtl.listing.value == 'paid') {
-                        galleryCtrl.pickGalleryMedia();
+                        galleryCtrl.pickGalleryMedia(context);
                       } else {
                         showPremiumFeatureDialog(context);
                       }

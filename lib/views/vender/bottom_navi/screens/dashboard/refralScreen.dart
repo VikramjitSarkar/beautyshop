@@ -50,7 +50,7 @@ class ReferralCodeScreen extends StatelessWidget {
                     ? null
                     : () async {
                   await controller.submitReferralCode();
-                  Get.to(()=>BottomNavBarScreen());
+                  Get.to(()=>VendorBottomNavBarScreen());
                 },
               )),
             ],

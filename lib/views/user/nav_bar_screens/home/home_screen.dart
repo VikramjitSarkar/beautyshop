@@ -6,6 +6,7 @@ import 'package:beautician_app/models/SalonCategoryModel.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/views/onboarding/user_vender_screen.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/home/salon_list_screen.dart';
+import 'package:beautician_app/views/user/nav_bar_screens/profile/profile_screen.dart';
 import 'package:beautician_app/views/widgets/saloon_card_three.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
@@ -24,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   String greetings = "";
-
+  String asset = "";
 
 
 
@@ -33,10 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final hour = now.hour;
 
     if (hour >= 5 && hour < 12) {
+      asset = "sun";
       return "Good morning";
     } else if (hour >= 12 && hour < 18) {
+      asset = "sun";
       return "Good afternoon";
     } else {
+      asset = "evening1";
       return "Good evening";
     }
   }
@@ -63,16 +67,19 @@ class _HomeScreenState extends State<HomeScreen> {
         if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(160),
-              child: CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
-            ),
+            // appBar: PreferredSize(
+            //   preferredSize: Size.fromHeight(160),
+            //   child: CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
+            // ),
+
+
             body: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomAppBar(title: 'My Custom AppBar',),
                     SizedBox(height: 20),
                     SizedBox(
                       height: 100,
@@ -213,6 +220,82 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         //mobile responsive screen code
         return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(55),
+            child: AppBar(
+              surfaceTintColor: Colors.transparent,
+              backgroundColor: Colors.white,
+              automaticallyImplyLeading: false,
+              title: Row(
+                children: [
+                  Image.asset("assets/$asset.png", height: 30, width: 30,),
+                  SizedBox(width: 5,),
+                  Text(
+                    "$greetings,",
+                    style: kHeadingStyle.copyWith(fontSize: 20),
+                  ),
+                ],
+              ),
+              actions: [
+
+                GestureDetector(
+                  onTap: () {
+                    if (GlobalsVariables.token == null) {
+                      Get.to(() => UserVendorScreen());
+                    } else {
+                      Get.to(() => NotificationsScreen());
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      GlobalsVariables.token == null
+                          ? SizedBox()
+                          : Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color(0xffC0C0C0),
+                          ),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/notification.svg',
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: kGreyColor2),
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  child: GestureDetector(
+                    onTap: ()=> Get.to(()=> ProfileScreen()),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset('assets/menu.svg'),
+                        SizedBox(width: 5,),
+                        Text(
+                          "menu",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: kGreyColor2
+                          ),
+
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15,)
+              ],
+
+            ),
+          ),
           backgroundColor: Colors.white,
           body: SafeArea(
             child: SingleChildScrollView(
@@ -221,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
+                    CustomAppBar(title: 'My Custom AppBar',),
 
                     SizedBox(
                       height: 130,

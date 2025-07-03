@@ -141,7 +141,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
   void _navigateToCustomNavBar() {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
-        Get.offAll(() => CustomNavBar());
+        Get.offAll(() => CustomerBottomNavBarScreen());
         // If using a direct widget instead:
         // Get.offAll(() => CustomNavBar());
       }
@@ -285,7 +285,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       GestureDetector(
         onTap: () async {
           await PendingBookingController().rejectBooking(widget.bookingId);
-          Get.offAll(() => BottomNavBarScreen());
+          Get.offAll(() => VendorBottomNavBarScreen());
         },
         child: SizedBox(
           width: double.infinity,
@@ -327,7 +327,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       onConfirm: () async {
         Get.back(); // Close dialog
         await PendingBookingController().rejectBooking(widget.bookingId);
-        Get.offAll(() => CustomNavBar());
+        Get.offAll(() => CustomerBottomNavBarScreen());
       },
       onCancel: () {}, // Do nothing
     );

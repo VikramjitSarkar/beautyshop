@@ -1193,7 +1193,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     setState(() {
                       activeStep = 1;
                     });
-                    await Get.offAll(() => CustomNavBar());
+                    await Get.offAll(() => CustomerBottomNavBarScreen());
                   }
                 }
               },

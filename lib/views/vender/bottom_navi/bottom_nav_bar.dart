@@ -5,14 +5,14 @@ import 'package:beautician_app/views/vender/bottom_navi/screens/message/vendor_m
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
 
-class BottomNavBarScreen extends StatefulWidget {
-  const BottomNavBarScreen({super.key});
+class VendorBottomNavBarScreen extends StatefulWidget {
+  const VendorBottomNavBarScreen({super.key});
 
   @override
-  _BottomNavBarScreenState createState() => _BottomNavBarScreenState();
+  _VendorBottomNavBarScreenState createState() => _VendorBottomNavBarScreenState();
 }
 
-class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
+class _VendorBottomNavBarScreenState extends State<VendorBottomNavBarScreen> {
   int _selectedIndex = 0;
 
   final List<String> _icons = [

@@ -64,159 +64,13 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GetX<CategoryController>(
-            builder: (controller) {
-              final services = controller.vendorServices;
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(vertical: 10),
-                itemCount: services.length,
-                itemBuilder: (context, idx) {
-                  final service = services[idx];
-                  final cat = service['categoryId'];
-                  bool isSel = selectedServices.containsKey(idx);
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Container(
-                      height: 54,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        // border: isSel ? Border.all(color: kPrimaryColor) : null,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                cat['name'],
-                                style: kHeadingStyle.copyWith(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 10,),
-                              Text(
-                                service['subcategoryId']['name'],
-                                style: kSubheadingStyle.copyWith(
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Text(
-                            "\$${(selectedPrices[idx] ?? double.tryParse(service['charges']) ?? 0).toString().replaceAll(RegExp(r"\.0+$"), "")}",
-                            style: kSubheadingStyle.copyWith(
-                              fontSize: 14,
-                            ),
-                          ),
-
-
-                          SizedBox(width: 10,),
-
-                          GestureDetector(
-                            onTap: (){
-                              setState(() {
-                                print("hello");
-                                isSel = !isSel;
-
-                                if (isSel) {
-                                  // Store the service _id instead of subcategory id
-                                  selectedServices[idx] =
-                                  service['_id'];
-                                  selectedPrices[idx] =
-                                      double.tryParse(service['charges']) ??
-                                          0.0;
-                                } else {
-                                  selectedServices.remove(idx);
-                                  selectedPrices.remove(idx);
-                                }
-                              });
-                            },
-                            child: Container(
-                              width: 20,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color:
-                                isSel
-                                    ? kPrimaryColor1.withOpacity(0.8)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color:
-                                  isSel
-                                      ? kPrimaryColor1
-                                      : Colors.grey,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                              child:
-                              isSel
-                                  ? Icon(
-                                Icons.check,
-                                size: 16,
-                                color: kPrimaryColor,
-                              )
-                                  : null,
-                            ),
-                          ),
-                          // Column(
-                          //   // mainAxisAlignment: MainAxisAlignment.center,
-                          //   crossAxisAlignment: CrossAxisAlignment.end,
-                          //   children: [
-                          //
-                          //
-                          //     // if (isSel) ...[
-                          //     //   Text(
-                          //     //     "\$${selectedPrices[idx]?.toStringAsFixed(2) ?? service['charges']}",
-                          //     //     style: kSubheadingStyle.copyWith(
-                          //     //       fontSize: 12,
-                          //     //     ),
-                          //     //   ),
-                          //     //   Text(
-                          //     //     service['subcategoryId']['name'],
-                          //     //     style: kSubheadingStyle.copyWith(
-                          //     //       fontSize: 12,
-                          //     //     ),
-                          //     //   ),
-                          //     // ] else
-                          //     //   GestureDetector(
-                          //     //     onTap: () {
-                          //     //       showCustomBottomSheet(
-                          //     //         context,
-                          //     //         idx,
-                          //     //         service,
-                          //     //       );
-                          //     //     },
-                          //     //     child: Padding(
-                          //     //       padding: const EdgeInsets.only(right: 10.0),
-                          //     //       child: Text('View'),
-                          //     //     ),
-                          //     //   ),
-                          //   ],
-                          // ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-
-          // Book Buttons
-          Row(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+        child: Container(
+          color: Colors.white,
+          child: Row(
             children: [
               Expanded(
                 child: CustomButton(
@@ -227,39 +81,35 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                     print(selected);
                     if (selected.isNotEmpty) {
                       final serviceIds =
-                          selected.map((s) => s['serviceId']).toList();
+                      selected.map((s) => s['serviceId']).toList();
                       Get.to(
-                        () =>
-                            GlobalsVariables.token != null
-                                ? BookAppointmentScreen(
-                                  services:
-                                      selected
-                                          .toList(), // Pass the selected services with _ids
-                                  vendorId: widget.vendorId,
-                                )
-                                : UserVendorScreen(),
+                            () => GlobalsVariables.token != null
+                            ? BookAppointmentScreen(
+                          services: selected.toList(),
+                          vendorId: widget.vendorId,
+                        )
+                            : UserVendorScreen(),
                       );
                     }
                   },
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: CustomButton(
-                  title: "Book now",
+                  title: "Book Now",
                   isEnabled:
-                      selectedServices.isNotEmpty && widget.status == 'online',
+                  selectedServices.isNotEmpty && widget.status == 'online',
                   onPressed: () {
                     final selected = getSelectedServices();
                     if (selected.isNotEmpty && widget.status == 'online') {
                       Get.to(
-                        () =>
-                            GlobalsVariables.token != null
-                                ? BookAppointmentScreen(
-                                  services: selected.toList(),
-                                  vendorId: widget.vendorId,
-                                )
-                                : UserVendorScreen(),
+                            () => GlobalsVariables.token != null
+                            ? BookAppointmentScreen(
+                          services: selected.toList(),
+                          vendorId: widget.vendorId,
+                        )
+                            : UserVendorScreen(),
                       );
                     }
                   },
@@ -267,7 +117,215 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
               ),
             ],
           ),
-        ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GetX<CategoryController>(
+                builder: (controller) {
+                  final services = controller.vendorServices;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    itemCount: services.length,
+                    itemBuilder: (context, idx) {
+                      final service = services[idx];
+                      final cat = service['categoryId'];
+                      bool isSel = selectedServices.containsKey(idx);
+        
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Container(
+                          height: 54,
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            // border: isSel ? Border.all(color: kPrimaryColor) : null,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    cat['name'],
+                                    style: kHeadingStyle.copyWith(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10,),
+                                  Text(
+                                    service['subcategoryId']['name'],
+                                    style: kSubheadingStyle.copyWith(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              Text(
+                                "\$${(selectedPrices[idx] ?? double.tryParse(service['charges']) ?? 0).toString().replaceAll(RegExp(r"\.0+$"), "")}",
+                                style: kSubheadingStyle.copyWith(
+                                  fontSize: 14,
+                                ),
+                              ),
+        
+        
+                              SizedBox(width: 10,),
+        
+                              GestureDetector(
+                                onTap: (){
+                                  setState(() {
+                                    print("hello");
+                                    isSel = !isSel;
+        
+                                    if (isSel) {
+                                      // Store the service _id instead of subcategory id
+                                      selectedServices[idx] =
+                                      service['_id'];
+                                      selectedPrices[idx] =
+                                          double.tryParse(service['charges']) ??
+                                              0.0;
+                                    } else {
+                                      selectedServices.remove(idx);
+                                      selectedPrices.remove(idx);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color:
+                                    isSel
+                                        ? kPrimaryColor1.withOpacity(0.8)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                      color:
+                                      isSel
+                                          ? kPrimaryColor1
+                                          : Colors.grey,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child:
+                                  isSel
+                                      ? Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: kPrimaryColor,
+                                  )
+                                      : null,
+                                ),
+                              ),
+                              // Column(
+                              //   // mainAxisAlignment: MainAxisAlignment.center,
+                              //   crossAxisAlignment: CrossAxisAlignment.end,
+                              //   children: [
+                              //
+                              //
+                              //     // if (isSel) ...[
+                              //     //   Text(
+                              //     //     "\$${selectedPrices[idx]?.toStringAsFixed(2) ?? service['charges']}",
+                              //     //     style: kSubheadingStyle.copyWith(
+                              //     //       fontSize: 12,
+                              //     //     ),
+                              //     //   ),
+                              //     //   Text(
+                              //     //     service['subcategoryId']['name'],
+                              //     //     style: kSubheadingStyle.copyWith(
+                              //     //       fontSize: 12,
+                              //     //     ),
+                              //     //   ),
+                              //     // ] else
+                              //     //   GestureDetector(
+                              //     //     onTap: () {
+                              //     //       showCustomBottomSheet(
+                              //     //         context,
+                              //     //         idx,
+                              //     //         service,
+                              //     //       );
+                              //     //     },
+                              //     //     child: Padding(
+                              //     //       padding: const EdgeInsets.only(right: 10.0),
+                              //     //       child: Text('View'),
+                              //     //     ),
+                              //     //   ),
+                              //   ],
+                              // ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+        
+              // Book Buttons
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: CustomButton(
+              //         title: "Book Later",
+              //         isEnabled: selectedServices.isNotEmpty,
+              //         onPressed: () {
+              //           final selected = getSelectedServices();
+              //           print(selected);
+              //           if (selected.isNotEmpty) {
+              //             final serviceIds =
+              //                 selected.map((s) => s['serviceId']).toList();
+              //             Get.to(
+              //               () =>
+              //                   GlobalsVariables.token != null
+              //                       ? BookAppointmentScreen(
+              //                         services:
+              //                             selected
+              //                                 .toList(), // Pass the selected services with _ids
+              //                         vendorId: widget.vendorId,
+              //                       )
+              //                       : UserVendorScreen(),
+              //             );
+              //           }
+              //         },
+              //       ),
+              //     ),
+              //     SizedBox(width: 10),
+              //     Expanded(
+              //       child: CustomButton(
+              //         title: "Book now",
+              //         isEnabled:
+              //             selectedServices.isNotEmpty && widget.status == 'online',
+              //         onPressed: () {
+              //           final selected = getSelectedServices();
+              //           if (selected.isNotEmpty && widget.status == 'online') {
+              //             Get.to(
+              //               () =>
+              //                   GlobalsVariables.token != null
+              //                       ? BookAppointmentScreen(
+              //                         services: selected.toList(),
+              //                         vendorId: widget.vendorId,
+              //                       )
+              //                       : UserVendorScreen(),
+              //             );
+              //           }
+              //         },
+              //       ),
+              //     ),
+              //   ],
+              // ),
+            ],
+          ),
+        ),
       ),
     );
   }

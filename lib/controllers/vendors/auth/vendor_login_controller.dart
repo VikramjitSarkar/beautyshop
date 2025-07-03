@@ -79,7 +79,7 @@ class VendorLoginController extends GetxController {
 
           // 3. now navigate
           Get.snackbar('Success', 'Login successful!');
-          Get.offAll(() => BottomNavBarScreen());
+          Get.offAll(() => VendorBottomNavBarScreen());
         } else {
           Get.snackbar('Error', 'Token not found in response');
         }

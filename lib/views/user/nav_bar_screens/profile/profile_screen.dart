@@ -210,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'assets/Log out.png',
                         () async {
                           await GlobalsVariables.clearAllTokens();
-                          Get.offAll(() => UserVendorScreen());
+                          Get.offAll(() => SplashScreen());
                         },
                       ),
                     ],

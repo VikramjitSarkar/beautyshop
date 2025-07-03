@@ -146,7 +146,7 @@ class _ShowPlanForMonthlyOrYearScreenState
                     "Printing Data: ${selectedPlan!.price} Selected plan ID is ${selectedPlan!.id}",
                   );
                   await _controller.updateListingPlan('paid');
-                  Get.to(() => BottomNavBarScreen());
+                  Get.to(() => VendorBottomNavBarScreen());
                 },
               ),
               const SizedBox(height: 20),

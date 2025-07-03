@@ -31,16 +31,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // 2. Check for vendor login
     if (GlobalsVariables.vendorLoginToken != null) {
-      return BottomNavBarScreen();
+      return VendorBottomNavBarScreen();
     }
 
     // 3. Check for regular user login
     if (GlobalsVariables.token != null || GlobalsVariables.userId != null) {
-      return CustomNavBar();
+      return CustomerBottomNavBarScreen();
     }
 
     // 4. Default fallback (should probably be a login screen)
-    return CustomNavBar(); // Or LoginScreen
+    return CustomerBottomNavBarScreen(); // Or LoginScreen
   }
 
   @override

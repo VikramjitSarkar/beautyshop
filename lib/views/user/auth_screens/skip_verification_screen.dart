@@ -37,7 +37,7 @@ class _SkipPhoneNumberVerificationScreenState
                 onPressed: () {
                   // Handle skip action
                   print('Skipped phone verification');
-                  Get.to(() => CustomNavBar());
+                  Get.to(() => CustomerBottomNavBarScreen());
                 },
                 child: Text(
                   'Skip',

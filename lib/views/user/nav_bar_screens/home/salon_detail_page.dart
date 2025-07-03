@@ -74,6 +74,7 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
             headerSliverBuilder:
                 (context, innerBoxIsScrolled) => [
                   SliverAppBar(
+                    surfaceTintColor: Colors.transparent,
                     pinned: true,
                     expandedHeight: 380,
                     automaticallyImplyLeading: false,
@@ -97,7 +98,7 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                   ),
                 ],
             body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: padding),
+              padding: EdgeInsets.all(8.0),
               child: Column(
                 children: [
                   /// ✅ TabBar
@@ -122,12 +123,14 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                       physics: const BouncingScrollPhysics(),
                       children: [
                         buildScrollView(
-                          SalonAboutCard(phonenumber: widget.phoneNumber,
-                            des: widget.desc,
-                            location: widget.locaion,
-                            openingTime: widget.openingTime,
-                            title: widget.title,
-                            vendorId: widget.vendorId,
+                          SingleChildScrollView(
+                            child: SalonAboutCard(phonenumber: widget.phoneNumber,
+                              des: widget.desc,
+                              location: widget.locaion,
+                              openingTime: widget.openingTime,
+                              title: widget.title,
+                              vendorId: widget.vendorId,
+                            ),
                           ),
                         ),
                         buildScrollView(
@@ -136,9 +139,9 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                               : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,),
                         ),
                         buildScrollView(
-                          SalonGalleryCard(galleryMedia: widget.galleryImage),
+                          SingleChildScrollView(child: SalonGalleryCard(galleryMedia: widget.galleryImage)),
                         ),
-                        SalonReviewCard(vendorId: widget.vendorId),
+                        SingleChildScrollView(child: SalonReviewCard(vendorId: widget.vendorId)),
                       ],
                     ),
                   ),
@@ -152,9 +155,6 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
   }
 
   Widget buildScrollView(Widget child) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: child,
-    );
+    return child;
   }
 }

@@ -8,14 +8,14 @@ import 'package:beautician_app/utils/libs.dart';
 
 import 'nav_bar_screens/profile/screens/about_us_screen.dart';
 
-class CustomNavBar extends StatefulWidget {
-  const CustomNavBar({super.key});
+class CustomerBottomNavBarScreen extends StatefulWidget {
+  const CustomerBottomNavBarScreen({super.key});
 
   @override
-  _CustomNavBarState createState() => _CustomNavBarState();
+  _CustomerBottomNavBarScreenState createState() => _CustomerBottomNavBarScreenState();
 }
 
-class _CustomNavBarState extends State<CustomNavBar> {
+class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen> {
   int _selectedIndex = 0;
 
   final List<String> _icons = [

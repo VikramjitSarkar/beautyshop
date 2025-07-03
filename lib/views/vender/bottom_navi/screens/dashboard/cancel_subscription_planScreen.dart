@@ -195,7 +195,7 @@ class _CancelShowPlanForMonthlyOrYearScreenState
                           "Success",
                           "Subscription cancelled successfully",
                         );
-                        Get.offAll(() => BottomNavBarScreen());
+                        Get.offAll(() => VendorBottomNavBarScreen());
                       },
                     );
               }),

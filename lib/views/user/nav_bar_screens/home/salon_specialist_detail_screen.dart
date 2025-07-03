@@ -28,7 +28,7 @@ class _SalonSpecialistDetailScreenState
   final ChatRoomCreateController chatRoomCreateController = Get.put(
     ChatRoomCreateController(),
   );
-  final GenralController genralController = Get.put(GenralController());
+  final GenralController generalController = Get.put(GenralController());
   final HomeController homeController = Get.put(HomeController());
   final UserReviewController controller = Get.put(UserReviewController());
 
@@ -37,7 +37,7 @@ class _SalonSpecialistDetailScreenState
     super.initState();
     controller.fetchUserReviews(widget.vendorId);
     homeController.fetchVendorById(widget.vendorId);
-    genralController.checkFavoriteStatus(widget.vendorId);
+    generalController.checkFavoriteStatus(widget.vendorId);
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -68,10 +68,12 @@ class _SalonSpecialistDetailScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: Obx(() {
         final vendor = homeController.vendorData;
+        print("here is the vendor data: $vendor");
         final userRevew = controller.reviews;
         final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
         final profileImage =
@@ -83,6 +85,7 @@ class _SalonSpecialistDetailScreenState
         final vendorId = vendor['_id'];
         final phoneNumber = vendor['phone']?.toString() ?? '';
         final galleyImages = vendor['gallery'] is List ? vendor['gallery'] : [];
+        print("gallery image: $galleyImages");
         final listing = vendor['listingPlan']?.toString() ?? '';
         final isVerified = vendor['isIDVerified'] ?? false;
         final isCertified = vendor['isCertificateVerified'] ?? false;
@@ -181,17 +184,17 @@ class _SalonSpecialistDetailScreenState
                                   if (GlobalsVariables.token == null) {
                                     Get.to(() => UserVendorScreen());
                                   } else {
-                                    genralController.toggleFavorite(
+                                    generalController.toggleFavorite(
                                       widget.vendorId,
                                     );
                                   }
                                 },
                                 child: Icon(
-                                  genralController.isFavorite.value
+                                  generalController.isFavorite.value
                                       ? Icons.favorite
                                       : Icons.favorite_border,
                                   color:
-                                      genralController.isFavorite.value
+                                      generalController.isFavorite.value
                                           ? Colors.red
                                           : Colors.grey,
                                   size: 28,

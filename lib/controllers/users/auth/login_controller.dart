@@ -76,7 +76,7 @@ class LoginController extends GetxController {
         Get.put(HomeController());
         Get.put(UserProfileController());
         // ✅ Navigate to home
-        Get.offAll(() => CustomNavBar());
+        Get.offAll(() => CustomerBottomNavBarScreen());
       } else {
         final body = response.body.trim();
         if (body.isNotEmpty && body.startsWith('{')) {

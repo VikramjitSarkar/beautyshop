@@ -45,7 +45,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     child: SvgPicture.asset('assets/back icon.svg', height: 50,),
                   ),
                   TextButton(
-                    onPressed: () => Get.to(() => BottomNavBarScreen()),
+                    onPressed: () => Get.to(() => VendorBottomNavBarScreen()),
                     child: Text('Skip', style: kSubheadingStyle),
                   ),
                 ],
@@ -206,7 +206,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 title: 'Continue',
                 onPressed: () {
                   dashCtl.listing.value == 'free'
-                      ? Get.offAll(() => BottomNavBarScreen())
+                      ? Get.offAll(() => VendorBottomNavBarScreen())
                       : Get.to(() => ShowPlanForMonthlyOrYearScreen());
                 },
               ),

@@ -43,7 +43,7 @@ class _VendorActivationScreenState extends State<VendorActivationScreen> {
       print('Received message: $title');
       if (title == 'Booking Cancelled') {
         Get.snackbar('Booking Cancelled', 'The booking has been cancelled.');
-        Get.offAll(() => BottomNavBarScreen());
+        Get.offAll(() => VendorBottomNavBarScreen());
       }
     });
   }
@@ -79,7 +79,7 @@ class _VendorActivationScreenState extends State<VendorActivationScreen> {
           setState(() => _isLoading = false);
           if (response is Map && response['status'] == 'success') {
             setState(() => _isCompleted = true);
-            Get.offAll(() => BottomNavBarScreen());
+            Get.offAll(() => VendorBottomNavBarScreen());
           } else {
             final err = response['message'] ?? 'Socket error';
             Get.snackbar('Error', err.toString());
@@ -199,7 +199,7 @@ class _VendorActivationScreenState extends State<VendorActivationScreen> {
       onConfirm: () async {
         Get.back(); // Close dialog
         await PendingBookingController().rejectBooking(widget.bookingId);
-        Get.offAll(() => BottomNavBarScreen());
+        Get.offAll(() => VendorBottomNavBarScreen());
       },
       onCancel: () {}, // Do nothing
     );

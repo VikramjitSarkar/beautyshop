@@ -17,21 +17,26 @@ class GalleryController extends GetxController {
   final isLoading = false.obs;
   final DashBoardController dashCtl = Get.put(DashBoardController());
 
-  Future<void> pickGalleryMedia() async {
+  Future<void> pickGalleryMedia(BuildContext context) async {
     final picker = ImagePicker();
     try {
       final List<XFile>? pickedFiles = await picker.pickMultipleMedia();
 
       if (pickedFiles != null && pickedFiles.isNotEmpty) {
-        for (var media in pickedFiles) {
-          final file = File(media.path);
-          if (!galleryFiles.any((f) => f.path == file.path)) {
-            galleryFiles.add(file);
+        if(pickedFiles.length <= 5){
+          for (var media in pickedFiles) {
+            final file = File(media.path);
+            if (!galleryFiles.any((f) => f.path == file.path)) {
+              galleryFiles.add(file);
+            }
           }
+          await uploadAllGalleryMedia();
+        }else{
+          showMaxFilesAlert(context);
         }
-        await uploadAllGalleryMedia();
       }
     } catch (e) {
+      print(e.toString());
       Get.snackbar(
         "Error",
         "Failed to pick media: \${e.toString()}",
@@ -93,9 +98,11 @@ class GalleryController extends GetxController {
       } else {
         final errorData = jsonDecode(response.body);
         final message = errorData['message'] ?? 'Upload failed';
+        print("message: $message");
         throw Exception(message);
       }
     } catch (e) {
+      print(e.toString());
       Get.snackbar(
         "Error",
         e.toString(),
@@ -107,4 +114,32 @@ class GalleryController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
+  void showMaxFilesAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        content: Text(
+          'You can upload a maximum of 5 files in the gallery.',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'OK',
+              style: TextStyle(color: kPrimaryColor1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 }

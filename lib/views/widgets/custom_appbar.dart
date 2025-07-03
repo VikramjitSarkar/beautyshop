@@ -7,14 +7,13 @@ import 'package:geolocator/geolocator.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final String greetings;
   final UserProfileController profileController = Get.put(
     UserProfileController(),
   );
   final RxString currentLocation = 'Locating...'.obs;
   final RxBool isLocationLoading = false.obs;
 
-  CustomAppBar({super.key, required this.title, required this.greetings}) {
+  CustomAppBar({super.key, required this.title}) {
     _getCurrentLocation();
   }
 
@@ -80,59 +79,92 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        margin: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(top: 10),
         child: Column(
           children: [
             const SizedBox(height: 10),
             // Top row with temperature and notification
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "$greetings,",
-                  style: kHeadingStyle.copyWith(fontSize: 22),
-                ),
-                SizedBox(width: 5,),
-                Text(
-                  profileController.name.value.isNotEmpty
-                      ? profileController.name.value
-                      : 'Guest',
-                  style: kHeadingStyle.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 23,
-                  ),
+                // Text(
+                //   "$greetings,",
+                //   style: kHeadingStyle.copyWith(fontSize: 22),
+                // ),
+                // SizedBox(width: 5,),
+                // Text(
+                //   profileController.name.value.isNotEmpty
+                //       ? profileController.name.value
+                //       : 'Guest',
+                //   style: kHeadingStyle.copyWith(
+                //     fontWeight: FontWeight.w400,
+                //     fontSize: 23,
+                //   ),
+                // ),
+                Row(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    profileController.name.value.isNotEmpty? CircleAvatar(
+                      radius: 30,
+                      backgroundImage: profileController.imageUrl.value!=""? NetworkImage(profileController.imageUrl.value,) :
+
+                      AssetImage("assets/empty pic.jpg", ),
+                    ) : Container(),
+                    SizedBox(width: 10,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+
+
+                        Row(
+                          children: [
+
+
+                            Text(
+                              'Hi,',
+                              style: kHeadingStyle.copyWith(fontSize: 23),
+                            ),
+                            Text(
+                              profileController.name.value.isNotEmpty
+                                  ? profileController.name.value
+                                  : 'Guest',
+                              style: kHeadingStyle.copyWith(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 23,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            SvgPicture.asset('assets/location.svg'),
+                            const SizedBox(width: 4),
+                            SizedBox(
+                              width: 200, // Fixed width for consistent layout
+                              child:
+                              isLocationLoading.value
+                                  ? const LinearProgressIndicator()
+                                  : Text(
+                                currentLocation.value,
+                                style: kSubheadingStyle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  ],
                 ),
                 Spacer(),
                 Row(
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (GlobalsVariables.token == null) {
-                          Get.to(() => UserVendorScreen());
-                        } else {
-                          Get.to(() => NotificationsScreen());
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          GlobalsVariables.token == null
-                              ? SizedBox()
-                              : Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color(0xffC0C0C0),
-                              ),
-                              borderRadius: BorderRadius.circular(40),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/notification.svg',
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                        ],
-                      ),
-                    ),
                     GestureDetector(
                       onTap: () => Get.to(() => SearchScreen()),
                       child: SvgPicture.asset('assets/search.svg'),
@@ -144,66 +176,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             // const SizedBox(height: 15),
             // Profile info row
-            Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
 
-                // profileController.name.value.isNotEmpty? CircleAvatar(
-                //   radius: 30,
-                //   backgroundImage: profileController.imageUrl.value!=""? NetworkImage(profileController.imageUrl.value,) :
-                //
-                //   AssetImage("assets/empty pic.jpg", ),
-                // ) : Container(),
-                // SizedBox(width: 10,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    
-
-                    
-                    // Row(
-                    //   children: [
-                    //
-                    //
-                    //     Text(
-                    //       'Hi,',
-                    //       style: kHeadingStyle.copyWith(fontSize: 23),
-                    //     ),
-                    //     Text(
-                    //       profileController.name.value.isNotEmpty
-                    //           ? profileController.name.value
-                    //           : 'Guest',
-                    //       style: kHeadingStyle.copyWith(
-                    //         fontWeight: FontWeight.w400,
-                    //         fontSize: 23,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        SvgPicture.asset('assets/location.svg'),
-                        const SizedBox(width: 4),
-                        SizedBox(
-                          width: 200, // Fixed width for consistent layout
-                          child:
-                              isLocationLoading.value
-                                  ? const LinearProgressIndicator()
-                                  : Text(
-                                    currentLocation.value,
-                                    style: kSubheadingStyle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-              ],
-            ),
             SizedBox(height: 30),
           ],
         ),

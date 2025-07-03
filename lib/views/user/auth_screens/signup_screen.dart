@@ -111,7 +111,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return 'Email is required';
                           }
-                          if (!GetUtils.isEmail(value.trim())) {
+                          if (!GetUtils.isEmail(value.trim()) || value.trim().contains(RegExp(r'[A-Z]'))) {
                             return 'Enter a valid email';
                           }
                           return null;

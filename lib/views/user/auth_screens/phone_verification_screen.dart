@@ -31,7 +31,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     setState(() => isVerifying = false);
 
     if (isVerified) {
-      Get.offAll(() => CustomNavBar()); // Navigate to home/main
+      Get.offAll(() => CustomerBottomNavBarScreen()); // Navigate to home/main
     } else {
       Get.snackbar('Error', 'Invalid or expired OTP');
     }

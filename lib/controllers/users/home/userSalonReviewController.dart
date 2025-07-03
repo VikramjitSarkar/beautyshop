@@ -55,7 +55,7 @@ class UserReviewController extends GetxController {
       if (response.statusCode == 201) {
         Get.snackbar("Success", "Review submitted successfully");
         fetchUserReviews(vendorId); // Refresh reviews
-        Get.off(() => CustomNavBar());
+        Get.off(() => CustomerBottomNavBarScreen());
       } else if (response.statusCode == 400) {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         Get.snackbar(
