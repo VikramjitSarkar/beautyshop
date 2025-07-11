@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:beautician_app/constants/globals.dart';
+import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
 import 'package:beautician_app/controllers/vendors/auth/profile_setup_Controller.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -10,15 +12,19 @@ class HomeController extends GetxController {
   var isLoading = false.obs;
   var categories = [].obs;
   var vendors = [].obs;
+  var nearbyVendors = [].obs;
   var vendorData = <String, dynamic>{}.obs;
   var categoryData = <Map<String, dynamic>>[].obs;
+  var nearbyCategoryData = <Map<String, dynamic>>[].obs;
   var controller = Get.put(UserProfileControllers());
+  var profileController = Get.put(UserProfileController());
   @override
   void onInit() {
     super.onInit();
     // fetchCategories(); // 🟢 Call when controller initializes
 
     fetchVendors();
+
     fetchCategoriesWithVendors();
     controller.getUserProfile();
   }
@@ -56,6 +62,7 @@ class HomeController extends GetxController {
         if (data['status'] == 'success') {
           categoryData.assignAll(List<Map<String, dynamic>>.from(data['data']));
           print(categoryData);
+          print("user location: ${profileController.userLat} : ${profileController.userLong}");
         }
       } else {
         print('HTTP error: ${response.statusCode}');
@@ -114,4 +121,161 @@ class HomeController extends GetxController {
 
     return null;
   }
+
+
+  /// Converts degrees to radians
+  double _degToRad(double deg) => deg * pi / 180;
+
+  /// Returns distance in kilometers between two coordinates using Haversine formula
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const earthRadius = 6371.0; // Radius in km
+
+    final dLat = _degToRad(lat2 - lat1);
+    final dLon = _degToRad(lon2 - lon1);
+
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degToRad(lat1)) *
+            cos(_degToRad(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
+  /// Filters vendors within 30km radius of user's location
+  void filterVendorsWithin30Km({
+    required double userLat,
+    required double userLong,
+  }) {
+    print("Fetching vendors...");
+    isLoading.value = true;
+
+    try {
+      final filtered = vendors.where((vendor) {
+        final vLat = double.tryParse(vendor['vendorLat'].toString()) ?? 0.0;
+        final vLong = double.tryParse(vendor['vendorLong'].toString()) ?? 0.0;
+
+        final distance = _calculateDistance(userLat, userLong, vLat, vLong);
+        return distance <= 30.0;
+      }).toList();
+
+      // Assign filtered list to observable
+      nearbyVendors.assignAll(filtered);
+      print("Updated vendors: $nearbyVendors");
+
+    } catch (e) {
+      print("Error filtering vendors: $e");
+    } finally {
+      // Ensure UI reflects loading off AFTER assignAll completes
+      Future.delayed(Duration.zero, () {
+        isLoading.value = false;
+      });
+    }
+  }
+
+
+
+
+  /// Filters each category's vendor list to only include vendors within 30km
+  void filterVendorsInCategoryByLocation({
+    required double userLat,
+    required double userLong,
+  }) {
+    final List<Map<String, dynamic>> updatedCategories = [];
+    isLoading.value = true;
+
+    try{
+
+      for (var category in categoryData) {
+        final vendors = category['vendors'] ?? [];
+
+        final nearbyVendors = vendors.where((vendor) {
+          final vLat = double.tryParse(vendor['vendorLat'].toString()) ?? 0.0;
+          final vLong = double.tryParse(vendor['vendorLong'].toString()) ?? 0.0;
+          final distance = _calculateDistance(userLat, userLong, vLat, vLong);
+          return distance <= 30.0;
+        }).toList();
+
+        final updatedCategory = {
+          ...category,
+          'vendors': nearbyVendors,
+        };
+
+        updatedCategories.add(updatedCategory);
+      }
+
+      nearbyCategoryData.assignAll(updatedCategories);
+      print("updated vendors 2: $nearbyCategoryData");
+    }catch(e){
+
+    }finally{
+      // Ensure UI reflects loading off AFTER assignAll completes
+      Future.delayed(Duration.zero, () {
+        isLoading.value = false;
+      });
+    }
+  }
+
+  //
+  // /// Filters vendors within 30km radius of user's location
+  // void filterVendorsWithin30Km2({
+  //   required RxString userLat,
+  //   required RxString userLong,
+  // }) {
+  //   // Ensure valid coordinates
+  //   if (userLat.value.isEmpty || userLong.value.isEmpty) return;
+  //
+  //   isLoading.value = true;
+  //
+  //   final double uLat = double.tryParse(userLat.value) ?? 0.0;
+  //   final double uLong = double.tryParse(userLong.value) ?? 0.0;
+  //
+  //   final filtered = vendors.where((vendor) {
+  //     final vLat = double.tryParse(vendor['vendorLat'].toString()) ?? 0.0;
+  //     final vLong = double.tryParse(vendor['vendorLong'].toString()) ?? 0.0;
+  //
+  //     final distance = _calculateDistance(uLat, uLong, vLat, vLong);
+  //     return distance <= 30.0;
+  //   }).toList();
+  //
+  //   vendors.assignAll(filtered);
+  //   isLoading.value = false;
+  // }
+  //
+  //
+  // /// Filters each category's vendor list to only include vendors within 30km
+  // void filterVendorsInCategoryByLocation2({
+  //   required RxString userLat,
+  //   required RxString userLong,
+  // }) {
+  //   final List<Map<String, dynamic>> updatedCategories = [];
+  //
+  //   isLoading.value = true;
+  //   final double uLat = double.tryParse(userLat.value) ?? 0.0;
+  //   final double uLong = double.tryParse(userLong.value) ?? 0.0;
+  //
+  //   for (var category in categoryData) {
+  //     final vendors = category['vendors'] ?? [];
+  //
+  //     final nearbyVendors = vendors.where((vendor) {
+  //       final vLat = double.tryParse(vendor['vendorLat'].toString()) ?? 0.0;
+  //       final vLong = double.tryParse(vendor['vendorLong'].toString()) ?? 0.0;
+  //       final distance = _calculateDistance(uLat, uLong, vLat, vLong);
+  //       return distance <= 30.0;
+  //     }).toList();
+  //
+  //     final updatedCategory = {
+  //       ...category,
+  //       'vendors': nearbyVendors,
+  //     };
+  //
+  //     updatedCategories.add(updatedCategory);
+  //   }
+  //
+  //   categoryData.assignAll(updatedCategories);
+  //   isLoading.value = false;
+  //   print("updated vendors 2: $categoryData");
+  // }
 }

@@ -23,7 +23,6 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
     'assets/discover.png',
     'assets/booking.png',
     'assets/message.png',
-    'assets/more.png',
   ];
 
   final List<String> _titles = [
@@ -31,7 +30,6 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
     "Discover",
     "Booking",
     "Message",
-    "Profile",
   ];
 
   final List<Widget> _pages = [
@@ -39,7 +37,6 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
     MapScreen(),
     YourAppointmentScreen(),
     MessageScreen(),
-    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -128,7 +125,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                 (_selectedIndex == 4 && GlobalsVariables.token == null)
                     ? Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+                        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 50),
                         child: Column(
                           // crossAxisAlignment: CrossAxisAlignment.center,
                           // mainAxisAlignment: MainAxisAlignment.center,

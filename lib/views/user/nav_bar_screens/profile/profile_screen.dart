@@ -35,7 +35,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: GlobalsVariables.token == null? Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.center,
+            // mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/app icon 2.png'),
+              GestureDetector(
+                onTap: ()=> Get.to(()=> UserVendorScreen()),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(12),
+
+                  ),
+                  child: Text(
+                    "LOGIN/SIGNUP",
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800
+                    ),
+
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+
+              _buildSettingsTile(
+                'FAQs',
+                'assets/FAQs.png',
+                    () => Get.to(() => const FaqScreen()),
+              ),
+              _buildSettingsTile('About Us', 'assets/About Us.png', () {
+                Get.to(() => AboutUsScreens());
+              }),
+            ],
+          ),
+        ),
+      ) : SafeArea(
         child: Obx(() {
           if (profileController.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
@@ -131,6 +172,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            GestureDetector(
+                              onTap: () => Get.back(),
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => Get.back(),
+                                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                                  ),
+                                ],
+                              ),
+                            ),
                             const Text(
                               'Settings',
                               style: TextStyle(
@@ -142,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onTap: () => Get.to(() => NotificationsScreen()),
                               child: Image.asset(
                                 'assets/bell_notification.png',
-                                height: 44,
+                                height: 50,
                               ),
                             ),
                           ],

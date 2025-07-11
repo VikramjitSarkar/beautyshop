@@ -57,7 +57,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                 children: [
                   Center(
                     child: Text(
-                      vendor['shopName'] ?? 'Salon Details',
+                      vendor['shopName'] ?? 'Unkown',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -75,7 +75,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                         child: Text(
                           vendor['locationAddres'] ??
                               vendor['location'] ??
-                              'Unknown location',
+                              'No Address Available',
                           style: TextStyle(fontSize: 14, color: Colors.black87),
                         ),
                       ),
@@ -220,7 +220,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
   }
 
   Widget buildBookingItem(Map<String, dynamic> booking) {
-    final vendor = booking['vendor'] as Map<String, dynamic>;
+    final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
     final bookingDate = booking['bookingDate'];
     final formattedDate =
@@ -244,32 +244,38 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.white,
-                    border: booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
+                    border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
 
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child:
-                        booking['vendor']['shopBanner'] != null
-                            ? Image.network(
-                              booking['vendor']['shopBanner'],
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Image.asset(
-                                    'assets/app icon 2.png',
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                            )
-                            : Image.asset(
-                          'assets/app icon 2.png',
+                      borderRadius: BorderRadius.circular(16),
+                      child:
+                      booking['vendor'] != null? booking['vendor']['shopBanner'] != null
+                          ? Image.network(
+                        booking['vendor']['shopBanner'],
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                            Image.asset(
+                              'assets/app icon 2.png',
                               height: 100,
                               width: 100,
                               fit: BoxFit.cover,
                             ),
+                      )
+                          : Image.asset(
+                        'assets/app icon 2.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ) : Image.asset(
+                        'assets/app icon 2.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      )
                   ),
                 ),
                 SizedBox(width: 15),
@@ -283,7 +289,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              vendor['shopName'] ?? 'Lotus Salon',
+                              vendor['shopName'] ?? 'Unkown',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16,

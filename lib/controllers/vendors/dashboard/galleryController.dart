@@ -123,7 +123,7 @@ class GalleryController extends GetxController {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         content: Text(
-          'You can upload a maximum of 5 files in the gallery.',
+          'You can upload a maximum of 5 files in the gallery at once.',
           style: TextStyle(
             color: Colors.black,
             fontSize: 16,

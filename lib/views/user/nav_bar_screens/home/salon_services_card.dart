@@ -15,11 +15,13 @@ import 'book_appointment_screen.dart';
 class SalonServicesCard extends StatefulWidget {
   final String vendorId;
   final String status;
+  final String shopName;
+  final String shopAddress;
 
   const SalonServicesCard({
     super.key,
     required this.vendorId,
-    required this.status,
+    required this.status, required this.shopName, required this.shopAddress,
   });
 
   @override
@@ -85,6 +87,8 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                       Get.to(
                             () => GlobalsVariables.token != null
                             ? BookAppointmentScreen(
+                              shopAddress: widget.shopAddress,
+                          shopName: widget.shopName,
                           services: selected.toList(),
                           vendorId: widget.vendorId,
                         )
@@ -106,6 +110,8 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
                       Get.to(
                             () => GlobalsVariables.token != null
                             ? BookAppointmentScreen(
+                          shopAddress: widget.shopAddress,
+                          shopName: widget.shopName,
                           services: selected.toList(),
                           vendorId: widget.vendorId,
                         )

@@ -352,6 +352,8 @@ class _SalonSpecialistDetailScreenState
                       SalonGalleryCard(galleryMedia: galleyImages),
                       SalonServicesCard(
                         vendorId: widget.vendorId,
+                        shopName: userName,
+                        shopAddress: "",
                         status: status,
                       ),
                       SalonReviewCard(vendorId: widget.vendorId),

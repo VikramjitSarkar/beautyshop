@@ -93,6 +93,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             padding: EdgeInsets.symmetric(horizontal: padding),
             child: AppBar(
               backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
               title: const Text('Profile Setup'),
               leading: Row(
                 children: [

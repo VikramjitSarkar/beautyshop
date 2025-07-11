@@ -1,4 +1,5 @@
 import 'package:beautician_app/constants/globals.dart';
+import 'package:beautician_app/controllers/users/home/home_controller.dart';
 import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
 import 'package:beautician_app/services/location_service.dart';
 import 'package:beautician_app/utils/libs.dart';
@@ -10,8 +11,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final UserProfileController profileController = Get.put(
     UserProfileController(),
   );
+
+  final controller = Get.put(HomeController());
   final RxString currentLocation = 'Locating...'.obs;
   final RxBool isLocationLoading = false.obs;
+  double lat = 0;
+  double long = 0;
 
   CustomAppBar({super.key, required this.title}) {
     _getCurrentLocation();
@@ -31,6 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Future<void> _getCurrentLocation() async {
     isLocationLoading.value = true;
     try {
+
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         currentLocation.value = 'Enable location';
@@ -50,10 +56,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         desiredAccuracy: LocationAccuracy.best,
       );
 
+      lat = position.latitude;
+      long = position.longitude;
+
+      print("latitude and longitude are $lat $long");
+
       String address = await LocationService.getAddressFromCoordinates(
         position.latitude,
         position.longitude,
       );
+
+
+      controller.filterVendorsWithin30Km(userLat: position.latitude,
+        userLong: position.longitude,);
+      controller.filterVendorsInCategoryByLocation(userLat: position.latitude,
+        userLong: position.longitude,);
 
       currentLocation.value =
           address.isNotEmpty ? _getShortAddress(address) : 'Near you';
@@ -69,8 +86,47 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
+
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      await Get.dialog(
+        AlertDialog(
+          title: Text("Permission Required"),
+          content: Text("Location permission is permanently denied. Please enable it in app settings."),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await Geolocator.openAppSettings();
+                Get.back();
+              },
+              child: Text("Open Settings"),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+      return false;
+    }
+
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("lat and long are $lat $long");
     return Obx(() {
       return Container(
         width: double.infinity,
@@ -171,7 +227,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ],
                 ),
-               
+
               ],
             ),
             // const SizedBox(height: 15),

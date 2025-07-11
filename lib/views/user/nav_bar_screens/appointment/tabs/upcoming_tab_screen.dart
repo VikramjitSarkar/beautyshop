@@ -56,7 +56,7 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0),
                       child: Text(
-                        vendor['shopName'] ?? 'Salon Details',
+                        vendor['shopName'] ?? 'Unkown',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -221,9 +221,9 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
   }
 
   Widget _buildBookingItem(Map<String, dynamic> booking) {
-    final vendor = booking['vendor'] as Map<String, dynamic>;
+    final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
-    final shopName = vendor['shopName'] ?? 'Lotus Salon';
+    final shopName = vendor['shopName'] ?? 'Unkown';
     final address =
         vendor['locationAddres'] ??
         vendor['location'] ??
@@ -239,8 +239,8 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
           boxShadow: [
             BoxShadow(
               color: Colors.grey.shade200,
-              blurRadius: 8,
-              spreadRadius: 2,
+              blurRadius: 5,
+              spreadRadius: 1,
               offset: Offset(0, 4),
             ),
           ],
@@ -273,33 +273,38 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.white,
-                        border: booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
+                        border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
 
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child:
-                            booking['vendor']['shopBanner'] != null
+                            booking['vendor'] != null? booking['vendor']['shopBanner'] != null
                                 ? Image.network(
-                                  booking['vendor']['shopBanner'],
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (context, error, stackTrace) =>
-                                          Image.asset(
-                                            'assets/app icon 2.png',
-                                            height: 100,
-                                            width: 100,
-                                            fit: BoxFit.cover,
-                                          ),
-                                )
+                              booking['vendor']['shopBanner'],
+                              height: 100,
+                              width: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                  Image.asset(
+                                    'assets/app icon 2.png',
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                            )
                                 : Image.asset(
                               'assets/app icon 2.png',
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                ),
+                              height: 100,
+                              width: 100,
+                              fit: BoxFit.cover,
+                            ) : Image.asset(
+                              'assets/app icon 2.png',
+                              height: 100,
+                              width: 100,
+                              fit: BoxFit.cover,
+                            )
                       ),
                     ),
                   if (widget.isShow == false) const SizedBox(width: 12),

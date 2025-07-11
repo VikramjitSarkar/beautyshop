@@ -42,6 +42,7 @@ class ChatRoomCreateController extends GetxController {
       isCreating.value = false;
       errorMessage.value = 'Network error: $e';
       Get.snackbar("Error", errorMessage.value);
+      // Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
     }
 
     return null;

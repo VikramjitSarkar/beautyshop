@@ -1,8 +1,11 @@
+import 'package:beautician_app/views/user/nav_bar_screens/home/salon_list_screen.dart';
+
 import '../utils/libs.dart';
 import '../views/widgets/saloon_card_three.dart';
 
 class SalonCategoryWidget extends StatelessWidget {
   final String title;
+  final String categoryId;
   final List vendors;
   final Widget screen;
 
@@ -10,7 +13,7 @@ class SalonCategoryWidget extends StatelessWidget {
     required this.title,
     required this.vendors,
     required this.screen,
-    Key? key,
+    Key? key, required this.categoryId,
   }) : super(key: key);
 
   @override
@@ -20,24 +23,44 @@ class SalonCategoryWidget extends StatelessWidget {
       print('Parsed Rating: ${double.tryParse(rawRating) ?? 'Invalid'}');
     }
 
+    if(vendors.isEmpty){
+      return Container();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// Title
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: ()=> Get.to(()=> SalonListScreen(title: title, categoryId: categoryId)),
+                child: Text(
+                  "View all",
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+            ],
+          )
         ),
         const SizedBox(height: 10),
 
         /// Horizontal List of Vendors
-        SizedBox(
+        vendors.isEmpty? Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Center(child: Text("No Specialists Found")),
+        ) : SizedBox(
           height: 210,
           child: ListView.builder(
-            itemCount: vendors.length,
+            itemCount: vendors.length<=4? vendors.length : 4,
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
               final vendor = vendors[index];
@@ -73,7 +96,8 @@ class SalonCategoryWidget extends StatelessWidget {
                     shopeName: vendor['shopName'] ?? 'No Name',
                     onTap: () {
                       Get.to(
-                        () => SaloonDetailPageScreen(phoneNumber: vendor['phone'] ?? '',
+                        () => SaloonDetailPageScreen(
+                          phoneNumber: vendor['phone'] ?? '',
                           rating: rating,
                           longitude: vendor['vendorLong'] ?? '',
                           latitude: vendor["vendorLat"] ?? '',
@@ -81,9 +105,9 @@ class SalonCategoryWidget extends StatelessWidget {
                           vendorId: vendor["_id"] ?? '',
                           desc: vendor["description"] ?? '',
                           imageUrl: vendor["shopBanner"] ?? '',
-                          locaion: vendor["locationAddres"] ?? '',
+                          location: vendor["locationAddres"] ?? '',
                           openingTime: openingTime,
-                          shopeName: vendor["shopName"] ?? '',
+                          shopName: vendor["shopName"] ?? '',
                           status: vendor["status"] ?? '',
                           title: vendor["title"] ?? '',
                           userName: vendor["userName"] ?? '',

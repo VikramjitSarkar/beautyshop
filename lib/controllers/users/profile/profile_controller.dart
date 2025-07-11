@@ -32,6 +32,7 @@ class UserProfileController extends GetxController {
 
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/get');
 
+    print("fetching user");
     try {
       final response = await http.get(url, headers: _buildHeaders());
 
@@ -39,6 +40,7 @@ class UserProfileController extends GetxController {
         final data = jsonDecode(response.body);
         _updateProfileData(data['data']); // Use the helper method
         update();
+        print("user data: $data");
         // Get.snackbar('Success', 'Profile loaded successfully!');
       } else {
         // Get.snackbar('Error', 'Failed to load profile: ${response.statusCode}');

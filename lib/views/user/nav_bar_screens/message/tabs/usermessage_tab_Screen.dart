@@ -134,7 +134,7 @@ class _UserMessageTabScreenState extends State<UserMessageTabScreen> {
                       onTap: () async {
                         await Get.to(
                           () => UserChatScreen(
-                            vendorName: otherUser['userName'],
+                            vendorName: otherUser['userName'] ?? "Unkown",
                             reciverId: chat['receiverId'],
                             chatId: chatId,
                             currentUser: chat['senderId'],

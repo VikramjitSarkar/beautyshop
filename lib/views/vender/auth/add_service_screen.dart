@@ -29,189 +29,190 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     final DashBoardController dashCtl = Get.put(DashBoardController());
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+            ),
+            TextButton(
+              onPressed: () => dashCtl.listing.value == 'free'
+                  ? Get.offAll(() => VendorBottomNavBarScreen())
+                  : Get.to(() => ShowPlanForMonthlyOrYearScreen()),
+              child: Text('Skip', style: kSubheadingStyle),
+            ),
+          ],
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: SvgPicture.asset('assets/back icon.svg', height: 50,),
-                  ),
-                  TextButton(
-                    onPressed: () => Get.to(() => VendorBottomNavBarScreen()),
-                    child: Text('Skip', style: kSubheadingStyle),
-                  ),
-                ],
-              ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top bar
 
-              const SizedBox(height: 40),
-              SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: padding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          final isPaid = dashCtl.listing.value == 'paid';
-                          final isFreeWithNoServices =
-                              dashCtl.listing.value == 'free' &&
+
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      final isPaid = dashCtl.listing.value == 'paid';
+                      final isFreeWithNoServices =
+                          dashCtl.listing.value == 'free' &&
                               controller.services.length == 0;
-
-                          if (isPaid || isFreeWithNoServices) {
-                            Get.to(() => AddServiceInputScreen())?.then((_) {
-                              controller.fetchServicesByVendorId(
-                                GlobalsVariables.vendorId!,
-                              );
-                            });
-                          } else {
-                            showPremiumFeatureDialog(context);
-                          }
-                        },
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: kPrimaryColor1),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: const Icon(Icons.add),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (controller.services.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Text(
-                            'No services found.',
-                            style: kSubheadingStyle,
-                          ),
-                        );
-                      }
-
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 15,
-                              mainAxisSpacing: 15,
-                              mainAxisExtent: 200,
-                            ),
-                        itemCount: controller.services.length,
-                        itemBuilder: (context, index) {
-                          final service = controller.services[index];
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: kGreyColor2),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(40),
-                                    border: Border.all(color: kGreyColor2),
-                                  ),
-                                  child: Image.asset(
-                                    'assets/${images2[index % images2.length]}.png', // fallback loop
-                                    height: 30,
-                                    width: 30,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "Charges: \$${service['charges']}",
-                                  style: kHeadingStyle.copyWith(fontSize: 14),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  service['categoryId']['name']
-                                          .toString()
-                                          .capitalize ??
-                                      '',
-                                  style: kSubheadingStyle.copyWith(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  service['subcategoryId']['name']
-                                          .toString()
-                                          .capitalize ??
-                                      '',
-                                  style: kSubheadingStyle.copyWith(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                GestureDetector(
-                                  onTap: () {
-                                    Get.to(
-                                      () => EditServiceScreen(),
-                                      arguments: service,
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: kGreyColor2),
-                                    ),
-                                    child: Text(
-                                      'Edit',
-                                      style: kSubheadingStyle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+          
+                      if (isPaid || isFreeWithNoServices) {
+                        Get.to(() => AddServiceInputScreen())?.then((_) {
+                          controller.fetchServicesByVendorId(
+                            GlobalsVariables.vendorId!,
                           );
-                        },
-                      );
-                    }),
-                  ],
+                        });
+                      } else {
+                        showPremiumFeatureDialog(context);
+                      }
+                    },
+                    child: Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: kPrimaryColor1),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: const Icon(Icons.add),
+                    ),
+                  ),
                 ),
-              ),
-
-              // Bottom continue button
-              CustomButton(
-                isEnabled: true,
-                title: 'Continue',
-                onPressed: () {
-                  dashCtl.listing.value == 'free'
-                      ? Get.offAll(() => VendorBottomNavBarScreen())
-                      : Get.to(() => ShowPlanForMonthlyOrYearScreen());
-                },
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 15),
+                Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+          
+                  if (controller.services.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Text(
+                        'No services found.',
+                        style: kSubheadingStyle,
+                      ),
+                    );
+                  }
+          
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                      mainAxisExtent: 200,
+                    ),
+                    itemCount: controller.services.length,
+                    itemBuilder: (context, index) {
+                      final service = controller.services[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: kGreyColor2),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(40),
+                                border: Border.all(color: kGreyColor2),
+                              ),
+                              child: Image.asset(
+                                'assets/${images2[index % images2.length]}.png', // fallback loop
+                                height: 30,
+                                width: 30,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Charges: \$${service['charges']}",
+                              style: kHeadingStyle.copyWith(fontSize: 14),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              service['categoryId']['name']
+                                  .toString()
+                                  .capitalize ??
+                                  '',
+                              style: kSubheadingStyle.copyWith(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              service['subcategoryId']['name']
+                                  .toString()
+                                  .capitalize ??
+                                  '',
+                              style: kSubheadingStyle.copyWith(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
+                            GestureDetector(
+                              onTap: () {
+                                Get.to(
+                                      () => EditServiceScreen(),
+                                  arguments: service,
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: kGreyColor2),
+                                ),
+                                child: Text(
+                                  'Edit',
+                                  style: kSubheadingStyle,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }),
+                const SizedBox(height: 10),
+                CustomButton(
+                  isEnabled: true,
+                  title: 'Continue',
+                  onPressed: () {
+                    dashCtl.listing.value == 'free'
+                        ? Get.offAll(() => VendorBottomNavBarScreen())
+                        : Get.to(() => ShowPlanForMonthlyOrYearScreen());
+                  },
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

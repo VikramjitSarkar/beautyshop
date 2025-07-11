@@ -225,6 +225,22 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
   }
 
   Widget _buildSalonCard(Map<String, dynamic> vendor) {
+
+    final rating =
+        double.tryParse(vendor['shopRating']?.toString() ?? '0') ?? 0;
+
+    final openingTime = Map<String, dynamic>.from(
+      vendor['openingTime'] ??
+          {
+            "weekdays": {"from": "", "to": ""},
+            "weekends": {"from": "", "to": ""},
+          },
+    );
+
+    final galleryImages =
+    vendor['gallery'] is List
+        ? List<String>.from(vendor['gallery'])
+        : [];
     final shopName =
         (vendor['shopName']?.toString().trim().isNotEmpty ?? false)
             ? vendor['shopName']
@@ -239,7 +255,22 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
         onTap: () {
-          Get.to(() => SalonSpecialistDetailScreen(vendorId: vendor['_id']));
+          Get.to(() => SaloonDetailPageScreen(
+            phoneNumber: vendor['phone'] ?? '',
+            rating: rating,
+            longitude: vendor['vendorLong'] ?? '',
+            latitude: vendor["vendorLat"] ?? '',
+            galleryImage: galleryImages,
+            vendorId: vendor["_id"] ?? '',
+            desc: vendor["description"] ?? '',
+            imageUrl: vendor["shopBanner"] ?? '',
+            location: vendor["locationAddres"] ?? '',
+            openingTime: openingTime,
+            shopName: vendor["shopName"] ?? '',
+            status: vendor["status"] ?? '',
+            title: vendor["title"] ?? '',
+            userName: vendor["userName"] ?? '',
+          ));
         },
         child: Row(
           children: [
@@ -353,9 +384,22 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                           ),
                           onPressed: () {
                             Get.to(
-                              () => SalonSpecialistDetailScreen(
-                                vendorId: vendor['_id'],
-                              ),
+                              () => SaloonDetailPageScreen(
+                                phoneNumber: vendor['phone'] ?? '',
+                                rating: rating,
+                                longitude: vendor['vendorLong'] ?? '',
+                                latitude: vendor["vendorLat"] ?? '',
+                                galleryImage: galleryImages,
+                                vendorId: vendor["_id"] ?? '',
+                                desc: vendor["description"] ?? '',
+                                imageUrl: vendor["shopBanner"] ?? '',
+                                location: vendor["locationAddres"] ?? '',
+                                openingTime: openingTime,
+                                shopName: vendor["shopName"] ?? '',
+                                status: vendor["status"] ?? '',
+                                title: vendor["title"] ?? '',
+                                userName: vendor["userName"] ?? '',
+                              )
                             );
                           },
                           child: const FittedBox(

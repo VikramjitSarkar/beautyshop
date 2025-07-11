@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
@@ -7,10 +9,12 @@ import '../../../../controllers/users/home/userBookingController.dart';
 class BookAppointmentScreen extends StatefulWidget {
   final String vendorId;
   final List<Map<String, dynamic>> services;
+  final String shopName;
+  final String shopAddress;
   BookAppointmentScreen({
     super.key,
     required this.services,
-    required this.vendorId,
+    required this.vendorId, required this.shopName, required this.shopAddress,
   });
 
   @override
@@ -28,6 +32,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final lastDay = DateTime(currentMonth.year, currentMonth.month + 1, 0);
     return List.generate(lastDay.day - firstDay.day + 1, (i) => i + 1);
   }
+
+
+  String id = "";
+
+  String generateRandomNumericId() {
+    final rand = Random();
+    int length = rand.nextInt(5) + 6; // 6 to 10 digits
+    String id = '';
+    for (int i = 0; i < length; i++) {
+      id += rand.nextInt(10).toString(); // digits 0–9
+    }
+    return id;
+  }
+
+
 
   int activeStep = 0;
   DateTime currentMonth = DateTime.now();
@@ -52,28 +71,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     }
   }
 
-  // List<Map<String, String>> specialists = [
-  //   {
-  //     "name": "Jane Cooper",
-  //     "role": "Hair specialist",
-  //     "image": "assets/specialist1.png",
-  //   },
-  //   {
-  //     "name": "Jenny Wilson",
-  //     "role": "Face specialist",
-  //     "image": "assets/specialist2.png",
-  //   },
-  //   {
-  //     "name": "Kristin Watson",
-  //     "role": "Hair specialist",
-  //     "image": "assets/specialist3.png",
-  //   },
-  //   {
-  //     "name": "Jacob Jones",
-  //     "role": "Skin specialist",
-  //     "image": "assets/specialist4.png",
-  //   },
-  // ];
 
   void changeMonth(bool isNext) {
     setState(() {
@@ -128,6 +125,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       debugPrint('Error parsing time: $e');
       return const TimeOfDay(hour: 0, minute: 0);
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    id = generateRandomNumericId();
   }
 
   @override
@@ -380,106 +384,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           ),
 
                           const SizedBox(height: 20),
-                          // const Text(
-                          //   "Top specialists",
-                          //   style: TextStyle(
-                          //     fontSize: 16,
-                          //     fontWeight: FontWeight.w700,
-                          //   ),
-                          // ),
-
-                          // Specialist Grid
-                          // GridView.builder(
-                          //   shrinkWrap: true,
-                          //   physics: const NeverScrollableScrollPhysics(),
-                          //   padding: const EdgeInsets.only(top: 10),
-                          //   gridDelegate:
-                          //       SliverGridDelegateWithFixedCrossAxisCount(
-                          //         crossAxisCount: 3,
-                          //         mainAxisSpacing: 10,
-                          //         crossAxisSpacing: 10,
-                          //         mainAxisExtent: 400,
-                          //       ),
-                          //   itemCount: specialists.length,
-                          //   itemBuilder: (context, index) {
-                          //     return Container(
-                          //       decoration: BoxDecoration(
-                          //         borderRadius: BorderRadius.circular(20),
-                          //         border: Border.all(color: kGreyColor),
-                          //       ),
-                          //       child: Column(
-                          //         crossAxisAlignment: CrossAxisAlignment.start,
-                          //         children: [
-                          //           // Container(
-                          //           //   height: 300, // Fixed height
-                          //           //   margin: EdgeInsets.symmetric(
-                          //           //     horizontal: 5,
-                          //           //     vertical: 5,
-                          //           //   ),
-                          //           //   decoration: BoxDecoration(
-                          //           //     borderRadius: BorderRadius.circular(20),
-                          //           //     image: DecorationImage(
-                          //           //       image: AssetImage(
-                          //           //         specialists[index]['image']!,
-                          //           //       ),
-                          //           //       fit: BoxFit.fill,
-                          //           //     ),
-                          //           //   ),
-                          //           // ),
-                          //           Padding(
-                          //             padding: const EdgeInsets.symmetric(
-                          //               horizontal: 10,
-                          //             ),
-                          //             child: Column(
-                          //               crossAxisAlignment:
-                          //                   CrossAxisAlignment.start,
-                          //               children: [
-                          //                 Row(
-                          //                   mainAxisAlignment:
-                          //                       MainAxisAlignment.spaceBetween,
-                          //                   children: [
-                          //                     Text(
-                          //                       specialists[index]['name']!,
-                          //                       style: const TextStyle(
-                          //                         fontSize: 14,
-                          //                         fontWeight: FontWeight.w700,
-                          //                       ),
-                          //                     ),
-                          //                     Row(
-                          //                       children: [
-                          //                         Image(
-                          //                           image: AssetImage(
-                          //                             'assets/star.png',
-                          //                           ),
-                          //                         ),
-                          //                         Text(
-                          //                           '4.0',
-                          //                           style: TextStyle(
-                          //                             color: kGreyColor,
-                          //                             fontWeight:
-                          //                                 FontWeight.w400,
-                          //                           ),
-                          //                         ),
-                          //                       ],
-                          //                     ),
-                          //                   ],
-                          //                 ),
-                          //                 Text(
-                          //                   specialists[index]['role']!,
-                          //                   style: TextStyle(
-                          //                     fontSize: 14,
-                          //                     color: kGreyColor,
-                          //                     fontWeight: FontWeight.w400,
-                          //                   ),
-                          //                 ),
-                          //               ],
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
                         ],
                       ),
                     if (activeStep == 1)
@@ -532,7 +436,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '#654321',
+                                      '#$id',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w400,
                                       ),
@@ -541,7 +445,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Lotus Salon',
+                                  widget.shopName,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -549,7 +453,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '1901 Thornridge Cir. Shiloh, Hawaii 81063',
+                                  widget.shopAddress,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: kGreyColor,
@@ -1067,7 +971,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '#654321',
+                                    '#$id',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w400,
                                     ),
@@ -1076,7 +980,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'Lotus Salon',
+                                widget.shopName,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -1084,7 +988,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '1901 Thornridge Cir. Shiloh, Hawaii 81063',
+                                widget.shopAddress,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: kGreyColor,

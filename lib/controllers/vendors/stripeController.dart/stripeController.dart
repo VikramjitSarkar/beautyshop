@@ -134,8 +134,8 @@ class StripeController extends GetxController {
       // print("✅ PaymentMethodId from plan save: $planId");
       Get.snackbar("Success", "Subscription created successfully");
     } catch (e) {
-      print("❌ makePayment Error: $e");
-      Get.snackbar("Error", "Transaction failed. Try Later");
+      // print("❌ makePayment Error: $e");
+      // Get.snackbar("Error", "Transaction failed. Try Later");
     }
   }
 
@@ -278,8 +278,8 @@ class StripeController extends GetxController {
         Get.snackbar('Error', 'Failed to load subscriptions');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Something went wrong');
-      print('Subscription error: $e');
+      // Get.snackbar('Error', 'Something went wrong');
+      // print('Subscription error: $e');
     }
   }
 

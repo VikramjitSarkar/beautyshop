@@ -9,12 +9,12 @@ class SaloonDetailPageScreen extends StatefulWidget {
   final String phoneNumber;
   final String title;
   final List<dynamic> galleryImage;
-  final String shopeName;
+  final String shopName;
   final String desc;
   final String userName;
   final String imageUrl;
   final String status;
-  final String locaion;
+  final String location;
   final String longitude;
   final String latitude;
   final double rating;
@@ -30,9 +30,9 @@ class SaloonDetailPageScreen extends StatefulWidget {
     required this.vendorId,
     required this.desc,
     required this.imageUrl,
-    required this.locaion,
+    required this.location,
     required this.openingTime,
-    required this.shopeName,
+    required this.shopName,
     required this.status,
     required this.title,
     required this.userName,
@@ -87,9 +87,9 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                         vendorId: widget.vendorId,
                         desc: widget.desc,
                         imageUrl: widget.imageUrl,
-                        locaion: widget.locaion,
+                        locaion: widget.location,
                         openingTime: widget.openingTime,
-                        shopeName: widget.shopeName,
+                        shopeName: widget.shopName,
                         status: widget.status,
                         title: widget.title,
                         userName: widget.userName,
@@ -126,7 +126,7 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                           SingleChildScrollView(
                             child: SalonAboutCard(phonenumber: widget.phoneNumber,
                               des: widget.desc,
-                              location: widget.locaion,
+                              location: widget.location,
                               openingTime: widget.openingTime,
                               title: widget.title,
                               vendorId: widget.vendorId,
@@ -135,8 +135,8 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                         ),
                         buildScrollView(
                           isDesktop
-                              ? SalonServicesCard2(vedorId: widget.vendorId)
-                              : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,),
+                              ? SalonServicesCard2(vedorId: widget.vendorId, shopName: widget.shopName, shopAddress: widget.location,)
+                              : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,shopName: widget.shopName, shopAddress: widget.location,),
                         ),
                         buildScrollView(
                           SingleChildScrollView(child: SalonGalleryCard(galleryMedia: widget.galleryImage)),

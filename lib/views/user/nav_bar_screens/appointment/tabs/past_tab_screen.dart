@@ -113,7 +113,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
     Map<String, dynamic> booking,
     PastBookingController controller,
   ) {
-    final vendor = booking['vendor'] as Map<String, dynamic>;
+    final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
 
     return Padding(
@@ -127,32 +127,38 @@ class _PastTabScreenState extends State<PastTabScreen> {
                 height: 110,
                 width: 110,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white, 
                   borderRadius: BorderRadius.circular(15),
+                  border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
 
-                  border: booking['vendor']['shopBanner'] != null?  null : Border.all(color: Colors.lightGreen, width: 0.5),
                 ),
                 child:
-                    booking['vendor']['shopBanner'] != null
-                        ? Image.network(
-                          booking['vendor']['shopBanner'],
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, stackTrace) => Image.asset(
-                                'assets/app icon 2.png',
-                                height: 100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                              ),
-                        )
-                        : Image.asset(
-                      'assets/app icon 2.png',
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        ),
+                booking['vendor'] != null? booking['vendor']['shopBanner'] != null
+                    ? Image.network(
+                  booking['vendor']['shopBanner'],
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                      Image.asset(
+                        'assets/app icon 2.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                )
+                    : Image.asset(
+                  'assets/app icon 2.png',
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                ) : Image.asset(
+                  'assets/app icon 2.png',
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                )
               ),
               SizedBox(width: 15),
               Expanded(
@@ -165,7 +171,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            vendor['shopName'] ?? 'Lotus Salon',
+                            vendor['shopName'] ?? 'Unkown',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -188,7 +194,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                       Text(
                         vendor['locationAddres'] ??
                             vendor['location'] ??
-                            '1901 Thornridge Cir. Shiloh, Hawaii 81063',
+                            'No Address Available',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
@@ -278,10 +284,10 @@ class _PastTabScreenState extends State<PastTabScreen> {
                           ),
                         );
                       } else {
-                        Get.snackbar('Error', 'Unable to create chat room');
+                        Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
                       }
                     } catch (e) {
-                      Get.snackbar('Error', 'An unexpected error occurred');
+                      Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
                       print('Chat room creation error: $e');
                     }
                   },
@@ -340,7 +346,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0),
                       child: Text(
-                        vendor['shopName'] ?? 'Salon Details',
+                        vendor['shopName'] ?? 'Unkown',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

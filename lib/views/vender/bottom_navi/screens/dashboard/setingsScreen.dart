@@ -95,7 +95,7 @@ class VendorSettings extends StatelessWidget {
                   onTap: () async {
                     await GlobalsVariables.clearAllTokens();
                     Get.delete<DashBoardController>();
-                    Get.offAll(() => UserVendorScreen());
+                    Get.offAll(() => SplashScreen());
                   },
                 ),
               ],

@@ -32,6 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _initializeForm();
+    print("genders: ${profileController.name.value}");
   }
 
   void _initializeForm() {
@@ -229,7 +230,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   //   },
                   // ),
                   DropdownButtonFormField<String>(
-                    value: gender.isNotEmpty ? gender : null,
+                    value: gender!='' ? gender : null,
                     decoration: buildInputDecoration('assets/gender.png'),
                     items:
                         ["Male", "Female", "Other"]
