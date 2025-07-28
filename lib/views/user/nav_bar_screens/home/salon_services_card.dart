@@ -134,6 +134,7 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
               GetX<CategoryController>(
                 builder: (controller) {
                   final services = controller.vendorServices;
+                  // print();
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),

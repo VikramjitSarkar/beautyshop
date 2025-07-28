@@ -144,7 +144,7 @@ class NotificationsScreen extends StatelessWidget {
           border: Border.all(width: 1),
         ),
         child:
-            item["shopName"] == ''
+            item["shopBanner"] == ''
                 ? Icon(Icons.person)
                 : ClipRRect(
                   borderRadius: BorderRadius.circular(50),

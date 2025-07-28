@@ -561,6 +561,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Top specialist',
                           style: kHeadingStyle.copyWith(fontSize: 16),
                         ),
+
+                        // GestureDetector(
+                        //   onTap: ()=> Get.to(() => TopSpecialistScreen(vendors: homeController.nearbyVendors)),
+                        //   child: Text(
+                        //     "View all",
+                        //     style: TextStyle(
+                        //       fontSize: 14,
+                        //     ),
+                        //   ),
+                        // )
                         // GestureDetector(
                         //   onTapDown: (TapDownDetails details) async {
                         //     final selected = await showMenu<String>(
@@ -624,7 +634,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: homeController.nearbyVendors.length,
+                          itemCount: homeController.nearbyVendors.length<=5? homeController.nearbyVendors.length : 5,
                           itemBuilder: (context, index) {
                             final vendor = homeController.nearbyVendors[index];
                             print("object");

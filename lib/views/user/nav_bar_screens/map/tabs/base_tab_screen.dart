@@ -38,6 +38,8 @@ class _BaseTabScreenState extends State<BaseTabScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _fetchNearbyVendors();
+
+
   }
 
   @override
@@ -120,6 +122,7 @@ class _BaseTabScreenState extends State<BaseTabScreen>
         if (data['status'] == 'success') {
           _allVendors = data['data'];
           _updateMarkers(_allVendors);
+          print("vendors: $_allVendors");
         } else {
           throw Exception(data['message'] ?? 'Failed to load vendors');
         }
@@ -211,6 +214,7 @@ class _BaseTabScreenState extends State<BaseTabScreen>
       final lat = double.tryParse(vendor['vendorLat'] ?? '0');
       final lng = double.tryParse(vendor['vendorLong'] ?? '0');
       final imageUrl = vendor['profileImage'] ?? ''; // Update based on your key
+      final rating = vendor['avgRating'] ?? ''; // Update based on your key
 
       if (lat != null && lng != null && imageUrl.isNotEmpty) {
         final icon = await _getMarkerIconFromUrl(imageUrl);
@@ -315,6 +319,96 @@ class _BaseTabScreenState extends State<BaseTabScreen>
                     myLocationButtonEnabled: true,
                   ),
         ),
+
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          height: 205,
+
+          width: double.maxFinite,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _allVendors.length,
+            itemBuilder: (context, index){
+
+              final rating = _allVendors[index]['avgRating'];
+              final shopName = _allVendors[index]['shopName'];
+              final distance = _allVendors[index]['distance'];
+              final id = _allVendors[index]['_id'];
+              if(_allVendors.isEmpty){
+                return Center(child: Text("No Vendors found", style: TextStyle(color: Colors.black),),);
+              }
+              return GestureDetector(
+                onTap: (){
+                  Get.to(()=> SalonSpecialistDetailScreen(vendorId: id));
+
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 130,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white,
+                            border: _allVendors[index]['profileImage'].isNotEmpty? null : Border.all(color: Colors.lightGreen, width: 0.5),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child:
+                            _allVendors[index]['profileImage'].isNotEmpty
+                                ? Image.network(
+                              _allVendors[index]['profileImage'],
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (_, __, ___) => Image.asset('assets/app icon 2.png'),
+                            )
+                                : Image.asset('assets/app icon 2.png'),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            for (int i = 1; i <= 5; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 3),
+                                child: Image.asset(
+                                  i <= rating ? 'assets/star.png' : 'assets/star2.png',
+                                  height: 16,
+                                ),
+                              ),
+                            Text(
+                              rating.toString(),
+                              style: kHeadingStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          shopName,
+                          style: kHeadingStyle.copyWith(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        Text(
+                          "$distance away",
+                          style: kSubheadingStyle,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        )
       ],
     );
   }

@@ -8,6 +8,7 @@ class UserNotificationController extends GetxController {
   var isLoading = false.obs;
   var error = ''.obs;
   var vendorNotifications = <Map<String, dynamic>>[].obs;
+
   Future<void> fetchNotifications(String userId) async {
     isLoading.value = true;
     error.value = '';
@@ -40,7 +41,7 @@ class UserNotificationController extends GetxController {
    Future<void> fetchVendorNotifications(String vendorId) async {
     isLoading.value = true;
     error.value = '';
-    final url = 'http://89.116.39.230:4000/notification/forVendor/$vendorId';
+    final url = '${GlobalsVariables.baseUrlapp}/notification/forVendor/$vendorId';
 
     try {
       final response = await http.get(Uri.parse(url));

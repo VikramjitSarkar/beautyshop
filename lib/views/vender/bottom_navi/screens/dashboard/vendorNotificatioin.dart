@@ -4,17 +4,29 @@ import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/notifications_details.dart';
 import 'package:get/get.dart';
 
-class VendorNotificationsScreen extends StatelessWidget {
-  final UserNotificationController notificationController = Get.put(
-    UserNotificationController(),
-  );
+class VendorNotificationsScreen extends StatefulWidget {
 
   VendorNotificationsScreen({super.key});
 
   @override
+  State<VendorNotificationsScreen> createState() => _VendorNotificationsScreenState();
+}
+
+class _VendorNotificationsScreenState extends State<VendorNotificationsScreen> {
+  final UserNotificationController notificationController = Get.put(
+    UserNotificationController(),
+  );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    notificationController.fetchVendorNotifications(GlobalsVariables.vendorId!);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Replace with actual user ID
-    notificationController.fetchVendorNotifications(GlobalsVariables.vendorId!);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -50,7 +62,10 @@ class VendorNotificationsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (notificationController.vendorNotifications.isEmpty) {
-            return const Center(child: Text("No notifications available"));
+            return Center(
+              child: GestureDetector(
+                onTap: ()=> print("notifications: ${notificationController.vendorNotifications}"),
+                  child: Text("No notifications available")));
           }
 
           final all = notificationController.vendorNotifications;
@@ -123,9 +138,21 @@ class VendorNotificationsScreen extends StatelessWidget {
   Widget _buildListTile(Map<String, dynamic> item) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8),
-      leading: const CircleAvatar(
-        backgroundImage: AssetImage("assets/specialist2.png"),
-        radius: 24,
+      leading: Container(
+        width: 50,
+        height: 50,
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(width: 1),
+        ),
+        child:
+        item["shopBanner"] == ''
+            ? Icon(Icons.person)
+            : ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: Image.network(item["shopBanner"], fit: BoxFit.cover),
+        ),
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

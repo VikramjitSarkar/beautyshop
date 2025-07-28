@@ -67,6 +67,8 @@ class CategoryController extends GetxController {
           print(
             '✅ Fetched ${vendorServices.length} services for vendor $vendorId',
           );
+          print("vendor services $vendorServices");
+          print("data $data");
         } else {
           vendorServices.clear();
           selectedServiceIds.clear();

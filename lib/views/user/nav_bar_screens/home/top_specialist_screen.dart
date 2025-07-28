@@ -44,12 +44,6 @@ class TopSpecialistScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Top 10 Specialists",
-              style: TextStyle(
-                fontSize: 14,
-              ),
-            ),
-            SizedBox(height: 30,),
 
             Obx((){
 
@@ -63,54 +57,57 @@ class TopSpecialistScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final vendor = vendors[index];
 
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 130,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.white,
-
-                        ),
-                        child: ClipRRect(
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 130,
+                          height: 120,
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
-                            child: Image.network(
-                              vendor['profileImage'],
-                              fit: BoxFit.cover,
-                            )
+                            color: Colors.white,
+
+                          ),
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                vendor['profileImage'],
+                                fit: BoxFit.cover,
+                              )
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: Colors.amber, size: 16),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${vendor['shopRating']}',
-                                  style: kHeadingStyle.copyWith(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${vendor['shopRating']}',
+                                    style: kHeadingStyle.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              vendor['userName'],
-                              style: kHeadingStyle.copyWith(fontSize: 16),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                vendor['userName'],
+                                style: kHeadingStyle.copyWith(fontSize: 16),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               );
