@@ -101,6 +101,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
     }
   }
 
+  // apply filter
   void _applyFilters() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();

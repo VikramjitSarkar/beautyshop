@@ -9,6 +9,8 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:geolocator/geolocator.dart';
 
+
+// stupid
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
