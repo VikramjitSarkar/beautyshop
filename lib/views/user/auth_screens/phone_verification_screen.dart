@@ -1,14 +1,13 @@
-
+import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
 import 'package:beautician_app/services/auths_service.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-
+import 'package:flutter_svg/flutter_svg.dart'; // if you're using the back icon
 
 class PhoneVerificationScreen extends StatefulWidget {
   final String phone;
-
   const PhoneVerificationScreen({super.key, required this.phone});
 
   @override
@@ -18,22 +17,52 @@ class PhoneVerificationScreen extends StatefulWidget {
 class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   final _pinController = TextEditingController();
   final AuthService _authService = AuthService();
+  final UserProfileController _profile = Get.find<UserProfileController>();
+
   bool isCompleted = false;
   bool isVerifying = false;
+  bool isResending = false;
 
   Future<void> _verifyCode() async {
     final code = _pinController.text.trim();
+    if (code.length != 4) {
+      Get.snackbar('Error', 'Enter the 4-digit code');
+      return;
+    }
 
     setState(() => isVerifying = true);
 
-    final isVerified = await _authService.verifyOtp(widget.phone, code);
+    final ok = await _authService.verifyOtp(widget.phone, code);
+    if (!ok) {
+      setState(() => isVerifying = false);
+      Get.snackbar('Error', 'Invalid or expired OTP');
+      return;
+    }
+
+    // Persist the verified phone to profile
+    final profile = Get.find<UserProfileController>();
+    final saved = await profile.setPhoneVerified(widget.phone); // implement as shown earlier
 
     setState(() => isVerifying = false);
 
-    if (isVerified) {
-      Get.offAll(() => CustomerBottomNavBarScreen()); // Navigate to home/main
+    if (saved) {
+      // 🎯 Go straight to dashboard
+      Get.offAll(() => CustomerBottomNavBarScreen());
+      Get.snackbar('Success', 'Phone verified and saved');
     } else {
-      Get.snackbar('Error', 'Invalid or expired OTP');
+      Get.snackbar('Error', 'Verified, but saving phone failed');
+    }
+  }
+
+
+  Future<void> _resend() async {
+    setState(() => isResending = true);
+    final sent = await _authService.sendOtp(widget.phone);
+    setState(() => isResending = false);
+    if (sent) {
+      Get.snackbar('Sent', 'A new code was sent to ${widget.phone}');
+    } else {
+      Get.snackbar('Error', 'Could not resend code. Try again.');
     }
   }
 
@@ -42,7 +71,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(55),
+        preferredSize: const Size.fromHeight(55),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: AppBar(
@@ -50,11 +79,10 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
               children: [
                 GestureDetector(
                   onTap: () => Get.back(),
-                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50),
                 ),
               ],
             ),
-            // centerTitle: true,
             backgroundColor: Colors.white,
             elevation: 0,
           ),
@@ -73,7 +101,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
             ),
             const SizedBox(height: 24),
 
-            // PIN input field
             Center(
               child: Pinput(
                 length: 4,
@@ -82,10 +109,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                   width: 56,
                   height: 56,
                   textStyle: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(40),
@@ -96,10 +120,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                   width: 56,
                   height: 56,
                   textStyle: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                   decoration: BoxDecoration(
                     color: kPrimaryColor,
                     borderRadius: BorderRadius.circular(40),
@@ -109,37 +130,37 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                   width: 56,
                   height: 56,
                   textStyle: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                   decoration: BoxDecoration(
                     color: isCompleted ? kPrimaryColor : const Color(0xFFF8F8F8),
                     borderRadius: BorderRadius.circular(40),
                   ),
                 ),
-                onCompleted: (pin) {
-                  setState(() => isCompleted = true);
-                },
+                onCompleted: (_) => setState(() => isCompleted = true),
                 onChanged: (value) {
-                  if (value.length < 4) {
-                    setState(() => isCompleted = false);
-                  }
+                  if (value.length < 4) setState(() => isCompleted = false);
                 },
               ),
             ),
 
             const SizedBox(height: 32),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Don\'t receive code?', style: kSubheadingStyle),
-                Text(' Resend code', style: kHeadingStyle.copyWith(fontSize: 14)),
+                TextButton(
+                  onPressed: isResending ? null : _resend,
+                  child: isResending
+                      ? const SizedBox(
+                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text('Resend code', style: kHeadingStyle.copyWith(fontSize: 14)),
+                ),
               ],
             ),
+
             const SizedBox(height: 20),
 
-            // Submit button
             GestureDetector(
               onTap: isCompleted && !isVerifying ? _verifyCode : null,
               child: Container(
@@ -153,13 +174,13 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                 child: isVerifying
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        'Sign up',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: isCompleted ? kBlackColor : kGreyColor,
-                        ),
-                      ),
+                  'Verify',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: isCompleted ? kBlackColor : kGreyColor,
+                  ),
+                ),
               ),
             ),
           ],

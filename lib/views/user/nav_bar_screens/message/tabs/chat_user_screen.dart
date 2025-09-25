@@ -10,7 +10,7 @@ class UserChatScreen extends StatefulWidget {
   final String currentUser;
   final String reciverId;
 
-  UserChatScreen({
+  const UserChatScreen({
     super.key,
     required this.vendorName,
     required this.chatId,
@@ -98,11 +98,10 @@ class _ChatScreenState extends State<UserChatScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    'assets/chat_bg.png',
-                  ), // Add a subtle chat background
-                  fit: BoxFit.cover,
+                color: Color(0xFFFFFFFF),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
                 ),
               ),
               child: Obx(() {
@@ -256,8 +255,14 @@ class _ChatScreenState extends State<UserChatScreen> {
                         content: msg,
                       );
                       messageController.clear();
+                      Future.delayed(const Duration(milliseconds: 80), () {
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                        }
+                      });
                     }
                   },
+
                   child: Container(
                     height: 48,
                     width: 48,

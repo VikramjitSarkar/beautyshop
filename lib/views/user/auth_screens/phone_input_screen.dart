@@ -3,10 +3,13 @@ import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/services/auths_service.dart';
+import '../../../controllers/users/profile/profile_controller.dart';
 import 'phone_verification_screen.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class PhoneNumberInputScreen extends StatefulWidget {
+  const PhoneNumberInputScreen({super.key});
+
   @override
   State<PhoneNumberInputScreen> createState() => _PhoneNumberInputScreenState();
 }
@@ -33,7 +36,12 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
     setState(() => _isSending = false);
 
     if (success) {
-      Get.to(() => PhoneVerificationScreen(phone: phone));
+      final ok = await Get.to<bool>(() => PhoneVerificationScreen(phone: phone));
+      if (ok == true) {
+        final c = Get.find<UserProfileController>();
+        await c.fetchUserProfile();   // pulls isPhoneVerified + phone from server
+        Get.back(result: true);       // bubble success up if you want ProfileScreen to refresh
+      }
     } else {
       Get.snackbar('Error', 'Failed to send OTP. Please try again.');
     }

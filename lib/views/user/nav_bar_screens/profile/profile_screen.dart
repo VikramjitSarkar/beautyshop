@@ -225,27 +225,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'assets/Change Password.png',
                         () => Get.to(() => const ChangePasswordScreen()),
                       ),
-                      profileController.phoneNumber.value.isNotEmpty
-                          ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.phone, size: 20,),
-                                  Text('Verified Phone'),
-                                ],
-                              ),
-                              Icon(Icons.verified),
+                      // Replace your existing conditional with this:
+                      Obx(() {
+                        final hasPhone = profileController.phoneNumber.value.isNotEmpty;
+                        if (!hasPhone) {
+                          return ListTile(
+                            leading: const Icon(Icons.phone, size: 20),
+                            title: const Text("Add Phone Number"),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                            contentPadding: EdgeInsets.zero,
+                            onTap: () => Get.to(() => const PhoneNumberInputScreen()),
+                          );
+                        }
+
+                        // Verified phone styled like the Add Phone tile
+                        return ListTile(
+                          leading: const Icon(Icons.phone, size: 20),
+                          title: Text(profileController.phoneNumber.value),
+                          subtitle: Row(
+                            children: const [
+                              Icon(Icons.verified, size: 16, color: Colors.green),
+                              SizedBox(width: 6),
+                              Text('Verified', style: TextStyle(color: Colors.green)),
                             ],
-                          )
-                          : ListTile(
-                        // leading: Image.asset(iconPath, height: 24),
-                        title: Text("Add Phone Number"),
-                        leading: Icon(Icons.phone, size: 20,),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        contentPadding: EdgeInsets.zero,
-                        onTap: ()=> Get.to(()=> PhoneNumberInputScreen()),
-                      ),
+                          ),
+                          trailing: const Icon(Icons.change_circle, size: 24),
+                          contentPadding: EdgeInsets.zero,
+                          onTap: () => Get.to(() => const PhoneNumberInputScreen()), // allow change
+                        );
+                      }),
+
                       const SizedBox(height: 5),
                       _buildSettingsTile(
                         'FAQs',

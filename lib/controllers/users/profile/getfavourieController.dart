@@ -1,49 +1,99 @@
+// lib/controllers/users/profile/favorite_from_user_controller.dart
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:beautician_app/constants/globals.dart';
 
-class FavoriteController extends GetxController {
-  var isLoading = false.obs;
-  var favorites = [].obs;
-
+class FavoriteFromUserController extends GetxController {
+  final isLoading = false.obs;
+  final vendors   = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchFavoriteVendors();
+    loadFavoritesFromUser();
   }
 
-  Future<void> fetchFavoriteVendors() async {
+  Future<void> loadFavoritesFromUser() async {
+    if (isLoading.value) return;
     isLoading.value = true;
-    final Uri url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/getFavorite');
 
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer ${GlobalsVariables.token}',
-          'Content-Type': 'application/json',
-        },
-      );
+      // 1) Get the user to read favoriteVendors (array of ids)
+      final userUrl = Uri.parse('${GlobalsVariables.baseUrlapp}/user/get');
+      final headers = {
+        'Authorization': 'Bearer ${GlobalsVariables.token}',
+        'Accept': 'application/json',
+      };
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['status'] == 'success' && data['data'] != null) {
-          favorites.assignAll(data['data']);
-          print('Favorite vendors loaded successfully.');
-        } else {
-          Get.snackbar('Error', 'Failed to fetch favorites.');
-        }
-      } else {
-        Get.snackbar('Error', 'Error ${response.statusCode}');
-        print('Response Body: ${response.body}');
+      final ures = await http.get(userUrl, headers: headers);
+      if (ures.statusCode != 200) {
+        print('[favorites] /user/get -> ${ures.statusCode} ${ures.body}');
+        Get.snackbar('Error', 'Failed to load profile (${ures.statusCode}).');
+        vendors.clear();
+        return;
       }
+
+      final raw = jsonDecode(ures.body);
+      final data = (raw is Map && raw['data'] is Map)
+          ? raw['data'] as Map<String, dynamic>
+          : <String, dynamic>{};
+
+      // favoriteVendors may be: [ "id", "id" ] or [ { _id: "id" }, ... ]
+      final fav = (data['favoriteVendors'] as List?) ?? const [];
+      final ids = <String>[
+        for (final e in fav)
+          if (e is String) e
+          else if (e is Map && e['_id'] is String) e['_id'] as String
+      ];
+
+      if (ids.isEmpty) {
+        vendors.clear();
+        return;
+      }
+
+      // 2) Fetch each vendor by id (parallel)
+      final fetched = await Future.wait(ids.map(_fetchVendorById));
+      vendors.assignAll(fetched.whereType<Map<String, dynamic>>());
+
     } catch (e) {
-      Get.snackbar('Error', e.toString());
-      print('Error fetching favorites: $e');
+      print('[favorites] error: $e');
+      Get.snackbar('Error', 'Could not load favorites.');
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Try a few likely vendor-by-id routes. Return the vendor map or null.
+  Future<Map?> _fetchVendorById(String id) async {
+    final base = GlobalsVariables.baseUrlapp;
+    final headers = {
+      'Authorization': 'Bearer ${GlobalsVariables.token}',
+      'Accept': 'application/json',
+    };
+
+    // Keep only the one you actually use in your API:
+    final candidates = <Uri>[
+      Uri.parse('$base/vendor/$id'),
+      Uri.parse('$base/vendor/get/$id'),
+      Uri.parse('$base/vendor/getById?id=$id'),
+    ];
+
+    for (final url in candidates) {
+      try {
+        final res = await http.get(url, headers: headers);
+        if (res.statusCode == 200) {
+          final body = jsonDecode(res.body);
+          // data shape could be {status, data:{...}} or just vendor
+          final v = (body is Map && body['data'] is Map)
+              ? body['data'] as Map<String, dynamic>
+              : (body is Map ? body : null);
+          if (v != null) return v;
+        } else if (res.statusCode == 404) {
+          continue; // try next pattern
+        }
+      } catch (_) {}
+    }
+    return null;
   }
 }

@@ -41,7 +41,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     phoneController.text = profileController.phoneNumber.value;
     birthDateController.text = profileController.dateOfBirth.value;
     addressController.text = profileController.locationAddress.value;
-    gender = profileController.gender.value;
+    gender = profileController.gender.value.trim().toLowerCase();
     userLat = profileController.userLat.value;
     userLong = profileController.userLong.value;
   }
@@ -53,6 +53,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _profileImage = File(picked.path);
       });
+    }
+  }
+
+  DateTime? _selectedDob;
+
+  Future<void> _pickDob() async {
+    final now = DateTime.now();
+    // Adjust range to your needs
+    final first = DateTime(now.year - 100, 1, 1);
+    final last = now;
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate:
+          _selectedDob ??
+          (birthDateController.text.isNotEmpty
+              ? DateTime.tryParse(birthDateController.text) ?? DateTime(now.year - 20, 1, 1)
+              : DateTime(now.year - 20, 1, 1)),
+      firstDate: first,
+      lastDate: last,
+      helpText: 'Select date of birth',
+      // builder: (ctx, child) {
+      //   return Theme(
+      //     data: Theme.of(ctx).copyWith(
+      //       colorScheme: Theme.of(ctx).colorScheme.copyWith(primary: kPrimaryColor),
+      //     ),
+      //     child: child!,
+      //   );
+      // },
+    );
+
+    if (picked != null) {
+      _selectedDob = picked;
+      // Format as yyyy-MM-dd (backend-friendly)
+      final dob =
+          "${picked.year.toString().padLeft(4, '0')}-"
+          "${picked.month.toString().padLeft(2, '0')}-"
+          "${picked.day.toString().padLeft(2, '0')}";
+      birthDateController.text = dob;
+      print('DOB selected: $dob');
     }
   }
 
@@ -73,10 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Get.snackbar(
-        'Permission Denied',
-        'Location permanently denied. Enable from settings.',
-      );
+      Get.snackbar('Permission Denied', 'Location permanently denied. Enable from settings.');
       await Geolocator.openAppSettings();
       return false;
     }
@@ -89,24 +126,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!hasPermission) return;
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
       setState(() {
         userLat = position.latitude.toString();
         userLong = position.longitude.toString();
       });
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
       if (placemarks.isNotEmpty) {
         final Placemark placemark = placemarks[0];
-        final String address =
-            '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+        final String address = '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         addressController.text = address;
       }
     } catch (e) {
@@ -114,26 +145,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  static const _genderOptions = ['male', 'female', 'other'];
+
+  String? _genderValueOrNull(String g) {
+    final v = g.trim().toLowerCase();
+    return _genderOptions.contains(v) ? v : null; // null avoids the assertion
+  }
+
+  String _titleCase(String v) => v.isEmpty ? v : v[0].toUpperCase() + v.substring(1);
+
   Future<void> _updateProfile() async {
     if (userLat == null || userLong == null) {
       Get.snackbar('Location Required', 'Please select your location first.');
       return;
     }
 
-    final success = await profileController.updateUserProfile(
+    final phoneToSend = _completePhoneNumber.isNotEmpty ? _completePhoneNumber : profileController.phoneNumber.value;
+
+    // Fallback to controller values if user didn’t touch the controls
+    final genderToSend = (gender.isNotEmpty ? gender : profileController.gender.value).trim().toLowerCase();
+
+    final dobToSend = birthDateController.text.trim().isNotEmpty ? birthDateController.text.trim() : profileController.dateOfBirth.value.trim();
+
+    // Log payload once
+    print('--- Saving profile ---');
+    print('name: ${nameController.text}');
+    print('email: ${emailController.text}');
+    print('phone: $phoneToSend');
+    print('gender: $genderToSend');
+    print('dateOfBirth: $dobToSend');
+    print('address: ${addressController.text}');
+    print('lat: $userLat, long: $userLong');
+    print('----------------------');
+
+    // NOTE: updateUserProfile returns void; do not assign it to a variable
+    await profileController.updateUserProfile(
       locationAddress: addressController.text,
       userLat: userLat!,
       userLong: userLong!,
       userName: nameController.text,
       email: emailController.text,
-      phoneNumber:
-          _completePhoneNumber.isNotEmpty
-              ? _completePhoneNumber
-              : profileController.phoneNumber.value,
-      dateOfBirth: birthDateController.text,
-      gender: gender,
+      phoneNumber: phoneToSend,
+      dateOfBirth: dobToSend,
+      gender: genderToSend,
       profileImageFile: _profileImage,
     );
+
+    await profileController.fetchUserProfile();
+    Get.back();
+    Get.snackbar('Updated', 'Profile saved successfully.');
   }
 
   @override
@@ -147,22 +207,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            leading: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
-                ),
-              ],
-            ),
-            title: Text(
-              "Edit Profile",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            leading: Row(children: [GestureDetector(onTap: () => Get.back(), child: SvgPicture.asset('assets/back icon.svg', height: 50))]),
+            title: Text("Edit Profile", style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w700)),
           ),
         ),
       ),
@@ -184,10 +230,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               _profileImage != null
                                   ? FileImage(_profileImage!)
                                   : profileController.imageUrl.value.isNotEmpty
-                                  ? NetworkImage(
-                                    profileController.imageUrl.value,
-                                  )
-                                  : AssetImage('') as ImageProvider,
+                                  ? NetworkImage(profileController.imageUrl.value)
+                                  : const AssetImage('assets/placeholder.png') as ImageProvider,
                         ),
                       ),
                       Positioned(
@@ -197,11 +241,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           onTap: pickProfileImage,
                           child: Container(
                             padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey.shade400),
-                            ),
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white, border: Border.all(color: Colors.grey.shade400)),
                             child: Icon(Icons.camera_alt, size: 20),
                           ),
                         ),
@@ -210,11 +250,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   SizedBox(height: 20),
                   buildTextField(nameController, "Name", 'assets/person.png'),
-                  buildTextField(
-                    emailController,
-                    "Email",
-                    'assets/email_big.png',
-                  ),
+                  buildTextField(emailController, "Email", 'assets/email_big.png'),
                   SizedBox(height: 10),
                   // IntlPhoneField(
                   //   decoration: InputDecoration(
@@ -230,44 +266,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   //   },
                   // ),
                   DropdownButtonFormField<String>(
-                    value: gender!='' ? gender : null,
+                    value: _genderValueOrNull(gender), // matches lowercase items
                     decoration: buildInputDecoration('assets/gender.png'),
                     items:
-                        ["Male", "Female", "Other"]
-                            .map(
-                              (item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(item),
-                              ),
-                            )
-                            .toList(),
+                        _genderOptions.map((v) {
+                          return DropdownMenuItem(
+                            value: v, // store lowercase
+                            child: Text(_titleCase(v)), // display Title Case
+                          );
+                        }).toList(),
                     onChanged: (value) => setState(() => gender = value ?? ''),
-                    hint: Text('Gender'),
+                    hint: const Text('Gender'),
                   ),
                   SizedBox(height: 10),
-                  buildTextField(
-                    birthDateController,
-                    "Date of Birth",
-                    'assets/booking.png',
+                  GestureDetector(
+                    onTap: _pickDob,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: birthDateController,
+                        decoration: buildInputDecoration('assets/booking.png').copyWith(hintText: "Date of Birth (tap to select)"),
+                        readOnly: true,
+                      ),
+                    ),
                   ),
+
                   SizedBox(height: 10),
                   TextFormField(
                     controller: addressController,
                     readOnly: true,
                     onTap: getCurrentLocation,
-                    decoration: buildInputDecoration(
-                      'assets/discover.png',
-                    ).copyWith(hintText: "Address"),
+                    decoration: buildInputDecoration('assets/discover.png').copyWith(hintText: "Address"),
                   ),
                   SizedBox(height: 20),
                   Obx(
                     () => SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed:
-                            profileController.isUpdating.value
-                                ? null
-                                : _updateProfile,
+                        onPressed: profileController.isUpdating.value ? null : _updateProfile,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 16),
                           elevation: 0,
@@ -280,14 +315,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child:
                             profileController.isUpdating.value
                                 ? CircularProgressIndicator(color: Colors.white)
-                                : Text(
-                                  "Save changes",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                : Text("Save changes", style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),
@@ -298,10 +326,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Obx(
             () =>
                 profileController.isUpdating.value
-                    ? Container(
-                      color: Colors.black.withOpacity(0.5),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
+                    ? Container(color: Colors.black.withOpacity(0.5), child: Center(child: CircularProgressIndicator()))
                     : SizedBox.shrink(),
           ),
         ],
@@ -309,29 +334,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget buildTextField(
-    TextEditingController controller,
-    String hint,
-    String iconPath,
-  ) {
+  Widget buildTextField(TextEditingController controller, String hint, String iconPath) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
-        controller: controller,
-        decoration: buildInputDecoration(iconPath).copyWith(hintText: hint),
-      ),
+      child: TextFormField(controller: controller, decoration: buildInputDecoration(iconPath).copyWith(hintText: hint)),
     );
   }
 
   InputDecoration buildInputDecoration(String iconPath) {
     return InputDecoration(
-      prefixIcon: Container(
-        height: 22,
-        width: 22,
-        decoration: BoxDecoration(
-          image: DecorationImage(image: AssetImage(iconPath), scale: 4),
-        ),
-      ),
+      prefixIcon: Container(height: 22, width: 22, decoration: BoxDecoration(image: DecorationImage(image: AssetImage(iconPath), scale: 4))),
       hintStyle: TextStyle(color: kGreyColor2),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(40)),
     );

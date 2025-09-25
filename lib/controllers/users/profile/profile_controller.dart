@@ -20,6 +20,7 @@ class UserProfileController extends GetxController {
   var favoriteVendors = <String>[].obs;
 
   final String? token = GlobalsVariables.token;
+
   @override
   void onInit() {
     super.onInit();
@@ -28,30 +29,91 @@ class UserProfileController extends GetxController {
 
   Future<void> fetchUserProfile() async {
     isLoading.value = true;
-    update(); // Notify listeners immediately
+    update();
 
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/get');
+    print('[fetchUserProfile] GET $url');
 
-    print("fetching user");
     try {
-      final response = await http.get(url, headers: _buildHeaders());
+      final res = await http.get(url, headers: _buildHeaders());
+      print('[fetchUserProfile] status=${res.statusCode}');
+      _prettyPrintJson('GET /user/get BODY', res.body);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _updateProfileData(data['data']); // Use the helper method
-        update();
-        print("user data: $data");
-        // Get.snackbar('Success', 'Profile loaded successfully!');
+      if (res.statusCode == 200) {
+        final raw = jsonDecode(res.body);
+        if (raw is Map<String, dynamic> && raw['data'] is Map<String, dynamic>) {
+          final user = raw['data'] as Map<String, dynamic>;
+          _printKeys('USER FIELDS', user);
+          _updateProfileData(user); // <-- pass the user map directly
+          print('user data: $user');
+        } else {
+          print('[fetchUserProfile] Unexpected payload shape: ${res.body}');
+        }
       } else {
-        // Get.snackbar('Error', 'Failed to load profile: ${response.statusCode}');
+        print('[fetchUserProfile] error body: ${res.body}');
+        Get.snackbar('Error', 'Failed to load profile: ${res.statusCode}');
       }
     } catch (e) {
+      print('[fetchUserProfile] exception: $e');
       Get.snackbar('Error', 'Please check your internet connection');
     } finally {
       isLoading.value = false;
-      update(); // Notify listeners when done
+      update();
     }
   }
+
+  /// Pretty-print JSON safely (no debugPrint)
+  void _prettyPrintJson(String label, String body) {
+    try {
+      final obj = jsonDecode(body);
+      final pretty = const JsonEncoder.withIndent('  ').convert(obj);
+      print('[$label]\n$pretty');
+    } catch (_) {
+      // Not JSON, just print raw
+      print('[$label]\n$body');
+    }
+  }
+
+  /// Log keys and runtime types of a map
+  void _printKeys(String label, Map<String, dynamic> m) {
+    print('--- $label ---');
+    for (final k in m.keys) {
+      final v = m[k];
+      print(' • $k  (${v.runtimeType})');
+    }
+    print('-----------------');
+  }
+
+
+  // user_profile_controller.dart (add inside class)
+  Future<bool> setPhoneVerified(String phone) async {
+    try {
+      final req = http.MultipartRequest(
+        'PUT',
+        Uri.parse('${GlobalsVariables.baseUrlapp}/user/update'),
+      );
+      req.headers['Authorization'] = 'Bearer $token';
+
+      // 🔒 Only the fields you actually want to change:
+      req.fields['phone'] = phone;
+      req.fields['isPhoneVerified'] = 'true';
+
+      final res = await req.send();
+      final body = await res.stream.bytesToString();
+      print('[setPhoneVerified] status=${res.statusCode} body=$body');
+
+      if (res.statusCode == 200) {
+        phoneNumber.value = phone;
+        await fetchUserProfile();
+        return true;
+      }
+    } catch (e) {
+      print('[setPhoneVerified] error: $e');
+    }
+    return false;
+  }
+
+
 
   Future<void> updateUserProfile({
     required String locationAddress,
@@ -67,70 +129,72 @@ class UserProfileController extends GetxController {
     isUpdating.value = true;
 
     try {
-      // Create multipart request
-      var request = http.MultipartRequest(
-        'PUT',
-        Uri.parse('${GlobalsVariables.baseUrlapp}/user/update'),
-      );
+      final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/update');
+      print('[updateUserProfile] PUT $url');
 
-      // Add authorization header
+      // Fallbacks so we never send blanks that wipe data
+      final safeName   = userName.trim().isEmpty     ? name.value              : userName.trim();
+      final safeEmail  = email.trim().isEmpty        ? this.email.value        : email.trim();
+      final safePhone  = phoneNumber.trim().isEmpty  ? this.phoneNumber.value  : phoneNumber.trim();
+      final safeDob    = dateOfBirth.trim().isEmpty  ? this.dateOfBirth.value  : dateOfBirth.trim();
+      final safeGender = gender.trim().isEmpty       ? this.gender.value       : gender.trim().toLowerCase();
+      final safeAddr   = locationAddress.trim().isEmpty ? this.locationAddress.value : locationAddress.trim();
+      final safeLat    = userLat.isEmpty             ? this.userLat.value      : userLat;
+      final safeLong   = userLong.isEmpty            ? this.userLong.value     : userLong;
+
+      final request = http.MultipartRequest('PUT', url);
       request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
 
-      // Add text fields
-      request.fields['locationAdress'] = locationAddress;
-      request.fields['userLat'] = userLat;
-      request.fields['userLong'] = userLong;
-      request.fields['userName'] = userName;
-      request.fields['email'] = email;
-      request.fields['phone'] = phoneNumber;
-      request.fields['dateofBirth'] = dateOfBirth;
-      request.fields['gender'] = gender;
+      request.fields['userName']       = safeName;
+      request.fields['email']          = safeEmail;
+      request.fields['phone']          = safePhone;
+      request.fields['gender']         = safeGender;
+      request.fields['dateofBirth']    = safeDob;   // your backend uses `dateofBirth`
+      request.fields['locationAdress'] = safeAddr;  // note the single 'd' in "Adress"
+      request.fields['userLat']        = safeLat;
+      request.fields['userLong']       = safeLong;
 
-      // Add image file if provided
       if (profileImageFile != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'profileImage', // Must match exactly what API expects
-            profileImageFile.path,
-          ),
-        );
+        request.files.add(await http.MultipartFile.fromPath('profileImage', profileImageFile.path));
       }
 
-      // Send request
-      var response = await request.send();
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
+      print('[updateUserProfile] status=${response.statusCode}');
+      print('[updateUserProfile] body=$body');
 
-      // Handle response
       if (response.statusCode == 200) {
-        final responseData = await response.stream.bytesToString();
-        final jsonResponse = jsonDecode(responseData);
+        // update local cache
+        name.value             = safeName;
+        this.email.value       = safeEmail;
+        this.phoneNumber.value = safePhone;
+        this.dateOfBirth.value = safeDob;
+        this.locationAddress.value = safeAddr;
+        this.userLat.value     = safeLat;
+        this.userLong.value    = safeLong;
+        this.gender.value      = safeGender;
 
-        // Update local state
-        name.value = userName;
-        this.email.value = email;
-        this.phoneNumber.value = phoneNumber;
-        this.dateOfBirth.value = dateOfBirth;
-        this.locationAddress.value = locationAddress;
-        this.userLat.value = userLat;
-        this.userLong.value = userLong;
-        this.gender.value = gender;
-
-        if (profileImageFile != null) {
-          imageUrl.value = jsonResponse['profileImage'] ?? '';
-        }
+        try {
+          final json = jsonDecode(body);
+          final data = json is Map && json['data'] is Map ? json['data'] : json;
+          final img = (data['profileImage'] ?? data['imageUrl'] ?? '').toString();
+          if (img.isNotEmpty) imageUrl.value = img;
+        } catch (_) {}
 
         Get.snackbar('Success', 'Profile updated successfully!');
       } else {
-        Get.snackbar(
-          'Error',
-          'Failed to update profile: ${response.statusCode}',
-        );
+        Get.snackbar('Error', 'Failed to update profile: ${response.statusCode}');
       }
     } catch (e) {
+      print('[updateUserProfile] error=$e');
       Get.snackbar('Error', 'Failed to update profile: ${e.toString()}');
     } finally {
       isUpdating.value = false;
     }
   }
+
+
 
   // Helper method to update profile data from API response
   void _updateProfileData(Map<String, dynamic> data) {
@@ -138,11 +202,11 @@ class UserProfileController extends GetxController {
     profession.value = data['profession'] ?? '';
     email.value = data['email'] ?? '';
     phoneNumber.value = data['phone'] ?? '';
-    dateOfBirth.value = data['dateofBirth'] ?? '';
+    dateOfBirth.value = (data['dateofBirth'] ?? data['dateOfBirth'] ?? '').toString();
+    gender.value      = (data['gender'] ?? '').toString().trim().toLowerCase();
     locationAddress.value = data['locationAdress'] ?? '';
     userLat.value = data['userLat']?.toString() ?? '';
     userLong.value = data['userLong']?.toString() ?? '';
-    gender.value = data['gender'] ?? '';
     imageUrl.value = data['profileImage'] ?? '';
 
     if (data['favoriteVendors'] != null) {
@@ -157,4 +221,34 @@ class UserProfileController extends GetxController {
       'Authorization': 'Bearer $token',
     };
   }
+
+
+
+  // === DEBUG HELPERS ===
+  static const bool _debugApi = true;
+  //
+  // void _prettyPrintJson(String label, String body) {
+  //   if (!_debugApi) return;
+  //   try {
+  //     final encoder = const JsonEncoder.withIndent('  ');
+  //     final decoded = jsonDecode(body);
+  //     print('[$label]\n${encoder.convert(decoded)}');
+  //   } catch (_) {
+  //     print('[$label RAW]\n$body');
+  //   }
+  // }
+  //
+  // void _printKeys(String title, Map<String, dynamic> map, {String prefix = ''}) {
+  //   if (!_debugApi) return;
+  //   print('--- $title ---');
+  //   map.forEach((k, v) {
+  //     final typeName = v == null ? 'null' : v.runtimeType.toString();
+  //     print(' • ${prefix.isEmpty ? '' : '$prefix.'}$k  ($typeName)');
+  //     if (v is Map<String, dynamic>) {
+  //       _printKeys(title, v, prefix: prefix.isEmpty ? k : '$prefix.$k');
+  //     }
+  //   });
+  //   print('-----------------');
+  // }
+
 }
