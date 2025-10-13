@@ -1,16 +1,16 @@
 import 'package:beautician_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
-TextStyle kSubheadingStyle = TextStyle(
-  fontSize: 14,
+TextStyle kSubheadingStyle = GoogleFonts.manrope(
+  fontSize: 16,
   color: kGreyColor,
 );
 
-TextStyle kHeadingStyle = TextStyle(
-  fontSize: 28,
+TextStyle kHeadingStyle = GoogleFonts.manrope(
+  fontSize: 30,
   color: kBlackColor,
-  fontWeight: FontWeight.bold
 );
 
 

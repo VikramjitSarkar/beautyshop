@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../utils/colors.dart';
 
@@ -69,9 +70,8 @@ class TopSpecialistCard extends StatelessWidget {
                       child: FittedBox(
                         child: Text(
                           'Book',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                          style: GoogleFonts.manrope(
+                              fontSize: 14,
                               color: Colors.white),
                         ),
                       ),
@@ -85,9 +85,8 @@ class TopSpecialistCard extends StatelessWidget {
           // Specialist Name
           Text(
             specialistName,
-            style: const TextStyle(
+            style: GoogleFonts.manrope(
               fontSize: 16,
-              fontWeight: FontWeight.w500,
               color: Colors.black,
             ),
           ),

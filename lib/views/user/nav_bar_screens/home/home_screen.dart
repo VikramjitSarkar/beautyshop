@@ -9,9 +9,11 @@ import 'package:beautician_app/views/user/nav_bar_screens/home/salon_list_screen
 import 'package:beautician_app/views/user/nav_bar_screens/home/top_specialist_screen.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/profile/profile_screen.dart';
 import 'package:beautician_app/views/widgets/saloon_card_three.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../../../../controllers/users/home/home_controller.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,11 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final homeController = Get.put(HomeController());
   final profileController = Get.put(UserProfileController());
 
-
   String greetings = "";
   String asset = "";
-
-
 
   String getGreetingBasedOnTime() {
     final now = DateTime.now();
@@ -46,8 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-
   void getTop3Vendors({
     required var nearbyVendors,
     required var nearbyCategoryData,
@@ -64,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
             final vendorsList = category['vendors'] as List<dynamic>;
 
             final match = vendorsList.firstWhere(
-                  (v) => v['_id'].toString() == vendorId,
+              (v) => v['_id'].toString() == vendorId,
               orElse: () => null,
             );
 
@@ -74,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'profileImage': match['profileImage'] ?? '',
                 'userName': match['userName'] ?? '',
                 'shopRating':
-                double.tryParse(match['shopRating'].toString()) ?? 0.0,
+                    double.tryParse(match['shopRating'].toString()) ?? 0.0,
               });
               break; // stop after first match
             }
@@ -83,10 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } else {
       // Take top 3 vendors from the list
-      final topVendorIds = nearbyVendors
-          .take(3)
-          .map((vendor) => vendor['_id'].toString())
-          .toSet();
+      final topVendorIds =
+          nearbyVendors
+              .take(3)
+              .map((vendor) => vendor['_id'].toString())
+              .toSet();
 
       final addedVendorIds = <String>{};
 
@@ -104,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'profileImage': vendor['profileImage'] ?? '',
                 'userName': vendor['userName'] ?? '',
                 'shopRating':
-                double.tryParse(vendor['shopRating'].toString()) ?? 0.0,
+                    double.tryParse(vendor['shopRating'].toString()) ?? 0.0,
               });
               addedVendorIds.add(vendorId);
             }
@@ -121,12 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Get.to(() => TopSpecialistScreen(vendors: topVendors));
   }
-
-
-
-
-
-
 
   // };
   @override
@@ -146,11 +138,11 @@ class _HomeScreenState extends State<HomeScreen> {
         if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
           return Scaffold(
             backgroundColor: Colors.white,
+
             // appBar: PreferredSize(
             //   preferredSize: Size.fromHeight(160),
             //   child: CustomAppBar(title: 'My Custom AppBar', greetings: greetings,),
             // ),
-
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(55),
               child: AppBar(
@@ -159,16 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 automaticallyImplyLeading: false,
                 title: Row(
                   children: [
-                    Image.asset("assets/$asset.png", height: 30, width: 30,),
-                    SizedBox(width: 5,),
-                    Text(
-                      "$greetings,",
-                      style: kHeadingStyle.copyWith(fontSize: 20),
-                    ),
+                    Image.asset("assets/$asset.png", height: 30, width: 30),
+                    SizedBox(width: 5),
+                    // Text(
+                    //   "$greetings,",
+                    //   style: kHeadingStyle.copyWith(fontSize: 20),
+                    // ),
                   ],
                 ),
                 actions: [
-
                   GestureDetector(
                     onTap: () {
                       if (GlobalsVariables.token == null) {
@@ -182,17 +173,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         GlobalsVariables.token == null
                             ? SizedBox()
                             : Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: const Color(0xffC0C0C0),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xffC0C0C0),
+                                ),
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: SvgPicture.asset(
+                                'assets/notification.svg',
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(40),
-                          ),
-                          child: SvgPicture.asset(
-                            'assets/notification.svg',
-                          ),
-                        ),
                         const SizedBox(width: 5),
                       ],
                     ),
@@ -204,27 +195,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(40),
                     ),
                     child: GestureDetector(
-                      onTap: ()=> Get.to(()=> ProfileScreen()),
+                      onTap: () => Get.to(() => ProfileScreen()),
                       child: Row(
                         children: [
                           SvgPicture.asset('assets/menu.svg'),
-                          SizedBox(width: 5,),
+                          SizedBox(width: 5),
                           Text(
                             "menu",
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: kGreyColor2
+                            style: GoogleFonts.manrope(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: kGreyColor2,
                             ),
-
-                          )
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(width: 15,)
+                  SizedBox(width: 15),
                 ],
-
               ),
             ),
 
@@ -234,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomAppBar(title: 'My Custom AppBar',),
+                    CustomAppBar(title: 'My Custom AppBar'),
                     SizedBox(height: 20),
                     SizedBox(
                       height: 100,
@@ -244,7 +233,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (userServicesController.subcategoryList.isEmpty) {
-                          return Center(child: Text('No services available'));
+                          return Center(
+                            child: Text(
+                              'No services available',
+                              style: GoogleFonts.manrope(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: kGreyColor2,
+                              ),
+                            ),
+                          );
                         }
 
                         return ListView.builder(
@@ -354,13 +352,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                               onBook: () {
-                                if(GlobalsVariables.token == null){
-                                  Get.to(()=> UserVendorScreen());
-                                }else{
-                                  Get.to(()=> SalonSpecialistDetailScreen(
-                                    vendorId: vendor['_id'],
-                                  ));
-
+                                if (GlobalsVariables.token == null) {
+                                  Get.to(() => UserVendorScreen());
+                                } else {
+                                  Get.to(
+                                    () => SalonSpecialistDetailScreen(
+                                      vendorId: vendor['_id'],
+                                    ),
+                                  );
                                 }
                               },
                             );
@@ -386,8 +385,8 @@ class _HomeScreenState extends State<HomeScreen> {
               automaticallyImplyLeading: false,
               title: Row(
                 children: [
-                  Image.asset("assets/$asset.png", height: 30, width: 30,),
-                  SizedBox(width: 5,),
+                  Image.asset("assets/$asset.png", height: 30, width: 30),
+                  SizedBox(width: 5),
                   Text(
                     "$greetings,",
                     style: kHeadingStyle.copyWith(fontSize: 20),
@@ -395,7 +394,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               actions: [
-
                 GestureDetector(
                   onTap: () {
                     if (GlobalsVariables.token == null) {
@@ -409,23 +407,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       GlobalsVariables.token == null
                           ? SizedBox()
                           : Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xffC0C0C0),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xffC0C0C0),
+                              ),
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                            child: SvgPicture.asset('assets/notification.svg'),
                           ),
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: SvgPicture.asset(
-                          'assets/notification.svg',
-                        ),
-                      ),
                       const SizedBox(width: 5),
                     ],
                   ),
                 ),
                 GestureDetector(
-                  onTap: ()=> Get.to(()=> ProfileScreen()),
+                  onTap: () => Get.to(() => ProfileScreen()),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
@@ -435,23 +431,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       children: [
                         SvgPicture.asset('assets/menu.svg'),
-                        SizedBox(width: 5,),
+                        SizedBox(width: 5),
                         Text(
-                          "menu",
-                          style: TextStyle(
+                          "Menu",
+                          style: GoogleFonts.manrope(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: kGreyColor2
+                            color: kGreyColor2,
                           ),
-
-                        )
+                        ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(width: 15,)
+                SizedBox(width: 15),
               ],
-
             ),
           ),
           backgroundColor: Colors.white,
@@ -462,8 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomAppBar(title: 'My Custom AppBar',),
-
+                    CustomAppBar(title: 'My Custom AppBar'),
 
                     //service categories
                     SizedBox(
@@ -478,7 +471,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (userServicesController.subcategoryList.isEmpty) {
-                          return Center(child: Text('No services available'));
+                          return Center(
+                            child: Text(
+                              'No services available',
+                              style: GoogleFonts.manrope(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: kGreyColor2,
+                              ),
+                            ),
+                          );
                         }
 
                         return ListView.builder(
@@ -500,57 +502,57 @@ class _HomeScreenState extends State<HomeScreen> {
                     // SizedBox(height: 10),
 
                     //Ad Banner
-                    Container(
-                      height: 200,
-                      width: double.maxFinite,
-                      padding: EdgeInsets.only(
-                        left: 15,
-                        top: 20,
-                        bottom: 8,
-                        right: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        image: DecorationImage(
-                          image: AssetImage('assets/Banner.png'),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'up to',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              Text(
-                                '25%',
-                                style: TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                'Vourcher for you next\nhaircut service',
-                                style: TextStyle(
-                                  height: 1.2,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 20),
+                    // Container(
+                    //   height: 200,
+                    //   width: double.maxFinite,
+                    //   padding: EdgeInsets.only(
+                    //     left: 15,
+                    //     top: 20,
+                    //     bottom: 8,
+                    //     right: 8,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(30),
+                    //     image: DecorationImage(
+                    //       image: AssetImage('assets/Banner.png'),
+                    //       fit: BoxFit.fill,
+                    //     ),
+                    //   ),
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Text(
+                    //         'up to',
+                    //         style: TextStyle(
+                    //           fontSize: 16,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ),
+                    //       Row(
+                    //         spacing: 10,
+                    //         children: [
+                    //           Text(
+                    //             '25%',
+                    //             style: TextStyle(
+                    //               fontSize: 40,
+                    //               fontWeight: FontWeight.w700,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             'Vourcher for you next\nhaircut service',
+                    //             style: TextStyle(
+                    //               height: 1.2,
+                    //               fontSize: 14,
+                    //               fontWeight: FontWeight.w400,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       Spacer(),
+                    //     ],
+                    //   ),
+                    // ),
+                    // SizedBox(height: 20),
 
                     //Top Specialist List
                     Row(
@@ -561,85 +563,38 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Top specialist',
                           style: kHeadingStyle.copyWith(fontSize: 16),
                         ),
-
-                        // GestureDetector(
-                        //   onTap: ()=> Get.to(() => TopSpecialistScreen(vendors: homeController.nearbyVendors)),
-                        //   child: Text(
-                        //     "View all",
-                        //     style: TextStyle(
-                        //       fontSize: 14,
-                        //     ),
-                        //   ),
-                        // )
-                        // GestureDetector(
-                        //   onTapDown: (TapDownDetails details) async {
-                        //     final selected = await showMenu<String>(
-                        //       color: Colors.white,
-                        //       context: context,
-                        //       position: RelativeRect.fromLTRB(
-                        //         details.globalPosition.dx,
-                        //         details.globalPosition.dy,
-                        //         0,
-                        //         0,
-                        //       ),
-                        //       items: [
-                        //         PopupMenuItem(
-                        //           value: 'top10',
-                        //           child: Text('Top 10'),
-                        //         ),
-                        //         PopupMenuItem(
-                        //           value: 'all',
-                        //           child: Text('All'),
-                        //         ),
-                        //       ],
-                        //     );
-                        //
-                        //     if (selected == 'top10') {
-                        //       getTop3Vendors(nearbyVendors: homeController.nearbyVendors, nearbyCategoryData: homeController.nearbyCategoryData);
-                        //
-                        //     } else if (selected == 'all') {
-                        //       // handle all
-                        //     }
-                        //   },
-                        //   child: Icon(Icons.more_vert_outlined, size: 24),
-                        // ),
                       ],
                     ),
- 
-                    SizedBox(height: 20),
-                    // homeController.nearbyVendors.isEmpty? Obx((){
-                    //   print(homeController.nearbyVendors);
-                    //   return Padding(
-                    //     padding: EdgeInsets.only(bottom: 20),
-                    //     child: Center(child: Text("No Specialists Found")),
-                    //   );
-                    // }) :
+
+                    SizedBox(height: 10),
                     SizedBox(
                       height: 200,
                       child: Obx(() {
-
                         if (homeController.isLoading.value) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
 
-                        if(homeController.nearbyVendors.isEmpty){
+                        if (homeController.nearbyVendors.isEmpty) {
                           return Padding(
                             padding: EdgeInsets.only(bottom: 20),
                             child: Center(child: Text("No Specialists Found")),
                           );
                         }
 
-
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: homeController.nearbyVendors.length<=5? homeController.nearbyVendors.length : 5,
+                          itemCount:
+                              homeController.nearbyVendors.length <= 5
+                                  ? homeController.nearbyVendors.length
+                                  : 5,
                           itemBuilder: (context, index) {
                             final vendor = homeController.nearbyVendors[index];
                             print("object");
-                            print("these are vendors: ${homeController.nearbyVendors}");
-
+                            print(
+                              "these are vendors: ${homeController.nearbyVendors}",
+                            );
 
                             return TopSpecialistCard(
                               imagePath: vendor['profileImage'] ?? '',
@@ -654,19 +609,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               onBook: () {
                                 GlobalsVariables.token == null
                                     ? Get.to(() => UserVendorScreen())
-                                    : Get.to(()=> SalonSpecialistDetailScreen(
-                                  vendorId: vendor['_id'].toString(),
-                                ));
+                                    : Get.to(
+                                      () => SalonSpecialistDetailScreen(
+                                        vendorId: vendor['_id'].toString(),
+                                      ),
+                                    );
                               },
                             );
                           },
                         );
                       }),
                     ),
-                    Divider(color: kGreyColor),
-                    SizedBox(height: 20),
+                    // Divider(color: kGreyColor),
+                    // SizedBox(height: 20),
                     Obx(() {
-
                       if (homeController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
                       }

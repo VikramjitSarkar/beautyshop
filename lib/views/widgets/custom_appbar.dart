@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/home/home_controller.dart';
 import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
@@ -128,116 +130,103 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     print("lat and long are $lat $long");
     return Obx(() {
-      return Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F8F8),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        margin: const EdgeInsets.only(top: 10),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            // Top row with temperature and notification
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              // same look as bottom nav bar
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFFF4F4F4).withOpacity(0.85),
+
+                  const Color(0xFFC4FD99).withOpacity(0.85),
+                ],
+              ),
+              border: Border.all(color: const Color(0xFFE6E6E6), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
               children: [
-                // Text(
-                //   "$greetings,",
-                //   style: kHeadingStyle.copyWith(fontSize: 22),
-                // ),
-                // SizedBox(width: 5,),
-                // Text(
-                //   profileController.name.value.isNotEmpty
-                //       ? profileController.name.value
-                //       : 'Guest',
-                //   style: kHeadingStyle.copyWith(
-                //     fontWeight: FontWeight.w400,
-                //     fontSize: 23,
-                //   ),
-                // ),
+                const SizedBox(height: 10),
+                // 🔽 your existing Row/Column content unchanged
                 Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    profileController.name.value.isNotEmpty? CircleAvatar(
-                      radius: 30,
-                      backgroundImage: profileController.imageUrl.value!=""? NetworkImage(profileController.imageUrl.value,) :
-
-                      AssetImage("assets/empty pic.jpg", ),
-                    ) : Container(),
-                    SizedBox(width: 10,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-
-
-
-                        Row(
+                        profileController.name.value.isNotEmpty
+                            ? CircleAvatar(
+                          radius: 30,
+                          backgroundImage: profileController.imageUrl.value != ""
+                              ? NetworkImage(profileController.imageUrl.value)
+                              : const AssetImage("assets/empty pic.jpg") as ImageProvider,
+                        )
+                            : const SizedBox.shrink(),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
-
-                            Text(
-                              'Hi,',
-                              style: kHeadingStyle.copyWith(fontSize: 23),
+                            Row(
+                              children: [
+                                Text('Hi,', style: kHeadingStyle.copyWith(fontSize: 23)),
+                                Text(
+                                  profileController.name.value.isNotEmpty
+                                      ? profileController.name.value
+                                      : 'Guest',
+                                  style: kHeadingStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 23),
+                                ),
+                              ],
                             ),
-                            Text(
-                              profileController.name.value.isNotEmpty
-                                  ? profileController.name.value
-                                  : 'Guest',
-                              style: kHeadingStyle.copyWith(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 23,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            SvgPicture.asset('assets/location.svg'),
-                            const SizedBox(width: 4),
-                            SizedBox(
-                              width: 200, // Fixed width for consistent layout
-                              child:
-                              isLocationLoading.value
-                                  ? const LinearProgressIndicator()
-                                  : Text(
-                                currentLocation.value,
-                                style: kSubheadingStyle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                SvgPicture.asset('assets/location.svg'),
+                                const SizedBox(width: 4),
+                                SizedBox(
+                                  width: 200,
+                                  child: isLocationLoading.value
+                                      ? const LinearProgressIndicator()
+                                      : Text(
+                                    currentLocation.value,
+                                    style: kSubheadingStyle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ],
                     ),
-
-                  ],
-                ),
-                Spacer(),
-                Row(
-                  children: [
+                    const Spacer(),
                     GestureDetector(
                       onTap: () => Get.to(() => SearchScreen()),
                       child: SvgPicture.asset('assets/search.svg'),
                     ),
                   ],
                 ),
-
+                const SizedBox(height: 30),
               ],
             ),
-            // const SizedBox(height: 15),
-            // Profile info row
-
-            SizedBox(height: 30),
-          ],
+          ),
         ),
       );
     });
+
   }
 
   @override

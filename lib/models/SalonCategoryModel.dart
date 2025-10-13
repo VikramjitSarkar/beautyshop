@@ -13,8 +13,8 @@ class SalonCategoryWidget extends StatelessWidget {
     required this.title,
     required this.vendors,
     required this.screen,
-    Key? key, required this.categoryId,
-  }) : super(key: key);
+    super.key, required this.categoryId,
+  });
 
   @override
   Widget build(BuildContext context) {

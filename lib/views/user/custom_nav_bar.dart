@@ -37,6 +37,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
     MapScreen(),
     YourAppointmentScreen(),
     MessageScreen(),
+
   ];
 
   void _onItemTapped(int index) {
@@ -166,33 +167,81 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                       ),
                     )
                     : _pages[_selectedIndex],
-            bottomNavigationBar: Container(
-              height: 72,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2))],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(_icons.length, (index) {
-                  bool isSelected = index == _selectedIndex;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(index),
-                      child: Image.asset(
-                        _icons[index],
-                        width: 24,
-                        height: 24,
-                        color: isSelected ? Colors.black : kGreyColor,
-                      ),
+              bottomNavigationBar: SafeArea(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // ← 10px edge gap
+                  height: 90,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(48),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF4F4F4), Color(0xFFEDEDED)],
                     ),
-                  );
-                }),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26.withOpacity(0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                    border: Border.all(color: Color(0xFFE6E6E6), width: 2),
+                  ),
+
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,              // shrink to content
+                      children: List.generate(_icons.length, (index) {
+                        final isSelected = index == _selectedIndex;
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8), // inter-icon gap (≈16 total between two)
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(40),
+                            onTap: () => _onItemTapped(index),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              curve: Curves.easeOut,
+                              height: 70,
+                              width: 70,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected ? const Color(0xFFB7FF79) : Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(isSelected ? 0.10 : 0.06),
+                                    blurRadius: isSelected ? 14 : 10,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                                border: Border.all(color: Colors.white, width: 4),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Image.asset(
+                                  _icons[index],
+                                  width: 28,
+                                  height: 28,
+                                  fit: BoxFit.contain,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+
+                ),
               ),
-            ),
+
+
+
           );
         },
       ),
