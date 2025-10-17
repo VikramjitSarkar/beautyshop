@@ -460,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     //service categories
                     SizedBox(
-                      height: 130,
+                      height: 160,
                       child: Obx(() {
                         if (userServicesController.isLoading.value) {
                           return Center(

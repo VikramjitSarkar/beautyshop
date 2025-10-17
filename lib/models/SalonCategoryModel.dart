@@ -88,7 +88,7 @@ class SalonCategoryWidget extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SizedBox(
-                  width: 150,
+                  width: 250,
                   child: SaloonCardThree(
                     rating: rating,
                     location: vendor['locationAddres'],

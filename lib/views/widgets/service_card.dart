@@ -35,13 +35,16 @@ class ServicesCard extends StatelessWidget {
               );
             },
             child: Container(
-              padding: EdgeInsets.all(10),
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: Color(0xffC0C0C0), width: 1)
+                border: Border.all(color: const Color(0xffC0C0C0), width: 1),
+                image: DecorationImage(
+                  image: AssetImage(image),
+                  fit: BoxFit.cover, // fills the container
+                ),
               ),
-              height: 60,
-              child: Image.asset(image, fit: BoxFit.cover),
             ),
           ),
           SizedBox(height: 10),
@@ -50,7 +53,7 @@ class ServicesCard extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
                 fontSize: 12,
