@@ -210,20 +210,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       const SizedBox(height: 30),
 
-                      // Social buttons
-                      ActionButton(
-                        title: "Continue with Google",
-                        onPressed: () {},
-                        icon: 'google',
-                      ),
-                      const SizedBox(height: 10),
-                      ActionButton(
-                        title: "Continue with Apple",
-                        onPressed: () {},
-                        icon: 'apple',
-                      ),
-                      const SizedBox(height: 30),
-
                       // Sign in redirect
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

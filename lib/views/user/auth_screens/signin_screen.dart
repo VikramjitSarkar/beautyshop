@@ -158,18 +158,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       ],
                     ),
                     SizedBox(height: 30),
-                    ActionButton(
-                      title: "Continue with Google",
-                      onPressed: () {},
-                      icon: 'google',
-                    ),
-                    SizedBox(height: 10),
-                    ActionButton(
-                      title: "Continue with Apple",
-                      onPressed: () {},
-                      icon: 'apple',
-                    ),
-                    SizedBox(height: 57),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

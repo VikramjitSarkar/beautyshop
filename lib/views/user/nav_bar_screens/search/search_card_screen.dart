@@ -1,3 +1,4 @@
+import 'package:beautician_app/views/widgets/saloon_card_three.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:beautician_app/constants/globals.dart';
@@ -208,12 +209,69 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                             return name.contains(searchQuery);
                           }).toList();
                   print(se);
-                  return ListView.builder(
-                    itemCount: se.length,
-                    itemBuilder: (context, index) {
-                      final vendor = se[index]; // ✅ use filtered list
-                      return _buildSalonCard(vendor);
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: ListView.builder(
+                      itemCount: se.length,
+                      itemBuilder: (context, index) {
+                        final vendor = se[index]; // ✅ use filtered list
+
+
+                        final rating =
+                            double.tryParse(vendor['shopRating']?.toString() ?? '0') ?? 0;
+
+                        final openingTime = Map<String, dynamic>.from(
+                          vendor['openingTime'] ??
+                              {
+                                "weekdays": {"from": "", "to": ""},
+                                "weekends": {"from": "", "to": ""},
+                              },
+                        );
+
+                        final galleryImages =
+                        vendor['gallery'] is List
+                            ? List<String>.from(vendor['gallery'])
+                            : [];
+                        final shopName =
+                        (vendor['shopName']?.toString().trim().isNotEmpty ?? false)
+                            ? vendor['shopName']
+                            : 'Unnamed Salon';
+
+                        final shopBanner =
+                        (vendor['shopBanner']?.toString().isNotEmpty ?? false)
+                            ? vendor['shopBanner']
+                            : '';
+                        return SizedBox(
+                          height: 210,
+                          child: SaloonCardThree(
+                            rating: rating,
+                            imageUrl: shopBanner,
+                            shopeName: shopName,
+                            location: vendor['locationAddres'],
+                            onTap: () {
+                              Get.to(
+                                    () => SaloonDetailPageScreen(
+                                  phoneNumber: vendor['phone'] ?? '',
+                                  rating: rating,
+                                  longitude: vendor['vendorLong'] ?? '',
+                                  latitude: vendor["vendorLat"] ?? '',
+                                  galleryImage: galleryImages,
+                                  vendorId: vendor["_id"] ?? '',
+                                  desc: vendor["description"] ?? '',
+                                  imageUrl: vendor["shopBanner"] ?? '',
+                                  location: vendor["locationAddres"] ?? '',
+                                  openingTime: openingTime,
+                                  shopName: vendor["shopName"] ?? '',
+                                  status: vendor["status"] ?? '',
+                                  title: vendor["title"] ?? '',
+                                  userName: vendor["userName"] ?? '',
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }),
               ),

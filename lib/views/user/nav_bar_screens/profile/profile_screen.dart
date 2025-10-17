@@ -34,10 +34,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: GlobalsVariables.token == null? PreferredSize(
+        preferredSize: Size.fromHeight(55),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            leading: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ) : null,
       backgroundColor: Colors.white,
       body: GlobalsVariables.token == null? Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 20, ),
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.center,
             // mainAxisAlignment: MainAxisAlignment.center,

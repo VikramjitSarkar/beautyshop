@@ -28,22 +28,25 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(55),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: padding),
+              child: AppBar(
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: Colors.white,
+                leading: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: SvgPicture.asset('assets/back icon.svg', height: 50,),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           backgroundColor: Colors.white,
-          // appBar: PreferredSize(
-          //   preferredSize: Size.fromHeight(55),
-          //   child: Padding(
-          //     padding: EdgeInsets.symmetric(horizontal: padding),
-          //     child: AppBar(
-          //       surfaceTintColor: Colors.transparent,
-          //       backgroundColor: Colors.white,
-          //       leading: Row(
-          //         children: [
-          //
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -53,10 +56,6 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () => Get.back(),
-                        child: SvgPicture.asset('assets/back icon.svg', height: 50,),
-                      ),
                       Center(child: Image.asset('assets/app icon 2.png')),
                       Text(
                           'Become a Beauty Expert on TheBeautyShop!\nList your services, showcase your work, and grow your client base with our smart, location-based platform. Flexible plans, instant bookings, and full control at your fingertips.',
@@ -166,21 +165,6 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                           Expanded(child: Image.asset('assets/line.png')),
                         ],
                       ),
-                      const SizedBox(height: 30),
-
-                      // Google / Apple Buttons
-                      ActionButton(
-                        title: "Continue with Google",
-                        onPressed: () {},
-                        icon: 'google',
-                      ),
-                      const SizedBox(height: 10),
-                      ActionButton(
-                        title: "Continue with Apple",
-                        onPressed: () {},
-                        icon: 'apple',
-                      ),
-
                       const SizedBox(height: 25),
 
                       // Already have account

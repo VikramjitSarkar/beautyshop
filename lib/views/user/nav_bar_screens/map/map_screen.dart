@@ -10,6 +10,7 @@ import 'package:beautician_app/utils/colors.dart';
 import 'package:beautician_app/utils/constants.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/utils/text_styles.dart';
+import 'package:beautician_app/views/widgets/saloon_card_four.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../controllers/users/auth/genralController.dart';
+import '../../../widgets/saloon_card_three.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -52,7 +54,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
   double lng = 0;
   bool subCategorySelected = false;
 
-
+  final double cardWidth = 180;
   final List<String> smiley = ["😐", "😡", "🙁", "🙂", "😃"];
   final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
 
@@ -419,13 +421,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
       int index = ratingValue.floor();
       print("ratingss: $index");
 
-      final openingTime = Map<String, dynamic>.from(
-        vendor['openingTime'] ??
-            {
-              "weekdays": {"from": "", "to": ""},
-              "weekends": {"from": "", "to": ""},
-            },
-      );
+      final openingTimeRaw = vendor['openingTime'];
+      final openingTime = (openingTimeRaw == null ||
+          (openingTimeRaw is Map && openingTimeRaw.isEmpty))
+          ? {
+        "weekdays": {"from": "", "to": ""},
+        "weekends": {"from": "", "to": ""},
+      }
+          : Map<String, dynamic>.from(openingTimeRaw);
+
 
       final galleryImages =
       vendor['gallery'] is List
@@ -954,27 +958,32 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                             ),
                           ),
                         const SizedBox(height: 5),
-                        Container(
-                          margin: EdgeInsets.only(top: 5,), // Removed horizontal margin here
-                          height: MediaQuery.of(context).size.height * 0.22,
+                        SizedBox(
+                          height: 210,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: filtered.length,
-                            padding: EdgeInsets.symmetric(horizontal: 20), // Apply padding here only once
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            // optionally improve performance for large lists
+                            // add cacheExtent or itemExtent if items are same width
                             itemBuilder: (context, index) {
                               final vendor = filtered[index];
                               final rating = 0.0;
                               final shopName = vendor['shopName'];
                               final distance = vendor['distance'];
+                              final shopBanner = vendor['shopBanner'] ?? '';
+                              final location = vendor['locationAddres'];
                               final status = vendor['status'];
                               final id = vendor['_id'];
-                              final openingTime = Map<String, dynamic>.from(
-                                vendor['openingTime'] ??
-                                    {
-                                      "weekdays": {"from": "", "to": ""},
-                                      "weekends": {"from": "", "to": ""},
-                                    },
-                              );
+                              final openingTimeRaw = vendor['openingTime'];
+                              final openingTime = (openingTimeRaw == null ||
+                                  (openingTimeRaw is Map && openingTimeRaw.isEmpty))
+                                  ? {
+                                "weekdays": {"from": "", "to": ""},
+                                "weekends": {"from": "", "to": ""},
+                              }
+                                  : Map<String, dynamic>.from(openingTimeRaw);
+
 
                               final galleryImages =
                               vendor['gallery'] is List
@@ -986,105 +995,36 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                               int activeIndex = rating.floor()-1;
                               print("active index $activeIndex");
 
-                              return GestureDetector(
-                                onTap: (){
-                                  Get.to(() => SaloonDetailPageScreen(
-                                    phoneNumber: vendor['phone'] ?? '',
+                              // ...extract vendor fields as you already do...
+
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: SizedBox(
+                                  width: cardWidth, // IMPORTANT: give a fixed width
+                                  child: SaloonCardFour(
                                     rating: rating,
-                                    longitude: vendor['vendorLong'] ?? '',
-                                    latitude: vendor["vendorLat"] ?? '',
-                                    galleryImage: galleryImages,
-                                    vendorId: vendor["_id"] ?? '',
-                                    desc: vendor["description"] ?? '',
-                                    imageUrl: vendor["shopBanner"] ?? '',
-                                    location: vendor["locationAddres"] ?? '',
-                                    openingTime: openingTime,
-                                    shopName: vendor["shopName"] ?? '',
-                                    status: vendor["status"] ?? '',
-                                    title: vendor["title"] ?? '',
-                                    userName: vendor["userName"] ?? '',
-                                  ));
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 20), // Removed left padding
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        width: 120,
-                                        height: 90,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15),
-                                          color: Colors.white,
-                                          border: vendor['shopBanner'].isNotEmpty
-                                              ? null
-                                              : Border.all(color: Colors.lightGreen, width: 0.5),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(15),
-                                          child: vendor['shopBanner'].isNotEmpty
-                                              ? Image.network(
-                                            vendor['shopBanner'],
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                Image.asset('assets/app icon 2.png'),
-                                          )
-                                              : Image.asset('assets/app icon 2.png'),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          ...List.generate(
-                                            smileys.length,
-                                                (index) => Padding(
-                                              padding: const EdgeInsets.only(right: 4),
-                                              child: Text(
-                                                smileys[index],
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.white.withOpacity(
-                                                    index == activeIndex ? 1.0 : 0.4,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          // const SizedBox(width: 8),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                rating.toStringAsFixed(1),
-                                                style: const TextStyle(fontSize: 14, color: Colors.black),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            shopName,
-                                            style: kHeadingStyle.copyWith(fontSize: 16),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                          SizedBox(width: 5,),
-                                          status=="online" ?Icon(
-                                            Icons.circle,
-                                            color:  Colors.lightGreen,
-                                            size: 14,
-                                          ) : SizedBox(),
-                                        ],
-                                      ),
-                                      Text(
-                                        "$distance km away",
-                                        style: kSubheadingStyle,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ],
+                                    imageUrl: shopBanner,
+                                    shopeName: shopName,
+                                    location: location,
+                                    onTap: () {
+                                      print("opening time: $openingTime");
+                                      Get.to(() => SaloonDetailPageScreen(
+                                        phoneNumber: vendor['phone'] ?? '',
+                                        rating: rating,
+                                        longitude: vendor['vendorLong'] ?? '',
+                                        latitude: vendor["vendorLat"] ?? '',
+                                        galleryImage: galleryImages,
+                                        vendorId: vendor["_id"] ?? '',
+                                        desc: vendor["description"] ?? '',
+                                        imageUrl: vendor["shopBanner"] ?? '',
+                                        location: vendor["locationAddres"] ?? '',
+                                        openingTime: openingTime,
+                                        shopName: vendor["shopName"] ?? '',
+                                        status: vendor["status"] ?? '',
+                                        title: vendor["title"] ?? '',
+                                        userName: vendor["userName"] ?? '',
+                                      ));
+                                    },
                                   ),
                                 ),
                               );

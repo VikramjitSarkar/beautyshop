@@ -49,7 +49,10 @@ class UserProfileController extends GetxController {
         } else {
           print('[fetchUserProfile] Unexpected payload shape: ${res.body}');
         }
-      } else {
+      } else if(GlobalsVariables.token == null){
+        print("no user logged in");
+
+      }else {
         print('[fetchUserProfile] error body: ${res.body}');
         Get.snackbar('Error', 'Failed to load profile: ${res.statusCode}');
       }
