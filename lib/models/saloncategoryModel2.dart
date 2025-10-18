@@ -59,6 +59,7 @@ class SalonCategoryWidget2 extends StatelessWidget {
                 vendor['gallery'] is List ? vendor['gallery'] : [];
 
             return SaloonCardThree(
+              distanceKm: vendor['distance'],
               rating: rating,
               location: vendor['locationAddres'],
               imageUrl: vendor['profileImage'] ?? '',

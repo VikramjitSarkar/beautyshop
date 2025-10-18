@@ -139,17 +139,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
+              color: Color(0xFFB7FF79),
               // same look as bottom nav bar
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFFF4F4F4).withOpacity(0.85),
-
-                  const Color(0xFFC4FD99).withOpacity(0.85),
-                ],
-              ),
-              border: Border.all(color: const Color(0xFFE6E6E6), width: 2),
+              // gradient: LinearGradient(
+              //   begin: Alignment.topLeft,
+              //   end: Alignment.bottomRight,
+              //   colors: [
+              //     const Color(0xFFF4F4F4).withOpacity(0.85),
+              //
+              //     const Color(0xFFC4FD99).withOpacity(0.85),
+              //   ],
+              // ),
+              // border: Border.all(color: const Color(0xFFE6E6E6), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
@@ -190,7 +191,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 5),
                             Row(
                               children: [
                                 SvgPicture.asset('assets/location.svg'),

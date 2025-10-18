@@ -10,7 +10,7 @@ class SaloonCardFour extends StatelessWidget {
   final void Function() onTap;
   final String location;
   final double? etaMinutes;      // e.g. 8.5
-  final double? distanceKm;      // e.g. 4.5
+  final String distanceKm;      // e.g. 4.5
   final bool isFavorite;         // default false
   final VoidCallback? onFavoriteTap;
 
@@ -22,7 +22,7 @@ class SaloonCardFour extends StatelessWidget {
     required this.onTap,
     required this.location,
     this.etaMinutes,
-    this.distanceKm,
+    required this.distanceKm,
     this.isFavorite = false,
     this.onFavoriteTap,
   });
@@ -150,7 +150,7 @@ class SaloonCardFour extends StatelessWidget {
 
                       // Address
                       Text(
-                        location,
+                        "$distanceKm Km",
                         style: GoogleFonts.manrope(
                           fontSize: 12,
                           color: Colors.black87,
@@ -160,26 +160,26 @@ class SaloonCardFour extends StatelessWidget {
                       ),
 
                       // ETA + distance (optional; shows only if provided)
-                      if (etaMinutes != null || distanceKm != null) ...[
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time, size: 16, color: Colors.black87),
-                            const SizedBox(width: 6),
-                            Text(
-                              [
-                                if (etaMinutes != null) '${etaMinutes!.toStringAsFixed(1)} min',
-                                if (distanceKm != null) '(${distanceKm!.toStringAsFixed(1)} km)',
-                              ].join(' '),
-                              style: GoogleFonts.manrope(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      // if (etaMinutes != null || distanceKm != null) ...[
+                      //   const SizedBox(height: 6),
+                      //   Row(
+                      //     children: [
+                      //       const Icon(Icons.access_time, size: 16, color: Colors.black87),
+                      //       const SizedBox(width: 6),
+                      //       Text(
+                      //         [
+                      //           if (etaMinutes != null) '${etaMinutes!.toStringAsFixed(1)} min',
+                      //           if (distanceKm != null) '(${distanceKm!.toStringAsFixed(1)} km)',
+                      //         ].join(' '),
+                      //         style: GoogleFonts.manrope(
+                      //             fontSize: 12,
+                      //             fontWeight: FontWeight.w600,
+                      //             color: Colors.black87
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ],
                       const SizedBox(height: 10),
                     ],
                   ),

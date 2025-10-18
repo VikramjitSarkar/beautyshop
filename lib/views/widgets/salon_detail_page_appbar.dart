@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors, avoid_print
-
 import 'dart:ui';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/Chat/chatRoomCreateController.dart';
@@ -45,8 +43,6 @@ class SaloonDetailPageAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    print('rating: $rating');
-    print('imageUrl: $imageUrl');
     final controller = Get.put(ChatRoomCreateController());
     final genralController = Get.put(GenralController());
     genralController.checkFavoriteStatus(vendorId);
@@ -54,16 +50,12 @@ class SaloonDetailPageAppBar extends StatelessWidget
     void openGoogleMaps(String latitude, String longitude) async {
       final url =
           'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=driving';
-      try {
-        if (await canLaunchUrl(Uri.parse(url))) {
-          await launchUrl(Uri.parse(url));
-        } else {
-          throw 'Could not launch Google Maps';
-        }
-      } catch (e) {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
         Get.snackbar(
           'Error',
-          'Could not open Google Maps: ${e.toString()}',
+          'Could not open Google Maps',
           snackPosition: SnackPosition.BOTTOM,
         );
       }
@@ -71,146 +63,177 @@ class SaloonDetailPageAppBar extends StatelessWidget
 
     return Stack(
       children: [
+        /// Background image
         ClipRRect(
           borderRadius: BorderRadius.circular(30),
-          child:
-              imageUrl.isNotEmpty
-                  ? Image.network(
-                    imageUrl,
-                    height: 380,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildFallbackImage();
-                    },
-                  )
-                  : _buildFallbackImage(),
+          child: imageUrl.isNotEmpty
+              ? Image.network(
+            imageUrl,
+            height: 380,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildFallbackImage(),
+          )
+              : _buildFallbackImage(),
         ),
-        Container(
-          height: 380,
-          width: double.infinity,
-          margin: const EdgeInsets.all(5),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-          child: Column(
+
+        /// Top Row (Back, Share, Favorite)
+        Positioned(
+          top: 30,
+          left: 12,
+          right: 12,
+          child: Row(
             children: [
-              const SizedBox(height: 30),
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () => Get.back(),
-                    child: Image.asset('assets/arrow.png'),
-                  ),
-                  const Spacer(),
-                  InkWell(
-                    onTap: () async {
-                      final shareText =
-                          '$shopeName\n\n$desc\n\n📍 Location: https://www.google.com/maps/search/?api=1&query=$vendorLat,$vendorLong';
-                      await Share.share(shareText);
-                    },
-                    child: Image.asset('assets/share.png'),
-                  ),
-                  const SizedBox(width: 5),
-                  Obx(
-                    () => InkWell(
-                      onTap: () => genralController.toggleFavorite(vendorId),
-                      child: Icon(
-                        genralController.isFavorite.value
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color:
-                            genralController.isFavorite.value
-                                ? Colors.red
-                                : Colors.grey,
-                        size: 26,
-                      ),
-                    ),
-                  ),
-                ],
+              InkWell(
+                onTap: () => Get.back(),
+                child: Image.asset('assets/arrow.png'),
               ),
               const Spacer(),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff15B007),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      status,
-                      style: const TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  _buildRatingStars(rating),
-                ],
+              InkWell(
+                onTap: () async {
+                  final shareText =
+                      '$shopeName\n\n$desc\n\n📍 Location: https://www.google.com/maps/search/?api=1&query=$vendorLat,$vendorLong';
+                  await Share.share(shareText);
+                },
+                child: Image.asset('assets/share.png'),
               ),
-              const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          shopeName,
-                          style: kHeadingStyle.copyWith(
-                            fontSize: 22,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                      ],
-                    ),
+              const SizedBox(width: 8),
+              Obx(
+                    () => InkWell(
+                  onTap: () => genralController.toggleFavorite(vendorId),
+                  child: Icon(
+                    genralController.isFavorite.value
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: genralController.isFavorite.value
+                        ? Colors.red
+                        : Colors.white,
+                    size: 26,
                   ),
-                  const SizedBox(width: 10),
-                  Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: kPrimaryColor,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: IconButton(
-                          onPressed: () async {
-                            if (GlobalsVariables.token != null) {
-                              final chatData = await controller.createChatRoom(
-                                userId: GlobalsVariables.userId!,
-                                vendorId: vendorId,
-                              );
-                              if (chatData != null) {
-                                Get.to(
-                                  () => UserChatScreen(
-                                    vendorName: shopeName,
-                                    chatId: chatData['_id'],
-                                    currentUser: chatData['user'],
-                                    reciverId: chatData['other'],
-                                  ),
-                                );
-                              }
-                            } else {
-                              Get.to(() => UserVendorScreen());
-                            }
-                          },
-                          icon: const Icon(Icons.chat, color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => openGoogleMaps(vendorLat, vendorLong),
-                        child: Image.asset('assets/directions.png'),
-                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        /// Bottom Blur Overlay
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 25,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0x66E3DFD5), // subtle gold matte
+                      const Color(0x33FFFFFF),
                     ],
                   ),
-                ],
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.4),
+                    width: 0.6,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Status + Rating
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: status == "offline"? Colors.grey : Color(0xff15B007),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Text(
+                            status,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        _buildRatingStars(rating),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// Name and Actions
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            shopeName,
+                            style: kHeadingStyle.copyWith(
+                              fontSize: 22,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: IconButton(
+                            onPressed: () async {
+                              if (GlobalsVariables.token != null) {
+                                final chatData =
+                                await controller.createChatRoom(
+                                  userId: GlobalsVariables.userId!,
+                                  vendorId: vendorId,
+                                );
+                                if (chatData != null) {
+                                  Get.to(
+                                        () => UserChatScreen(
+                                      vendorName: shopeName,
+                                      chatId: chatData['_id'],
+                                      currentUser: chatData['user'],
+                                      reciverId: chatData['other'],
+                                    ),
+                                  );
+                                }
+                              } else {
+                                Get.to(() => UserVendorScreen());
+                              }
+                            },
+                            icon: const Icon(Icons.chat, color: Colors.black),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              openGoogleMaps(vendorLat, vendorLong);
+                            },
+                            icon: const Icon(Icons.directions, color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
         ),
       ],
@@ -219,42 +242,34 @@ class SaloonDetailPageAppBar extends StatelessWidget
 
   Widget _buildRatingStars(double rating) {
     final smileys = ["😡", "🙁", "🙂", "😃"];
-
     int activeIndex = rating.floor().clamp(0, smileys.length - 1);
-
     return Row(
       children: [
         ...List.generate(
           smileys.length,
-          (index) => Padding(
+              (index) => Padding(
             padding: const EdgeInsets.only(right: 4),
             child: Text(
               smileys[index],
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.white.withOpacity(
-                  index == activeIndex ? 1.0 : 0.4,
-                ),
+                    index == activeIndex ? 1.0 : 0.4),
               ),
             ),
           ),
         ),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              rating.toStringAsFixed(1),
-              style: const TextStyle(fontSize: 14, color: Colors.white),
-            ),
-          ],
+        Text(
+          rating.toStringAsFixed(1),
+          style: const TextStyle(fontSize: 14, color: Colors.white),
         ),
       ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(180);
+  Size get preferredSize => const Size.fromHeight(380);
 }
 
 Widget _buildFallbackImage() {

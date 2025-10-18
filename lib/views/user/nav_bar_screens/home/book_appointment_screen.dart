@@ -24,14 +24,28 @@ class BookAppointmentScreen extends StatefulWidget {
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final bookingController = Get.put(UserBookingController());
   bool isAmSelected = false; // false for PM, true for AM
-  int selectedDate = 21;
+  DateTime now = DateTime.now();
+  late DateTime currentMonth;
+  late int selectedDate;
+
+
+
   String selectedTime = "01:00 pm";
   bool isDayNight = false;
   List<int> get dates {
+    final now = DateTime.now();
     final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
     final lastDay = DateTime(currentMonth.year, currentMonth.month + 1, 0);
-    return List.generate(lastDay.day - firstDay.day + 1, (i) => i + 1);
+
+    // If the current month is the same as today's month,
+    // start from today's date; otherwise start from 1
+    final startDay = (currentMonth.year == now.year && currentMonth.month == now.month)
+        ? now.day
+        : 1;
+
+    return List.generate(lastDay.day - startDay + 1, (i) => i + startDay);
   }
+
 
 
   String id = "";
@@ -49,7 +63,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
 
   int activeStep = 0;
-  DateTime currentMonth = DateTime.now();
+  // DateTime currentMonth = DateTime.now();
 
   List<String> get times {
     if (isAmSelected) {
@@ -131,6 +145,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    final now = DateTime.now();
+    currentMonth = DateTime(now.year, now.month);
+    selectedDate = now.day;
     id = generateRandomNumericId();
   }
 
@@ -691,49 +708,54 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   ).format(dateTime);
 
                                   return GestureDetector(
-                                    onTap:
-                                        () =>
-                                            setState(() => selectedDate = date),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          dayName,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: kGreyColor,
+                                    onTap: () {
+                                      final now = DateTime.now();
+                                      final tappedDate = DateTime(currentMonth.year, currentMonth.month, date);
+
+                                      // Block past dates (but allow today)
+                                      if (tappedDate.isBefore(DateTime(now.year, now.month, now.day))) return;
+
+                                      setState(() => selectedDate = date);
+                                    },
+                                    child: Opacity(
+                                      opacity: DateTime(currentMonth.year, currentMonth.month, date)
+                                          .isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))
+                                          ? 0.4 // Dim past dates
+                                          : 1,
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            DateFormat('E').format(DateTime(currentMonth.year, currentMonth.month, date)),
+                                            style: TextStyle(fontSize: 14, color: kGreyColor),
                                           ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Container(
-                                          width: 50,
-                                          height: 50,
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isSelected
-                                                    ? Colors.green
-                                                    : Colors.white,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            date.toString(),
-                                            style: TextStyle(
-                                              color:
-                                                  isSelected
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
+                                          const SizedBox(height: 5),
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                            decoration: BoxDecoration(
+                                              color: date == selectedDate ? Colors.green : Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: DateTime(currentMonth.year, currentMonth.month, date)
+                                                  .isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))
+                                                  ? Border.all(color: Colors.grey.shade300)
+                                                  : null,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              date.toString(),
+                                              style: TextStyle(
+                                                color: date == selectedDate ? Colors.white : Colors.black,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   );
+
                                 }).toList(),
                           ),
                         ),

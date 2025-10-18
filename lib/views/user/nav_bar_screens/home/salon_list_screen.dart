@@ -339,6 +339,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
                     return SizedBox(
                       height: 210,
                       child: SaloonCardThree(
+                        distanceKm: vendor['distance'],
+
                         rating: rating,
                         imageUrl: shopBanner,
                         shopeName: shopName,

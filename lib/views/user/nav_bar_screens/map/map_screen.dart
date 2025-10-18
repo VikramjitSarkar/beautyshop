@@ -1002,6 +1002,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                                 child: SizedBox(
                                   width: cardWidth, // IMPORTANT: give a fixed width
                                   child: SaloonCardFour(
+                                    distanceKm: vendor['distance'],
                                     rating: rating,
                                     imageUrl: shopBanner,
                                     shopeName: shopName,
