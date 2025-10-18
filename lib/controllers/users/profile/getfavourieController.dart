@@ -1,4 +1,3 @@
-// lib/controllers/users/profile/favorite_from_user_controller.dart
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +18,7 @@ class FavoriteFromUserController extends GetxController {
     isLoading.value = true;
 
     try {
-      // 1) Get the user to read favoriteVendors (array of ids)
+      // 1) Read user (to get favoriteVendors ids)
       final userUrl = Uri.parse('${GlobalsVariables.baseUrlapp}/user/get');
       final headers = {
         'Authorization': 'Bearer ${GlobalsVariables.token}',
@@ -28,55 +27,54 @@ class FavoriteFromUserController extends GetxController {
 
       final ures = await http.get(userUrl, headers: headers);
       if (ures.statusCode != 200) {
-        print('[favorites] /user/get -> ${ures.statusCode} ${ures.body}');
         Get.snackbar('Error', 'Failed to load profile (${ures.statusCode}).');
         vendors.clear();
         return;
       }
 
       final raw = jsonDecode(ures.body);
-      final data = (raw is Map && raw['data'] is Map)
+      final data = (raw is Map && raw['status'] == 'success' && raw['data'] is Map)
           ? raw['data'] as Map<String, dynamic>
           : <String, dynamic>{};
 
-      // favoriteVendors may be: [ "id", "id" ] or [ { _id: "id" }, ... ]
+      // Could be ["id","id"] or [{"_id":"id"}, ...]
       final fav = (data['favoriteVendors'] as List?) ?? const [];
-      final ids = <String>[
+      final ids = <String>{
         for (final e in fav)
           if (e is String) e
           else if (e is Map && e['_id'] is String) e['_id'] as String
-      ];
+      }.toList(); // de-dupe via set
 
       if (ids.isEmpty) {
         vendors.clear();
         return;
       }
 
-      // 2) Fetch each vendor by id (parallel)
+      // 2) Hydrate vendors in parallel (per-id). Keep the first successful shape.
       final fetched = await Future.wait(ids.map(_fetchVendorById));
       vendors.assignAll(fetched.whereType<Map<String, dynamic>>());
 
     } catch (e) {
-      print('[favorites] error: $e');
       Get.snackbar('Error', 'Could not load favorites.');
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// Try a few likely vendor-by-id routes. Return the vendor map or null.
-  Future<Map?> _fetchVendorById(String id) async {
+  /// Try common GET-by-id patterns. Return a vendor map or null.
+  Future<Map<String, dynamic>?> _fetchVendorById(String id) async {
     final base = GlobalsVariables.baseUrlapp;
     final headers = {
       'Authorization': 'Bearer ${GlobalsVariables.token}',
       'Accept': 'application/json',
     };
 
-    // Keep only the one you actually use in your API:
+    // Keep/trim to match your API. These are tried in order.
     final candidates = <Uri>[
       Uri.parse('$base/vendor/$id'),
       Uri.parse('$base/vendor/get/$id'),
       Uri.parse('$base/vendor/getById?id=$id'),
+      Uri.parse('$base/vendors/$id'),
     ];
 
     for (final url in candidates) {
@@ -84,13 +82,16 @@ class FavoriteFromUserController extends GetxController {
         final res = await http.get(url, headers: headers);
         if (res.statusCode == 200) {
           final body = jsonDecode(res.body);
-          // data shape could be {status, data:{...}} or just vendor
-          final v = (body is Map && body['data'] is Map)
-              ? body['data'] as Map<String, dynamic>
-              : (body is Map ? body : null);
-          if (v != null) return v;
+          // Accept either {status,data:{...}} or a plain vendor map
+          if (body is Map) {
+            if (body['data'] is Map<String, dynamic>) {
+              return body['data'] as Map<String, dynamic>;
+            }
+            // Some APIs just return the vendor as the top-level object
+            if (body.isNotEmpty) return Map<String, dynamic>.from(body);
+          }
         } else if (res.statusCode == 404) {
-          continue; // try next pattern
+          continue;
         }
       } catch (_) {}
     }

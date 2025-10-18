@@ -2,6 +2,7 @@ import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/views/user/auth_screens/phone_input_screen.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/change_password_screen.dart';
+import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/favorite_screen.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/payment_method_screen.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/dashboard/screens/about_us_screen.dart';
 import 'package:get/get.dart';
