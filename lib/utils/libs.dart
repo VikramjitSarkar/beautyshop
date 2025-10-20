@@ -47,7 +47,7 @@ export 'package:beautician_app/views/user/nav_bar_screens/message/tabs/group_tab
 export 'package:beautician_app/views/user/nav_bar_screens/message/tabs/usermessage_tab_Screen.dart';
 export 'package:beautician_app/views/user/nav_bar_screens/profile/screens/edit_profile_screen.dart';
 export 'package:beautician_app/views/user/nav_bar_screens/profile/screens/faq_screen.dart';
-export 'package:beautician_app/views/user/nav_bar_screens/profile/screens/favorite_screen.dart';
+
 export 'package:beautician_app/views/user/nav_bar_screens/profile/screens/invite_friends_screen.dart';
 export 'package:beautician_app/views/user/nav_bar_screens/profile/screens/notification_screen.dart';
 export 'package:beautician_app/views/widgets/custom_tile.dart';
