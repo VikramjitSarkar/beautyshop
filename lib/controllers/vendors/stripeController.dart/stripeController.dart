@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
+import '../../../views/vender/bottom_navi/bottom_nav_bar.dart';
+
 // class StripeController extends GetxController{
 //
 //   Map<String, dynamic>? paymentIntent;
@@ -130,12 +132,13 @@ class StripeController extends GetxController {
         paymentMethodId: paymentMethodId,
         customerId: stripeCustomerId,
       );
+      Get.to(() => VendorBottomNavBarScreen());
       // GlobalsVariables.savePaymentId(planId);
       // print("✅ PaymentMethodId from plan save: $planId");
       Get.snackbar("Success", "Subscription created successfully");
     } catch (e) {
-      // print("❌ makePayment Error: $e");
-      // Get.snackbar("Error", "Transaction failed. Try Later");
+      print("❌ makePayment Error: $e");
+      Get.snackbar("Error", "Transaction failed. Try Later");
     }
   }
 
@@ -291,7 +294,7 @@ class StripeController extends GetxController {
 
       if (response.statusCode == 200) {
         currentVendorSubscription!.value = {};
-        VendorListingController().updateListingPlan('Free');
+        VendorListingController().updateListingPlan('Free', false);
       } else {
         Get.snackbar("Error", "Failed to cancel subscription.");
       }

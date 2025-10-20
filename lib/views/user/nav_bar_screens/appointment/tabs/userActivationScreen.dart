@@ -8,8 +8,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../custom_nav_bar.dart';
 import 'userReviewScreen.dart';
 import 'package:beautician_app/controllers/vendors/booking/qrCodeController.dart';
-// If you're using CustomNavBar as a widget instead of a named route, import it
-// import 'package:beautician_app/views/user/customNavBar.dart';
 
 class UserActivationScreen extends StatefulWidget {
   final String bookingId;
@@ -60,13 +58,8 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       final data = message.data;
 
       if (title == 'Booking Completed' && !_isCompleted) {
-        print('🔔 Booking completed received in foreground');
-        final bookingId = data['bookingId'];
-        final vendorId = data['vendorId'];
-        print('Booking ID: $bookingId, Vendor ID: $vendorId');
-        _navigateToReviewFromPush(bookingId, vendorId);
+        _navigateToReviewFromPush(data['bookingId'], data['vendorId']);
       } else if (title == 'Booking Rejected') {
-        print('❌ Booking rejected received in foreground');
         _navigateToCustomNavBar();
       }
     });
@@ -76,32 +69,20 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       final data = message.data;
 
       if (title == 'Booking Completed' && !_isCompleted) {
-        print('🔔 Booking completed tapped from background');
-        final bookingId = data['bookingId'];
-        final vendorId = data['vendorId'];
-        print('Booking ID2: $bookingId, Vendor ID2: $vendorId');
-        _navigateToReviewFromPush(bookingId, vendorId);
+        _navigateToReviewFromPush(data['bookingId'], data['vendorId']);
       } else if (title == 'Booking Rejected') {
-        print('❌ Booking rejected tapped from background');
         _navigateToCustomNavBar();
       }
     });
 
-    FirebaseMessaging.instance.getInitialMessage().then((
-      RemoteMessage? message,
-    ) {
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         final title = message.notification?.title ?? '';
         final data = message.data;
 
         if (title == 'Booking Completed' && !_isCompleted) {
-          print('🔔 Booking completed opened from terminated app');
-          final bookingId = data['bookingId'];
-          final vendorId = data['vendorId'];
-          print('Booking ID3: $bookingId, Vendor ID3: $vendorId');
-          _navigateToReviewFromPush(bookingId, vendorId);
+          _navigateToReviewFromPush(data['bookingId'], data['vendorId']);
         } else if (title == 'Booking Rejected') {
-          print('❌ Booking rejected opened from terminated app');
           _navigateToCustomNavBar();
         }
       }
@@ -112,28 +93,21 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
     setState(() => _isCompleted = true);
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        Get.offAll(
-          () => ReviewScreen(
-            bookingId: widget.bookingId,
-            vendorId: widget.vendorId,
-          ),
-        );
+        Get.offAll(() => ReviewScreen(
+          bookingId: widget.bookingId,
+          vendorId: widget.vendorId,
+        ));
       }
     });
   }
 
   void _navigateToReview() {
-    print(
-      'Navigating to review screen... ${widget.bookingId}, ${widget.vendorId}',
-    );
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        Get.offAll(
-          () => ReviewScreen(
-            bookingId: widget.bookingId,
-            vendorId: widget.vendorId,
-          ),
-        );
+        Get.offAll(() => ReviewScreen(
+          bookingId: widget.bookingId,
+          vendorId: widget.vendorId,
+        ));
       }
     });
   }
@@ -142,8 +116,6 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         Get.offAll(() => CustomerBottomNavBarScreen());
-        // If using a direct widget instead:
-        // Get.offAll(() => CustomNavBar());
       }
     });
   }
@@ -167,10 +139,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        // Disable back navigation unless user taps cancel
-        return false;
-      },
+      onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: kGretLiteColor,
         appBar: AppBar(
@@ -197,8 +166,9 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
   Widget _buildSuccessUI() => Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      Container(
-        padding: const EdgeInsets.all(20),
+      AnimatedContainer(
+        duration: const Duration(milliseconds: 800),
+        padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -210,7 +180,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
             ),
           ],
         ),
-        child: Icon(Icons.check_circle, color: kPrimaryColor1, size: 80),
+        child: Icon(Icons.check_circle, color: kPrimaryColor1, size: 90),
       ),
       const SizedBox(height: 30),
       Text(
@@ -223,7 +193,7 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       ),
       const SizedBox(height: 15),
       Text(
-        'Preparing review screen...',
+        'Preparing your review screen...',
         style: TextStyle(fontSize: 16, color: kGreyColor),
       ),
       const SizedBox(height: 40),
@@ -240,96 +210,88 @@ class _UserActivationScreenState extends State<UserActivationScreen> {
       ),
     ],
   );
+  Widget _buildWaitingUI() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        // Animated circular accent background for visual interest
+        Container(
+          padding: const EdgeInsets.all(35),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: kPrimaryColor1.withOpacity(0.15),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.spa_rounded, // Spa or beautician-themed icon
+            size: 80,
+            color: kPrimaryColor1,
+          ),
+        ),
 
-  Widget _buildWaitingUI() => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [kPrimaryColor1, kPrimaryColor],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: kPrimaryColor1.withOpacity(0.3),
-              blurRadius: 20,
-              spreadRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _formatDuration(_remainingTime),
-              style: const TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Remaining Time',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 50),
-      GestureDetector(
-        onTap: () async {
-          await PendingBookingController().rejectBooking(widget.bookingId);
-          Get.offAll(() => VendorBottomNavBarScreen());
-        },
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => _showCancelDialog(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.red,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Colors.red, width: 1),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.cancel_outlined, size: 20),
-                SizedBox(width: 10),
-                Text(
-                  "Cancel Booking",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
+        const SizedBox(height: 35),
+
+        Text(
+          'Service in Progress',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: kBlackColor,
           ),
         ),
-      ),
-    ],
-  );
+        const SizedBox(height: 12),
+        Text(
+          'Your beautician is currently working on your service.\nPlease wait until it’s completed.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15, color: kGreyColor),
+        ),
+
+        const SizedBox(height: 50),
+
+        // Cancel booking button
+        ElevatedButton.icon(
+          onPressed: _showCancelDialog,
+          icon: const Icon(Icons.cancel_outlined, size: 20),
+          label: const Text(
+            "Cancel Booking",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.red,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Colors.red, width: 1),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+          ),
+        ),
+      ],
+    );
+  }
+
+
   void _showCancelDialog() {
     Get.defaultDialog(
+      contentPadding: EdgeInsets.all(10),
       title: "Cancel Booking?",
       middleText: "Are you sure you want to cancel this booking?",
       textConfirm: "Yes, Cancel",
       textCancel: "No",
       confirmTextColor: Colors.white,
       onConfirm: () async {
-        Get.back(); // Close dialog
+        Get.back();
         await PendingBookingController().rejectBooking(widget.bookingId);
         Get.offAll(() => CustomerBottomNavBarScreen());
       },
-      onCancel: () {}, // Do nothing
+      onCancel: () {},
     );
   }
 

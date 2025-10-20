@@ -408,12 +408,12 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    side: BorderSide(color: kPrimaryColor),
+                    side: BorderSide(color: Colors.green),
                   ),
-                  icon: Icon(Icons.qr_code, color: kPrimaryColor),
+                  icon: Icon(Icons.qr_code, color: Colors.green),
                   label: Text(
                     'Show QR',
-                    style: TextStyle(color: kPrimaryColor),
+                    style: TextStyle(color: Colors.green),
                   ),
                 ),
               ),

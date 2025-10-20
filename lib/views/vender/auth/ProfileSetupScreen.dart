@@ -23,6 +23,38 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   File? _certificationImage;
   File? _idImage;
 
+  DateTime? _selectedDob;
+  int? _calculatedAge;
+
+  Future<void> _pickDateOfBirth(BuildContext context) async {
+    final DateTime now = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(now.year - 20), // default 20 years old
+      firstDate: DateTime(1900),
+      lastDate: now,
+      helpText: 'Select Date of Birth',
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDob = picked;
+        _calculatedAge = _calculateAge(picked);
+        _ageController.text = _calculatedAge.toString(); // store internally
+      });
+    }
+  }
+
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
+
+
   final ImagePicker _picker = ImagePicker();
   final ProfileSetupController _controller = Get.put(ProfileSetupController());
 
@@ -191,19 +223,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   validator: (value) => null,
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _ageController,
-                  hintText: 'Age',
-                  radius: 20,
-                  inputType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter your age';
-                    if (int.tryParse(value) == null)
-                      return 'Please enter a valid age';
-                    return null;
-                  },
+                GestureDetector(
+                  onTap: () => _pickDateOfBirth(context),
+                  child: AbsorbPointer(
+                    child: CustomTextField(
+                      controller: TextEditingController(
+                        text: _selectedDob != null
+                            ? "${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}"
+                            : '',
+                      ),
+                      hintText: 'Select Date of Birth',
+                      radius: 20,
+                      validator: (value) {
+                        if (_selectedDob == null) return 'Please select your date of birth';
+                        return null;
+                      },
+                      suffixIcon: const Icon(Icons.calendar_today_rounded, color: Colors.grey),
+                    ),
+                  ),
                 ),
+
                 const SizedBox(height: 16),
                 // ID Upload Section
                 Container(
@@ -290,13 +329,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         _controller.submitProfile(
                           name: _nameController.text.trim(),
                           surname: _surnameController.text.trim(),
-                          age: _ageController.text.trim(),
+                          age: _calculatedAge?.toString() ?? '', // computed age
                           gender: _selectedGender!.toLowerCase(),
                           cnic: _idImage!, // optional
                           license: _certificationImage!,
                           phone: _phoneController.text.trim(),
                           whatsapp: _whatsappController.text.trim(),
                         );
+
                       }
                     },
                   ),

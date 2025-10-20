@@ -63,7 +63,6 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
               double.tryParse("${s['charges']}") ??
               0.0,
           "categoryName": s['categoryId']?['name'] ?? '',
-          "duration": s['duration'] ?? "45 min",
         });
       }
     }
@@ -248,7 +247,7 @@ class _CategoryBlock extends StatelessWidget {
           child: Column(
             children: services.map((service) {
               final subName = service['subcategoryId']?['name']?.toString() ?? 'Service';
-              final duration = service['duration']?.toString() ?? '45 min';
+              // final duration = service['duration']?.toString() ?? '45 min';
               final rawPrice = double.tryParse("${service['charges']}") ?? 0.0;
               final priceText = rawPrice.toStringAsFixed(
                 rawPrice.truncateToDouble() == rawPrice ? 0 : 2,
@@ -277,14 +276,6 @@ class _CategoryBlock extends StatelessWidget {
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
                                 )),
-                            const SizedBox(height: 4),
-                            Text(
-                              duration,
-                              style: kSubheadingStyle.copyWith(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
                           ],
                         ),
                       ),

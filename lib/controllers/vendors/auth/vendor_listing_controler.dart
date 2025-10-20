@@ -10,7 +10,7 @@ import '../../../constants/globals.dart';
 class VendorListingController extends GetxController {
   var isLoading = false.obs;
 
-  Future<void> updateListingPlan(String plan) async {
+  Future<void> updateListingPlan(String plan, bool isService) async {
     isLoading.value = true;
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/update');
 
@@ -37,7 +37,11 @@ class VendorListingController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar('Success', 'Listing plan updated to "$plan"');
-        Get.to(() => AddServiceScreen());
+        if(isService){
+          Get.to(() => AddServiceScreen());
+        }else{
+
+        }
       } else {
         final data = jsonDecode(response.body);
         Get.snackbar('Error', data['message'] ?? 'Update failed');

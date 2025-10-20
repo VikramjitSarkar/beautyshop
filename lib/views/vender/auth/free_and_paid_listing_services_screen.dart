@@ -102,7 +102,7 @@ class _FreeAndPaidListingServicesScreenState
                     if (selectedPlan.isEmpty) {
                       Get.snackbar('Error', 'Please select a listing plan');
                     } else {
-                      _controller.updateListingPlan(selectedPlan);
+                      _controller.updateListingPlan(selectedPlan, true);
                     }
                   },
                 ),
