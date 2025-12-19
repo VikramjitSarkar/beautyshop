@@ -24,6 +24,7 @@ class DashBoardController extends GetxController {
   RxString weekendsTo = ''.obs;
   RxString vendorLong = ''.obs;
   RxString vendorLate = ''.obs;
+  RxString locationAddress = ''.obs;
 
   // gallery list of image URLs
   final gallery = <String>[].obs;
@@ -71,9 +72,18 @@ class DashBoardController extends GetxController {
           shopeDes.value = data['description'] ?? '';
           listing.value = data['listingPlan'];
           bannerImage.value = data['shopBanner'];
-          vendorLate.value = data['vendorLat'];
-          vendorLong.value = data['vendorLong'];
+          
+          print('🔧 BEFORE SETTING - vendorLat from data: ${data['vendorLat']} (${data['vendorLat'].runtimeType})');
+          print('🔧 BEFORE SETTING - vendorLong from data: ${data['vendorLong']} (${data['vendorLong'].runtimeType})');
+          
+          vendorLate.value = data['vendorLat']?.toString() ?? '';
+          vendorLong.value = data['vendorLong']?.toString() ?? '';
+          locationAddress.value = data['locationAddres'] ?? '';
           vendorId.value = data['_id'];
+          
+          print('✅ AFTER SETTING - vendorLate.value: "${vendorLate.value}"');
+          print('✅ AFTER SETTING - vendorLong.value: "${vendorLong.value}"');
+          print('✅ AFTER SETTING - locationAddress.value: "${locationAddress.value}"');
           // gallery
 
           print(ot);

@@ -40,7 +40,7 @@ class ProfileSetupController extends GetxController {
     request.fields['age'] = age;
     request.fields['gender'] = gender;
     request.fields['phone'] = phone;
-    request.fields['whatsapp'];
+    request.fields['whatsapp'] = whatsapp;
 
     request.files.add(
       await http.MultipartFile.fromPath(

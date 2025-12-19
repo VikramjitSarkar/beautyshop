@@ -145,8 +145,8 @@ class _ShowPlanForMonthlyOrYearScreenState
                   print(
                     "Printing Data: ${selectedPlan!.price} Selected plan ID is ${selectedPlan!.id}",
                   );
-                  await _controller.updateListingPlan('paid', false);
-
+                  // Backend already updates listingPlan to "paid" during subscription creation
+                  // No need to call updateListingPlan here
                 },
               ),
               const SizedBox(height: 20),

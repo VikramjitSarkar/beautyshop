@@ -6,6 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'widgets/map_location_picker.dart';
 
 class BeauticianProfileCreationScreen extends StatefulWidget {
   BeauticianProfileCreationScreen({super.key});
@@ -33,11 +35,28 @@ class _BeauticianProfileCreationScreenState
 
   bool isShow = false;
   bool hasHomeService = false;
+  LatLng? _selectedMapPosition;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+  }
+
+  Future<void> _openMapPicker() async {
+    final result = await Get.to<Map<String, dynamic>>(
+      () => MapLocationPicker(
+        initialAddress: addressController.text,
+        initialPosition: _selectedMapPosition,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        addressController.text = result['address'] as String;
+        _selectedMapPosition = result['position'] as LatLng;
+      });
+    }
   }
 
   Future<void> _initializeCamera() async {
@@ -260,9 +279,46 @@ class _BeauticianProfileCreationScreenState
 
                 if (isShow) ...[
                   const SizedBox(height: 24),
-                  Text(
-                    'Location / Address',
-                    style: kHeadingStyle.copyWith(fontSize: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Location / Address',
+                        style: kHeadingStyle.copyWith(fontSize: 14),
+                      ),
+                      GestureDetector(
+                        onTap: _openMapPicker,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.map,
+                                size: 16,
+                                color: Colors.black,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Select from maps',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   CustomTextField(

@@ -1,14 +1,34 @@
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../../../../../controllers/users/profile/getfavourieController.dart';
+import '../../home/salon_specialist_detail_screen.dart';
+import '../../../../widgets/saloon_card_three.dart';
+import '../../../../../data/db_helper.dart';
+import '../../../../../controllers/users/auth/genralController.dart';
+import '../../../../../constants/globals.dart';
 
-
-
-final favFromUserCtrl = Get.put(FavoriteFromUserController());
-
-class FavoriteScreen extends StatelessWidget {
+class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
+
+  @override
+  State<FavoriteScreen> createState() => _FavoriteScreenState();
+}
+
+class _FavoriteScreenState extends State<FavoriteScreen> {
+  late final FavoriteFromUserController favFromUserCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    favFromUserCtrl = Get.find<FavoriteFromUserController>();
+    // Force reload favorites when screen opens
+    print('FavoriteScreen initState - reloading favorites');
+    favFromUserCtrl.loadFavoritesFromUser();
+  }
 
   static const double _pad = 16;
 
@@ -41,6 +61,8 @@ class FavoriteScreen extends StatelessWidget {
             ),
           ),
           body: Obx(() {
+            print('FavoriteScreen: isLoading=${favFromUserCtrl.isLoading.value}, vendorCount=${favFromUserCtrl.vendors.length}');
+            
             if (favFromUserCtrl.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -54,7 +76,7 @@ class FavoriteScreen extends StatelessWidget {
               return GridView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: _pad, vertical: 10),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, mainAxisSpacing: 12, crossAxisSpacing: 12, mainAxisExtent: 220,
+                  crossAxisCount: 3, mainAxisSpacing: 12, crossAxisSpacing: 12, mainAxisExtent: 230,
                 ),
                 itemCount: items.length,
                 itemBuilder: (_, i) => _VendorCard(items[i]),
@@ -65,7 +87,10 @@ class FavoriteScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: _pad, vertical: 10),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _VendorCard(items[i]),
+              itemBuilder: (_, i) => SizedBox(
+                height: 230,
+                child: _VendorCard(items[i]),
+              ),
             );
           }),
         );
@@ -74,146 +99,150 @@ class FavoriteScreen extends StatelessWidget {
   }
 }
 
-class _VendorCard extends StatelessWidget {
+class _VendorCard extends StatefulWidget {
   const _VendorCard(this.v);
   final Map<String, dynamic> v;
 
   @override
-  Widget build(BuildContext context) {
-    // Map field names defensively
-    final id     = (v['_id'] ?? v['id'] ?? '').toString();
-    final name   = (v['shopName'] ?? v['userName'] ?? v['name'] ?? 'No Name').toString();
-    final image  = (v['profileImage'] ?? v['cover'] ?? v['image'] ?? '').toString();
-    final where  = (v['locationAdress'] ?? v['locationAddres'] ?? v['address'] ?? '').toString();
+  State<_VendorCard> createState() => _VendorCardState();
+}
 
-    // rating may be num/string/null
-    double? rating;
-    final rawRating = v['avgRating'] ?? v['rating'];
-    if (rawRating is num) rating = rawRating.toDouble();
-    if (rawRating is String) {
-      final parsed = double.tryParse(rawRating);
-      if (parsed != null) rating = parsed;
+class _VendorCardState extends State<_VendorCard> {
+  List<String> _categories = [];
+  bool _isLoadingCategories = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchVendorCategories();
+  }
+
+  Future<void> _fetchVendorCategories() async {
+    if (_isLoadingCategories) return;
+    setState(() => _isLoadingCategories = true);
+
+    try {
+      final vendorId = widget.v['_id'] ?? '';
+      print('Fetching categories for vendor $vendorId');
+      
+      final response = await http.get(
+        Uri.parse('${GlobalsVariables.baseUrlapp}/service/byVendorId/$vendorId'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      print('Categories response status: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Categories response: $data');
+        
+        if (data is Map && data['data'] is List) {
+          final services = data['data'] as List;
+          final cats = <String>{};
+          for (final service in services) {
+            if (service is Map) {
+              // Try both 'category' and 'categoryId'
+              final catObj = service['category'] ?? service['categoryId'];
+              if (catObj is Map) {
+                // Try both 'categoryName' and 'name'
+                final catName = catObj['categoryName'] ?? catObj['name'];
+                if (catName is String && catName.isNotEmpty) {
+                  cats.add(catName);
+                }
+              }
+            }
+          }
+          print('Extracted ${cats.length} categories: $cats');
+          if (mounted) {
+            setState(() => _categories = cats.take(3).toList());
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCategories = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final id = (widget.v['_id'] ?? widget.v['id'] ?? '').toString();
+    final name = (widget.v['shopName'] ?? widget.v['userName'] ?? widget.v['name'] ?? 'No Name').toString();
+    final shopBanner = (widget.v['shopBanner'] ?? widget.v['profileImage'] ?? widget.v['cover'] ?? widget.v['image'] ?? '').toString();
+    
+    // Debug: Print ALL vendor fields
+    print('Vendor $id all fields: ${widget.v.keys.toList()}');
+    
+    // Try multiple address field names
+    final where = (widget.v['locationAddres'] ?? 
+                   widget.v['locationAdress'] ?? 
+                   widget.v['address'] ?? 
+                   widget.v['location'] ?? '').toString();
+    
+    print('Vendor $id address: locationAddres=${widget.v['locationAddres']}, where=$where');
+    
+    final distance = (widget.v['distance'] ?? '0').toString();
+
+    double rating = 0.0;
+    final rawRating = widget.v['avgRating'] ?? widget.v['rating'] ?? widget.v['shopRating'];
+    if (rawRating is num) {
+      rating = rawRating.toDouble();
+    } else if (rawRating is String) {
+      rating = double.tryParse(rawRating) ?? 0.0;
     }
 
-    return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to vendor detail screen
-        // Get.to(() => VendorDetailPage(vendorId: id));
+    final galleryImages = (widget.v['galleryImage'] as List?)
+            ?.map((e) => e.toString())
+            .where((url) => url.isNotEmpty)
+            .toList() ??
+        [];
+
+    final openingTime = (widget.v['openingTime'] is Map)
+        ? Map<String, dynamic>.from(widget.v['openingTime'])
+        : <String, dynamic>{};
+
+    return FutureBuilder<bool>(
+      future: DBHelper.isFavorite(id),
+      builder: (context, favSnapshot) {
+        final isFav = favSnapshot.data ?? false;
+
+        return SaloonCardThree(
+          distanceKm: distance,
+          rating: rating,
+          location: where,
+          imageUrl: shopBanner,
+          shopeName: name,
+          categories: _categories,
+          isFavorite: isFav,
+          onFavoriteTap: () {
+            final genCtrl = Get.find<GenralController>();
+            genCtrl.toggleFavorite(id);
+            setState(() {}); // Refresh UI
+          },
+          onTap: () {
+            Get.to(() => SaloonDetailPageScreen(
+              phoneNumber: widget.v['phone'] ?? '',
+              rating: rating,
+              longitude: widget.v['vendorLong'] ?? '',
+              latitude: widget.v["vendorLat"] ?? '',
+              galleryImage: galleryImages,
+              vendorId: id,
+              desc: widget.v["description"] ?? '',
+              imageUrl: shopBanner,
+              location: where,
+              openingTime: openingTime,
+              shopName: name,
+              status: widget.v["status"] ?? '',
+              title: widget.v["title"] ?? '',
+              userName: widget.v["userName"] ?? name,
+            ));
+          },
+        );
       },
-      child: SalonCard(
-        name: name,
-        imageUrl: image,
-        location: where,
-        rating: rating,
-      ),
     );
   }
 }
 
-
-
-class SalonCard extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final String location;
-  final double? rating;
-
-  const SalonCard({
-    super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.location,
-    this.rating,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: imageUrl.isEmpty ? Border.all(color: const Color(0xFFE8E8E8)) : null,
-        boxShadow: const [BoxShadow(color: Color(0x11000000), blurRadius: 8, offset: Offset(0, 4))],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          SizedBox(
-            height: 120,
-            width: double.infinity,
-            child: imageUrl.isNotEmpty
-                ? Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _placeholder(),
-            )
-                : _placeholder(),
-          ),
-
-          // Info
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 16),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        location.isEmpty ? '—' : location,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                if (rating != null) _RatingStars(rating: (rating!).clamp(0, 5).toDouble()),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      color: const Color(0xFFF5F5F5),
-      alignment: Alignment.center,
-      child: const Icon(Icons.storefront_rounded, size: 36, color: Color(0xFFBDBDBD)),
-    );
-  }
-}
-
-class _RatingStars extends StatelessWidget {
-  final double rating;
-  const _RatingStars({required this.rating});
-
-  @override
-  Widget build(BuildContext context) {
-    final full = rating.floor();
-    final hasHalf = (rating - full) >= 0.5;
-
-    return Row(
-      children: List.generate(5, (i) {
-        if (i < full) return const Icon(Icons.star_rounded, size: 16, color: Colors.amber);
-        if (i == full && hasHalf) return const Icon(Icons.star_half_rounded, size: 16, color: Colors.amber);
-        return const Icon(Icons.star_outline_rounded, size: 16, color: Colors.amber);
-      }),
-    );
-  }
-}

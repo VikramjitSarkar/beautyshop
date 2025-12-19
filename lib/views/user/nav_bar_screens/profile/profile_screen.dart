@@ -6,7 +6,9 @@ import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/favori
 import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/payment_method_screen.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/dashboard/screens/about_us_screen.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import '../../../../controllers/users/profile/profile_controller.dart';
+import '../../../../controllers/users/profile/getfavourieController.dart';
 import '../../../onboarding/user_vender_screen.dart';
 import 'screens/about_us_screen.dart';
 
@@ -20,6 +22,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final UserProfileController profileController = Get.put(
     UserProfileController(),
+  );
+  
+  // Initialize FavoriteFromUserController here
+  final FavoriteFromUserController favoriteController = Get.put(
+    FavoriteFromUserController(),
   );
 
   @override
@@ -125,8 +132,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              height: 100,
-                              width: 100,
+                              height: 120,
+                              width: 120,
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Colors.white,
@@ -166,7 +173,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              profileController.name.value,
+                              profileController.name.value.isNotEmpty
+                                  ? '${profileController.name.value[0].toUpperCase()}${profileController.name.value.substring(1)}'
+                                  : '',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -293,6 +302,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Get.offAll(() => SplashScreen());
                         },
                       ),
+                      const SizedBox(height: 5),
+                      ListTile(
+                        leading: const Icon(Icons.delete, color: Colors.red, size: 24),
+                        title: const Text('Delete Account', style: TextStyle(color: Colors.red)),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        contentPadding: EdgeInsets.zero,
+                        onTap: () => _showDeleteAccountDialog(),
+                      ),
                     ],
                   ),
                 ),
@@ -302,6 +319,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }),
       ),
     );
+  }
+
+  void _showDeleteAccountDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back(); // Close dialog
+              await _deleteAccount();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteAccount() async {
+    try {
+      final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/delete/${GlobalsVariables.userId}');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${GlobalsVariables.token}',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Get.snackbar(
+          'Success',
+          'Account deleted successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        await GlobalsVariables.clearAllTokens();
+        Get.offAll(() => SplashScreen());
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to delete account. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Widget _buildSettingsTile(String title, String iconPath, VoidCallback onTap) {

@@ -63,6 +63,20 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
   }
 
   Future<void> submitServices(BuildContext context) async {
+    // Validate that all services have a price
+    for (var service in services) {
+      final price = service['priceController'].text.trim();
+      if (price.isEmpty || price == '0' || double.tryParse(price) == null || double.tryParse(price)! <= 0) {
+        Get.snackbar(
+          "Error", 
+          "Please enter a valid price for ${service['subcategoryName']}",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
+    
     for (var service in services) {
       await controller.createService(
         createdBy: GlobalsVariables.vendorId ?? '',
@@ -92,11 +106,15 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: padding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
               Row(
                 children: [
                   GestureDetector(
@@ -203,8 +221,14 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
               ),
               const SizedBox(height: 16),
 
-              Expanded(
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: services.length * 80.0,
+                  minHeight: 0,
+                ),
                 child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: services.length,
                   itemBuilder: (context, index) {
                     final service = services[index];
@@ -238,8 +262,12 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
                             width: 60,
                             child: TextFormField(
                               controller: service['priceController'],
-                              decoration: const InputDecoration(hintText: "\$"),
+                              decoration: const InputDecoration(
+                                hintText: "\$",
+                                hintStyle: TextStyle(color: Colors.grey),
+                              ),
                               keyboardType: TextInputType.number,
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -256,8 +284,12 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
                 },
               ),
               const SizedBox(height: 12),
-            ],
-          ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -18,6 +18,8 @@ final serviceController = Get.put(ServicesController());
 
 class _AddServiceScreenState extends State<AddServiceScreen> {
   final AddServicesController controller = Get.put(AddServicesController());
+  final DashBoardController dashCtl = Get.put(DashBoardController());
+  
   @override
   void initState() {
     super.initState();
@@ -26,7 +28,6 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final DashBoardController dashCtl = Get.put(DashBoardController());
 
     return Scaffold(
       appBar: AppBar(

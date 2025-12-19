@@ -16,6 +16,27 @@ class EditAboutUsController extends GetxController {
     {'day': 'Saturday - Sunday', 'open': '9:00 AM', 'close': '1:00 PM'},
   ]);
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Initialize description from DashboardController
+    descriptionController.text = dashBoardController.shopeDes.value;
+    
+    // Initialize opening hours from DashboardController if available
+    if (dashBoardController.weekdaysFrom.value.isNotEmpty) {
+      openingHours[0]['open'] = dashBoardController.weekdaysFrom.value;
+    }
+    if (dashBoardController.weekdaysTo.value.isNotEmpty) {
+      openingHours[0]['close'] = dashBoardController.weekdaysTo.value;
+    }
+    if (dashBoardController.weekendsFrom.value.isNotEmpty) {
+      openingHours[1]['open'] = dashBoardController.weekendsFrom.value;
+    }
+    if (dashBoardController.weekendsTo.value.isNotEmpty) {
+      openingHours[1]['close'] = dashBoardController.weekendsTo.value;
+    }
+  }
+
   void updateOpenCloseTime(int index, String newTime, bool isOpenTime) {
     if (index < openingHours.length) {
       final updated = Map<String, dynamic>.from(openingHours[index]);

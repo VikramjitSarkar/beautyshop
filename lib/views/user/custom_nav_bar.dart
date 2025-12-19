@@ -74,7 +74,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                 children: [
                   // Sidebar for Desktop
                   Container(
-                    width: 100,
+                    width: 60,
                     decoration: BoxDecoration(color: Colors.white),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +83,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                         return GestureDetector(
                           onTap: () => _onItemTapped(index),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             child: Column(
                               children: [
                                 Center(
@@ -126,7 +126,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                 (_selectedIndex == 4 && GlobalsVariables.token == null)
                     ? Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 50),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 35),
                         child: Column(
                           // crossAxisAlignment: CrossAxisAlignment.center,
                           // mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +135,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                             GestureDetector(
                               onTap: ()=> Get.to(()=> UserVendorScreen()),
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: Colors.green,
                                   borderRadius: BorderRadius.circular(12),
@@ -167,76 +167,69 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                       ),
                     )
                     : _pages[_selectedIndex],
-              bottomNavigationBar: SafeArea(
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // ← 10px edge gap
-                  height: 90,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(48),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFFF4F4F4), Color(0xFFEDEDED)],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26.withOpacity(0.08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                    border: Border.all(color: Color(0xFFE6E6E6), width: 2),
+              bottomNavigationBar: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                height: 70,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(40),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFF4F4F4), Color(0xFFEDEDED)],
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26.withOpacity(0.08),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                  border: Border.all(color: Color(0xFFE6E6E6), width: 2),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(_icons.length, (index) {
+                    final isSelected = index == _selectedIndex;
 
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,              // shrink to content
-                      children: List.generate(_icons.length, (index) {
-                        final isSelected = index == _selectedIndex;
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8), // inter-icon gap (≈16 total between two)
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(40),
-                            onTap: () => _onItemTapped(index),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 180),
-                              curve: Curves.easeOut,
-                              height: 70,
-                              width: 70,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isSelected ? const Color(0xFFB7FF79) : Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(isSelected ? 0.10 : 0.06),
-                                    blurRadius: isSelected ? 14 : 10,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                                border: Border.all(color: Colors.white, width: 4),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () => _onItemTapped(index),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOut,
+                          height: 56,
+                          width: 56,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected ? const Color(0xFFB7FF79) : Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(isSelected ? 0.10 : 0.06),
+                                blurRadius: isSelected ? 14 : 10,
+                                offset: const Offset(0, 6),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14),
-                                child: Image.asset(
-                                  _icons[index],
-                                  width: 28,
-                                  height: 28,
-                                  fit: BoxFit.contain,
-                                  color: Colors.black,
-                                ),
-                              ),
+                            ],
+                            border: Border.all(color: Colors.white, width: 3),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Image.asset(
+                              _icons[index],
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.contain,
+                              color: Colors.black,
                             ),
                           ),
-                        );
-                      }),
-                    ),
-                  ),
-
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ),
 

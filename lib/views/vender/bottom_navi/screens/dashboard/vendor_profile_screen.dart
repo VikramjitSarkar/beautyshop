@@ -140,6 +140,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                     _sectionHeader("Contact Info"),
                     _buildInfoTile(Icons.email, 'Email', vendorData!['email']),
                     _buildInfoTile(Icons.phone, 'Phone', vendorData!['phone']),
+                    _buildInfoTile(Icons.chat, 'WhatsApp', vendorData!['whatsapp'] ?? 'Not provided'),
                     const SizedBox(height: 12),
                     // _sectionHeader("Status"),
                     // _buildInfoTile(

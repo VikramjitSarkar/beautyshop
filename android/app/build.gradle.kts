@@ -28,7 +28,8 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
     dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+        implementation("com.google.android.material:material:1.9.0")
     }
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).

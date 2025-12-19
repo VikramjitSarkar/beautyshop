@@ -1,6 +1,7 @@
 // 📁 vendor_listing_controller.dart
 import 'dart:convert';
 
+import 'package:beautician_app/controllers/vendors/dashboard/dashboardController.dart';
 import 'package:beautician_app/views/vender/auth/add_service_screen.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -37,11 +38,16 @@ class VendorListingController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar('Success', 'Listing plan updated to "$plan"');
-        if(isService){
+        
+        // Update DashboardController listing value immediately
+        final dashCtrl = Get.put(DashBoardController());
+        dashCtrl.listing.value = plan;
+        
+        if (isService) {
+          // Only navigate to AddServiceScreen for free users
           Get.to(() => AddServiceScreen());
-        }else{
-
         }
+        // For paid users, navigation is handled by StripeController after payment
       } else {
         final data = jsonDecode(response.body);
         Get.snackbar('Error', data['message'] ?? 'Update failed');

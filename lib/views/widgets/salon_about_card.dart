@@ -217,6 +217,32 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
               ),
             ],
           ),
+          if (widget.phonenumber.isNotEmpty) ...[
+            const SizedBox(height: 15),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ActionButton(
+                  title: 'WhatsApp',
+                  image: 'message',
+                  color: const Color(0xff25D366),
+                  onTap: () async {
+                    final whatsappUrl = 'https://wa.me/${widget.phonenumber.replaceAll(RegExp(r'[^\d+]'), '')}';
+                    if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+                      await launchUrl(Uri.parse(whatsappUrl), mode: LaunchMode.externalApplication);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not open WhatsApp')),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(width: 15),
+                const Spacer(),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -242,12 +268,15 @@ class ActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: 50,
+        width: 150,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               title,
@@ -258,7 +287,7 @@ class ActionButton extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Image.asset('assets/$image.png'),
+            Image.asset('assets/$image.png', height: 20, color: color == kBlackColor ? Colors.white : kBlackColor),
           ],
         ),
       ),

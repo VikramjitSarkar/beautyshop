@@ -79,12 +79,13 @@ class EditAboutUsScreen extends StatelessWidget {
                                         'Opening Hours',
                                         style: kHeadingStyle.copyWith(
                                           fontSize: 16,
+                                          color: Colors.black,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         'Set your business hours',
-                                        style: kSubheadingStyle,
+                                        style: kSubheadingStyle.copyWith(color: Colors.black),
                                       ),
                                     ],
                                   ),
@@ -105,7 +106,10 @@ class EditAboutUsScreen extends StatelessWidget {
                                     children: [
                                       Text(
                                         controller.openingHours[index]['day'],
-                                        style: kSubheadingStyle,
+                                        style: kSubheadingStyle.copyWith(
+                                          fontSize: 12,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                       Row(
                                         children: [
@@ -138,13 +142,13 @@ class EditAboutUsScreen extends StatelessWidget {
                                                     .openingHours[index]['open'],
                                                 style: kHeadingStyle.copyWith(
                                                   fontSize: 12,
-                                                  color: kPrimaryColor,
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          Text('to', style: kSubheadingStyle),
+                                          Text('to', style: kSubheadingStyle.copyWith(color: Colors.black)),
                                           const SizedBox(width: 8),
                                           GestureDetector(
                                             onTap: () async {
@@ -175,7 +179,7 @@ class EditAboutUsScreen extends StatelessWidget {
                                                     .openingHours[index]['close'],
                                                 style: kHeadingStyle.copyWith(
                                                   fontSize: 14,
-                                                  color: kPrimaryColor,
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                             ),

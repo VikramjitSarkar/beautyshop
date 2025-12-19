@@ -166,54 +166,61 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        profileController.name.value.isNotEmpty
-                            ? CircleAvatar(
-                          radius: 30,
-                          backgroundImage: profileController.imageUrl.value != ""
-                              ? NetworkImage(profileController.imageUrl.value)
-                              : const AssetImage("assets/empty pic.jpg") as ImageProvider,
-                        )
-                            : const SizedBox.shrink(),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    Expanded(
+                      child: Row(
+                        children: [
+                          profileController.name.value.isNotEmpty
+                              ? CircleAvatar(
+                            radius: 30,
+                            backgroundImage: profileController.imageUrl.value != ""
+                                ? NetworkImage(profileController.imageUrl.value)
+                                : const AssetImage("assets/empty pic.jpg") as ImageProvider,
+                          )
+                              : const SizedBox.shrink(),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Hi,', style: kHeadingStyle.copyWith(fontSize: 23)),
-                                Text(
-                                  profileController.name.value.isNotEmpty
-                                      ? profileController.name.value
-                                      : 'Guest',
-                                  style: kHeadingStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 23),
+                                Row(
+                                  children: [
+                                    Text('Hi,', style: kHeadingStyle.copyWith(fontSize: 23)),
+                                    Flexible(
+                                      child: Text(
+                                        profileController.name.value.isNotEmpty
+                                            ? profileController.name.value
+                                            : 'Guest',
+                                        style: kHeadingStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 23),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    SvgPicture.asset('assets/location.svg'),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: isLocationLoading.value
+                                          ? const LinearProgressIndicator()
+                                          : Text(
+                                        currentLocation.value,
+                                        style: kSubheadingStyle,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                SvgPicture.asset('assets/location.svg'),
-                                const SizedBox(width: 4),
-                                SizedBox(
-                                  width: 200,
-                                  child: isLocationLoading.value
-                                      ? const LinearProgressIndicator()
-                                      : Text(
-                                    currentLocation.value,
-                                    style: kSubheadingStyle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () => Get.to(() => SearchScreen()),
                       child: SvgPicture.asset('assets/search.svg'),

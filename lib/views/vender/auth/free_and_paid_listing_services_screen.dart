@@ -102,7 +102,13 @@ class _FreeAndPaidListingServicesScreenState
                     if (selectedPlan.isEmpty) {
                       Get.snackbar('Error', 'Please select a listing plan');
                     } else {
-                      _controller.updateListingPlan(selectedPlan, true);
+                      if (selectedPlan == 'free') {
+                        // For free: update backend and go to add service
+                        _controller.updateListingPlan(selectedPlan, true);
+                      } else {
+                        // For paid: go to payment screen WITHOUT updating backend
+                        Get.to(() => ShowPlanForMonthlyOrYearScreen());
+                      }
                     }
                   },
                 ),

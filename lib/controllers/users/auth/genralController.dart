@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../data/db_helper.dart';
 import '../../../utils/libs.dart';
+import '../profile/getfavourieController.dart';
 
 class GenralController extends GetxController {
   RxBool isLoading = false.obs;
@@ -30,11 +31,20 @@ class GenralController extends GetxController {
       await markUnFavorite(vendorId: vendorId);
       await DBHelper.deleteFavorite(vendorId);
     }
+    
+    // Refresh the favorites list
+    try {
+      final favController = Get.find<FavoriteFromUserController>();
+      await favController.loadFavoritesFromUser();
+    } catch (e) {
+      // Controller not initialized yet, that's okay
+    }
   }
 
   Future<void> markFavorite({required String vendorId}) async {
     final Uri url = Uri.parse('${baseUrl}user/markFavorite/$vendorId');
     try {
+      print('Marking vendor $vendorId as favorite...');
       final response = await http.post(
         url,
         headers: {
@@ -42,7 +52,7 @@ class GenralController extends GetxController {
           'Content-Type': 'application/json',
         },
       );
-      print('Marked as favorite: ${response.body}');
+      print('Mark favorite response (${response.statusCode}): ${response.body}');
     } catch (e) {
       print('Favorite API error: $e');
     }

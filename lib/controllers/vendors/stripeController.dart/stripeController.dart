@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/vendors/auth/vendor_listing_controler.dart';
+import 'package:beautician_app/controllers/vendors/dashboard/dashboardController.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -132,9 +133,16 @@ class StripeController extends GetxController {
         paymentMethodId: paymentMethodId,
         customerId: stripeCustomerId,
       );
+      
+      // Update DashboardController listing value after payment success
+      final dashCtrl = Get.put(DashBoardController());
+      dashCtrl.listing.value = 'paid';
+      
+      // Save planId for subscription management
+      await GlobalsVariables.savePaymentId(planId);
+      print("✅ PaymentId saved: $planId");
+      
       Get.to(() => VendorBottomNavBarScreen());
-      // GlobalsVariables.savePaymentId(planId);
-      // print("✅ PaymentMethodId from plan save: $planId");
       Get.snackbar("Success", "Subscription created successfully");
     } catch (e) {
       print("❌ makePayment Error: $e");
@@ -261,7 +269,7 @@ class StripeController extends GetxController {
 
   Future<void> fetchAndSetVendorSubscription() async {
     final url = Uri.parse(
-      'https://my-app-eaaof2twqq-el.a.run.app/subscription',
+      '${GlobalsVariables.baseUrlapp}/subscription',
     );
     try {
       final response = await http.get(url);
@@ -270,8 +278,14 @@ class StripeController extends GetxController {
         subscriptions.value = List<Map<String, dynamic>>.from(data);
 
         final matchedSub = subscriptions.firstWhereOrNull((sub) {
-          final vendor = sub['vendorId'];
-          return vendor != null && vendor['_id'] == GlobalsVariables.vendorId;
+          final vendorId = sub['vendorId'];
+          // Handle both populated (object) and unpopulated (string) vendorId
+          if (vendorId is Map) {
+            return vendorId['_id'] == GlobalsVariables.vendorId;
+          } else if (vendorId is String) {
+            return vendorId == GlobalsVariables.vendorId;
+          }
+          return false;
         });
 
         if (matchedSub != null) {

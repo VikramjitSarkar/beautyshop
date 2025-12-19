@@ -30,6 +30,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
   final TextEditingController shopNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController whatsappController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
@@ -55,6 +56,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
           shopNameController.text = vendorData['shopName'] ?? '';
           emailController.text = vendorData['email'] ?? '';
           phoneController.text = vendorData['phone'] ?? '';
+          whatsappController.text = vendorData['whatsapp'] ?? '';
           descriptionController.text = vendorData['description'] ?? '';
           addressController.text = vendorData['locationAddres'] ?? '';
         }
@@ -79,6 +81,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
       "shopName": shopNameController.text,
       "email": emailController.text,
       "phone": phoneController.text,
+      "whatsapp": whatsappController.text,
       "description": descriptionController.text,
       "locationAddres": addressController.text,
       "profileImage": vendorData['profileImage'] ?? "",
@@ -162,6 +165,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
                       const SizedBox(height: 10),
                       _buildTextField(emailController, "Email"),
                       _buildTextField(phoneController, "Phone"),
+                      _buildTextField(whatsappController, "WhatsApp (Optional)"),
                       _buildTextField(addressController, "Address"),
 
                       const SizedBox(height: 20),

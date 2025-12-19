@@ -44,4 +44,10 @@ class DBHelper {
         where: 'vendorId = ?', whereArgs: [vendorId]);
     return result.isNotEmpty;
   }
+
+  static Future<List<String>> getAllFavorites() async {
+    final db = await database;
+    final result = await db.query('favorites');
+    return result.map((e) => e['vendorId'] as String).toList();
+  }
 }

@@ -13,6 +13,7 @@ class SaloonCardThree extends StatelessWidget {
   final String distanceKm;      // e.g. 4.5
   final bool isFavorite;         // default false
   final VoidCallback? onFavoriteTap;
+  final List<String>? categories; // Categories for this vendor
 
   const SaloonCardThree({
     super.key,
@@ -25,6 +26,7 @@ class SaloonCardThree extends StatelessWidget {
     required this.distanceKm,
     this.isFavorite = false,
     this.onFavoriteTap,
+    this.categories,
   });
 
   @override
@@ -36,7 +38,7 @@ class SaloonCardThree extends StatelessWidget {
           // IMAGE
           Container(
             width: double.infinity,            // fill parent row; or keep 130 if you prefer
-            height: 180,                       // adjust to your layout
+            height: 200,                       // increased from 180 to accommodate categories
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
               color: Colors.white,
@@ -148,39 +150,59 @@ class SaloonCardThree extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
 
-                      // Address
-                      Text(
-                        "$distanceKm Km",
-                        style: GoogleFonts.manrope(
-                          fontSize: 12,
-                          color: Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      // Address and Distance
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              location ?? '',
+                              style: GoogleFonts.manrope(
+                                fontSize: 11,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "$distanceKm Km",
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
 
-                      // ETA + distance (optional; shows only if provided)
-                      // if (etaMinutes != null || distanceKm != null) ...[
-                      //   const SizedBox(height: 6),
-                      //   Row(
-                      //     children: [
-                      //       const Icon(Icons.access_time, size: 16, color: Colors.black87),
-                      //       const SizedBox(width: 6),
-                      //       Text(
-                      //         [
-                      //           if (etaMinutes != null) '${etaMinutes!.toStringAsFixed(1)} min',
-                      //           if (distanceKm != null) '$ km)',
-                      //         ].join(' '),
-                      //         style: GoogleFonts.manrope(
-                      //           fontSize: 12,
-                      //           fontWeight: FontWeight.w600,
-                      //           color: Colors.black87
-                      //       ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ],
-                      const SizedBox(height: 10),
+                      // Categories (show max 3)
+                      if (categories != null && categories!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          children: categories!.take(3).map((cat) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFD4AF37), width: 1),
+                              ),
+                              child: Text(
+                                cat,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
