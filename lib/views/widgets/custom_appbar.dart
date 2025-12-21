@@ -184,13 +184,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text('Hi,', style: kHeadingStyle.copyWith(fontSize: 23)),
+                                    Text('Hi,', style: kHeadingStyle.copyWith(fontSize: 18)),
                                     Flexible(
                                       child: Text(
                                         profileController.name.value.isNotEmpty
-                                            ? profileController.name.value
+                                            ? profileController.name.value[0].toUpperCase() + profileController.name.value.substring(1)
                                             : 'Guest',
-                                        style: kHeadingStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 23),
+                                        style: kHeadingStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 18),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

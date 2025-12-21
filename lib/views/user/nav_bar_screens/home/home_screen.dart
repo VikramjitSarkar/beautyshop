@@ -389,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(width: 5),
                   Text(
                     "$greetings,",
-                    style: kHeadingStyle.copyWith(fontSize: 20),
+                    style: kHeadingStyle.copyWith(fontSize: 16),
                   ),
                 ],
               ),

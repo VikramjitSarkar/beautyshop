@@ -363,6 +363,7 @@ class _BeauticianProfileCreationScreenState
                       if (_formKey.currentState!.validate()) {
                         widget.vendorController.setProfileInfo(
                           homeServiceAvailable: hasHomeService,
+                          hasPhysicalShop: isShow,
                           shop: shopNameController.text.trim(),
                           desc: descriptionController.text.trim(),
                           titleText: titleController.text.trim(),

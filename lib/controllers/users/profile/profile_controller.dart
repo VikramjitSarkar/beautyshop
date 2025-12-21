@@ -28,6 +28,12 @@ class UserProfileController extends GetxController {
   }
 
   Future<void> fetchUserProfile() async {
+    // Don't fetch if user is not logged in
+    if (GlobalsVariables.token == null) {
+      print('[fetchUserProfile] Skipped - no token');
+      return;
+    }
+
     isLoading.value = true;
     update();
 
@@ -49,10 +55,7 @@ class UserProfileController extends GetxController {
         } else {
           print('[fetchUserProfile] Unexpected payload shape: ${res.body}');
         }
-      } else if(GlobalsVariables.token == null){
-        print("no user logged in");
-
-      }else {
+      } else {
         print('[fetchUserProfile] error body: ${res.body}');
         Get.snackbar('Error', 'Failed to load profile: ${res.statusCode}');
       }

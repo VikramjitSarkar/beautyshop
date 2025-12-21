@@ -14,6 +14,13 @@ class FavoriteFromUserController extends GetxController {
   }
 
   Future<void> loadFavoritesFromUser() async {
+    // Don't load if user is not logged in
+    if (GlobalsVariables.token == null) {
+      print('[loadFavoritesFromUser] Skipped - no token');
+      vendors.clear();
+      return;
+    }
+
     if (isLoading.value) return;
     isLoading.value = true;
 

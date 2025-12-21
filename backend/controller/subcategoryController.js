@@ -140,23 +140,33 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 export const getVendorsByCategory = async (req, res, next) => {
   try {
-    const { userLat, userLong, categoryId } = req.body;
+    const { userLat, userLong, categoryId, homeVisit, hasSalon, status: bodyStatus } = req.body;
     const { minPrice, maxPrice } = req.query;
+
+    console.log("[DEBUG] req.body:", JSON.stringify(req.body, null, 2));
+    console.log("[DEBUG] req.query:", JSON.stringify(req.query, null, 2));
 
     let filter = {};
 
-    if (req.query.status) {
-      filter.status = req.query.status;
+    // Check both query and body for status
+    if (req.query.status || bodyStatus) {
+      filter.status = req.query.status || bodyStatus;
     }
 
-    if (req.query.homeVisit) {
+    // Check both query and body for homeVisit
+    const homeVisitParam = req.query.homeVisit || homeVisit;
+    if (homeVisitParam) {
       filter.homeServiceAvailable =
-        req.query.homeVisit === "true" || req.query.homeVisit === "on";
+        homeVisitParam === "true" || homeVisitParam === "on" || homeVisitParam === true;
+      console.log("[DEBUG] homeVisit filter set to:", filter.homeServiceAvailable, "from param:", homeVisitParam);
     }
 
-    if (req.query.hasSalon) {
+    // Check both query and body for hasSalon
+    const hasSalonParam = req.query.hasSalon || hasSalon;
+    if (hasSalonParam) {
       filter.hasPhysicalShop =
-        req.query.hasSalon === "true" || req.query.hasSalon === "on";
+        hasSalonParam === "true" || hasSalonParam === "on" || hasSalonParam === true;
+      console.log("[DEBUG] hasSalon filter set to:", filter.hasPhysicalShop, "from param:", hasSalonParam);
     }
 
     console.log("[FILTER] Vendor query filter:", filter);

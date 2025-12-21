@@ -22,6 +22,7 @@ class VendorRegisterController extends GetxController {
   String listingPlan = 'free';
   File? profileImage;
   bool homeServiceAvailable=false;
+  bool hasPhysicalShop=false;
 
   // New fields for latitude and longitude
   double? vendorLat;
@@ -44,6 +45,7 @@ class VendorRegisterController extends GetxController {
     required String loc,
     required File? image,
     required bool homeServiceAvailable,
+    required bool hasPhysicalShop,
   }) {
     shopName = shop;
     description = desc;
@@ -51,6 +53,7 @@ class VendorRegisterController extends GetxController {
     location = loc;
     profileImage = image;
     homeServiceAvailable=homeServiceAvailable;
+    hasPhysicalShop=hasPhysicalShop;
   }
 
   /// Helper method to convert address into latitude and longitude.
@@ -114,6 +117,7 @@ class VendorRegisterController extends GetxController {
       'listingPlan': listingPlan,
       'fcmToken': fcmToken,
       'homeServiceAvailable':homeServiceAvailable.toString(),
+      'hasPhysicalShop':hasPhysicalShop.toString(),
     });
 
     // Add the latitude and longitude if available.

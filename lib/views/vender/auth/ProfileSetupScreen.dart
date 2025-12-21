@@ -5,6 +5,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../controllers/vendors/auth/profile_setup_Controller.dart'
     show ProfileSetupController;
 import '../../../services/auths_service.dart';
+import 'vendor_sign_in_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({Key? key}) : super(key: key);
@@ -170,8 +171,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Future<bool> _handleBackPressed() async {
-    if (_phoneController.text.trim().isEmpty ||
-        _whatsappController.text.trim().isEmpty) {
+    if (_nameController.text.trim().isNotEmpty ||
+        _surnameController.text.trim().isNotEmpty ||
+        _phoneController.text.trim().isNotEmpty ||
+        _whatsappController.text.trim().isNotEmpty ||
+        _selectedGender != null ||
+        _selectedDob != null ||
+        _certificationImage != null ||
+        _idImage != null) {
       final shouldExit = await showDialog<bool>(
         context: context,
         builder:
@@ -187,13 +194,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: () => Navigator.pop(context, true),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
                   child: const Text('Yes, Discard'),
                 ),
               ],
             ),
       );
-      return shouldExit ?? false;
+      if (shouldExit == true) {
+        Get.offAll(() => VendorSignInScreen());
+      }
+      return false;
     }
     return true;
   }
@@ -320,7 +332,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       ),
                     ),
                   ),
-                  initialCountryCode: 'PK',
+                  initialCountryCode: 'US',
                   enabled: !_isPhoneVerified,
                   onChanged: (phone) {
                     setState(() {
@@ -469,7 +481,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       ),
                     ),
                   ),
-                  initialCountryCode: 'PK',
+                  initialCountryCode: 'US',
                   onChanged: (phone) {
                     setState(() {
                       _fullWhatsappNumber = phone.completeNumber;

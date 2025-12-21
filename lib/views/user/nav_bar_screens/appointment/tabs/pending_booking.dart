@@ -225,10 +225,12 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
     final bookingDate = booking['bookingDate'];
     final formattedDate =
         bookingDate != null
-            ? DateFormat(
-              'dd MMM yyyy, hh:mm a',
-            ).format(DateTime.parse(bookingDate))
+            ? DateFormat('dd MMM yyyy').format(DateTime.parse(bookingDate))
             : 'Unknown';
+    final formattedTime =
+        bookingDate != null
+            ? DateFormat('hh:mm a').format(DateTime.parse(bookingDate))
+            : '';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15),
@@ -434,7 +436,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
           SizedBox(height: 10),
           Container(
             margin: const EdgeInsets.only(top: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(16),
@@ -445,13 +447,27 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
               children: [
                 Icon(Icons.calendar_month, color: Colors.black, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'Booking Date: $formattedDate',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.black,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: Colors.black,
+                      ),
+                    ),
+                    if (formattedTime.isNotEmpty)
+                      Text(
+                        formattedTime,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

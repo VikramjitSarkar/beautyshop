@@ -350,6 +350,10 @@ export const registerVendor = catchAsyncError(async (req, res, next) => {
   const data = req.body;
   const email = data?.email;
 
+  console.log('=== REGISTER VENDOR DEBUG ===');
+  console.log('hasPhysicalShop received:', data.hasPhysicalShop, 'type:', typeof data.hasPhysicalShop);
+  console.log('homeServiceAvailable received:', data.homeServiceAvailable, 'type:', typeof data.homeServiceAvailable);
+
   const existingUser = await Vendor.findOne({ email });
   if (existingUser) {
     return res
@@ -359,6 +363,16 @@ export const registerVendor = catchAsyncError(async (req, res, next) => {
 
   // start with all incoming fields
   const updatedFields = { ...data };
+
+  // Convert string boolean values to actual booleans
+  if (typeof updatedFields.hasPhysicalShop === "string") {
+    updatedFields.hasPhysicalShop = updatedFields.hasPhysicalShop === "true";
+  }
+  if (typeof updatedFields.homeServiceAvailable === "string") {
+    updatedFields.homeServiceAvailable = updatedFields.homeServiceAvailable === "true";
+  }
+  
+  console.log('After conversion - hasPhysicalShop:', updatedFields.hasPhysicalShop, 'homeServiceAvailable:', updatedFields.homeServiceAvailable);
 
   // upload profileImage if provided
   if (req.files && req.files.profileImage) {

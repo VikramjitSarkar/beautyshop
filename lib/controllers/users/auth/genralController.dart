@@ -248,22 +248,16 @@ class GenralController extends GetxController {
         final body = jsonDecode(response.body);
         final List<dynamic> data = body['data'];
 
+        // Backend has already filtered by homeVisit and hasSalon
+        // Only apply client-side filters for fields not handled by backend
         data.removeWhere((item) {
-          final itemStatus = item['status']?.toLowerCase();
-          final itemHomeVisit = item['homeVisit']?.toString();
-          final itemHasSalon = item['hasSalon']?.toString();
           final itemCharges =
               int.tryParse(item['charges']?.toString() ?? '0') ?? 0;
-          final itemOnline =
-              item['status']?.toString().toLowerCase() == 'online';
           final itemOpeningTime = item['openingTime'];
 
-          if (status != null && itemStatus != status.toLowerCase()) return true;
-          if (homeVisit != null && itemHomeVisit != homeVisit) return true;
-          if (hasSalon != null && itemHasSalon != hasSalon) return true;
+          // Check price range (backend doesn't filter by price in body params)
           if (minPrice != null && itemCharges < minPrice) return true;
           if (maxPrice != null && itemCharges > maxPrice) return true;
-          if (onlineNow == true && !itemOnline) return true;
 
           // Simulated availability based on opening time
           if (isAvailableNow == true && itemOpeningTime is Map) {

@@ -434,7 +434,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           ),
                           SizedBox(height: 93),
                           Container(
-                            height: 210,
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
@@ -464,18 +463,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 Text(
                                   widget.shopName,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 4),
                                 Text(
                                   widget.shopAddress,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     color: kGreyColor,
                                     fontWeight: FontWeight.w400,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
                                 SizedBox(height: 15),
                                 Divider(color: kGreyColor2),
@@ -496,10 +498,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                serviceName[0],
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
+                                              Expanded(
+                                                child: Text(
+                                                  serviceName[0],
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 13,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               Text(
@@ -519,11 +525,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                                 height: 14,
                                               ),
                                               SizedBox(width: 3),
-                                              Text(
-                                                '02:30 pm - 05 Jun, 2024',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 14,
+                                              Expanded(
+                                                child: Text(
+                                                  '02:30 pm - 05 Jun, 2024',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 12,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
