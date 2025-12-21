@@ -746,35 +746,36 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
     final now = TimeOfDay.now();
 
     final filtered = vendors.where((vendor) {
-      // Check status
-      final itemStatus = vendor['status']?.toString().toLowerCase();
+      final itemStatus = vendor['status']?.toLowerCase();
+      final itemHomeVisit = vendor['homeVisit']?.toString();
+      final itemHasSalon = vendor['hasSalon']?.toString();
+      final itemCharges = int.tryParse(vendor['charges']?.toString() ?? '0') ?? 0;
       final itemOnline = itemStatus == 'online';
-      
-      // Check location/physical shop
-      final hasPhysicalShop = vendor['hasPhysicalShop'] == true || 
-                              vendor['location']?.toString().toLowerCase() == 'on';
-      
-      // Check home service availability
-      final hasHomeService = vendor['homeServiceAvailable'] == true;
-      
-      // For price, we need to check services
-      final services = vendor['services'] as List<dynamic>?;
-      int minServicePrice = 0;
-      if (services != null && services.isNotEmpty) {
-        for (var service in services) {
-          final price = int.tryParse(service['price']?.toString() ?? '0') ?? 0;
-          if (minServicePrice == 0 || price < minServicePrice) {
-            minServicePrice = price;
-          }
+      final itemOpeningTime = vendor['openingTime'];
+
+      if (status != null && itemStatus != status.toLowerCase()) return false;
+      if (homeVisit != null && itemHomeVisit != homeVisit) return false;
+      if (hasSalon != null && itemHasSalon != hasSalon) return false;
+      if (minPrice != null && itemCharges < minPrice) return false;
+      if (maxPrice != null && itemCharges > maxPrice) return false;
+      if (onlineNow == true && !itemOnline) return false;
+
+      if (isAvailableNow == true && itemOpeningTime is Map) {
+        final openHour = int.tryParse(itemOpeningTime['hour']?.toString() ?? '0') ?? 0;
+        final openMinute = int.tryParse(itemOpeningTime['minute']?.toString() ?? '0') ?? 0;
+        if (now.hour < openHour || (now.hour == openHour && now.minute < openMinute)) {
+          return false;
         }
       }
 
-      // Apply filters
-      if (onlineNow == true && !itemOnline) return false;
-      if (hasSalon == "on" && !hasPhysicalShop) return false;
-      if (homeVisit == "on" && !hasHomeService) return false;
-      if (minPrice != null && minServicePrice < minPrice) return false;
-      if (maxPrice != null && minServicePrice > maxPrice) return false;
+      if (selectedTime != null && itemOpeningTime is Map) {
+        final openHour = int.tryParse(itemOpeningTime['hour']?.toString() ?? '0') ?? 0;
+        final openMinute = int.tryParse(itemOpeningTime['minute']?.toString() ?? '0') ?? 0;
+        if (selectedTime.hour < openHour ||
+            (selectedTime.hour == openHour && selectedTime.minute < openMinute)) {
+          return false;
+        }
+      }
 
       return true;
     }).toList();
@@ -1265,15 +1266,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () {
-                            this.setState(() {
-                              // Reset all filters in main widget
-                              this.onlineNow = false;
-                              this.nearby = false;
-                              this.homeVisitAvailable = false;
-                              this.hasSalonLocation = false;
-                              this.priceRange = const RangeValues(0, 500);
-                              this.isAvailableNow = true;
-                              this.selectedTime = TimeOfDay.now();
+                            setState(() {
+                              // Reset all filters
+                              onlineNow = false;
+                              nearby = false;
+                              homeVisitAvailable = false;
+                              hasSalonLocation = false;
+                              priceRange = const RangeValues(0, 500);
+                              isAvailableNow = true;
+                              selectedTime = TimeOfDay.now();
                             });
                             _fetchNearbyVendors(); // Load all vendors
                             Navigator.pop(context);
@@ -1299,17 +1300,25 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            this.setState(() {
-                              // Update main widget state
-                              this.onlineNow = onlineNow;
-                              this.nearby = nearby;
-                              this.homeVisitAvailable = homeVisitAvailable;
-                              this.hasSalonLocation = hasSalonLocation;
-                              this.priceRange = priceRange;
-                              this.isAvailableNow = isAvailableNow;
-                              this.selectedTime = selectedTime;
-                            });
-                            _applyFilters();
+                            applyLocalFilters(
+                              vendors: _originalVendors,
+                              categoryId: _selectedCategoryId!,
+                              status: onlineNow ? "online" : null,
+                              homeVisit:
+                              homeVisitAvailable
+                                  ? "on"
+                                  : null, // or true if backend expects boolean
+                              hasSalon: hasSalonLocation ? "on" : null, // or true if boolean expected
+                              minPrice: priceRange.start.toInt(),
+                              maxPrice: priceRange.end.toInt(),
+                              onlineNow: onlineNow,
+                              nearby: nearby,
+                              selectedTime: isAvailableNow ? null : selectedTime,
+                              isAvailableNow: isAvailableNow,
+                              userLat: _currentPosition!.latitude.toString(),
+                              userLong: _currentPosition!.longitude.toString(),
+
+                            );
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
