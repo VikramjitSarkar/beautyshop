@@ -80,20 +80,22 @@ class HomeController extends GetxController {
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/getAll');
 
     try {
+      print("[fetchVendors] GET $url");
       final response = await http.get(url);
       isLoading.value = false;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         vendors.value = data['data'] ?? [];
+        print("[fetchVendors] Successfully fetched ${vendors.length} vendors");
       } else {
         // Get.snackbar('Error', '');
-        print('Failed to load vendors');
+        print('[fetchVendors] Failed to load vendors - Status: ${response.statusCode}');
       }
     } catch (e) {
       isLoading.value = false;
       // Get.snackbar('Error', e.toString());
-      print(e.toString());
+      print('[fetchVendors] Error: ${e.toString()}');
     }
   }
 
@@ -150,6 +152,8 @@ class HomeController extends GetxController {
     required double userLong,
   }) {
     print("Fetching vendors...");
+    print("Total vendors before filter: ${vendors.length}");
+    print("User location: Lat=$userLat, Long=$userLong");
     isLoading.value = true;
 
     try {
@@ -158,12 +162,13 @@ class HomeController extends GetxController {
         final vLong = double.tryParse(vendor['vendorLong'].toString()) ?? 0.0;
 
         final distance = _calculateDistance(userLat, userLong, vLat, vLong);
+        print("Vendor: ${vendor['shopName']}, Distance: ${distance.toStringAsFixed(2)} km");
         return distance <= 30.0;
       }).toList();
 
       // Assign filtered list to observable
       nearbyVendors.assignAll(filtered);
-      print("Updated vendors: $nearbyVendors");
+      print("Updated vendors: ${nearbyVendors.length} vendors within 30km");
 
     } catch (e) {
       print("Error filtering vendors: $e");
