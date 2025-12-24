@@ -75,7 +75,6 @@ class SaloonCardFour extends StatelessWidget {
               ),
             ),
           ),
-
           // GOLDEN MATTE GLASS (bottom overlay)
           Positioned(
             left: 0,
@@ -89,7 +88,7 @@ class SaloonCardFour extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  padding: const EdgeInsets.fromLTRB(14, 0 , 14, 0),
                   decoration: BoxDecoration(
                     // subtle golden tint
                     gradient: LinearGradient(

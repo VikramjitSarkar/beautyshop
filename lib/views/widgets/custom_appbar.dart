@@ -135,7 +135,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
-            margin: const EdgeInsets.only(top: 10),
+            margin: const EdgeInsets.only(top: 0),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
@@ -207,7 +207,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                           ? const LinearProgressIndicator()
                                           : Text(
                                         currentLocation.value,
-                                        style: kSubheadingStyle,
+                                        style: kSubheadingStyle.copyWith(color: Colors.black),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

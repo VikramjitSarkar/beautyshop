@@ -338,9 +338,15 @@ class _BeauticianProfileCreationScreenState
 
                 const SizedBox(height: 24),
                 SwitchListTile(
-                  title: Text("Provide Home Service?", style: kSubheadingStyle),
+                  title: Text(
+                    "Provide Home Service?",
+                    style: kSubheadingStyle,
+                  ),
                   value: hasHomeService,
                   onChanged: (value) => setState(() => hasHomeService = value),
+
+                  activeColor: Colors.white,              // handle (thumb) color
+                  activeTrackColor: kPrimaryColor,          // active body/track color
                 ),
 
                 const SizedBox(height: 32),
