@@ -181,7 +181,7 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                 rating: rating,
                                 location: vendor['locationAddres'],
                                 imageUrl: vendor['shopBanner'] ?? '',
-                                shopeName: vendor['shopName'] ?? 'No Name',
+                                shopName: vendor['shopName'] ?? 'No Name',
                                 categories: categories.take(3).toList(),
                                 isFavorite: isFav,
                                 onFavoriteTap: () {

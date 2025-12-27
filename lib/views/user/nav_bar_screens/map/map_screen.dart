@@ -55,8 +55,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
   bool subCategorySelected = false;
 
   final double cardWidth = 180;
-  final List<String> smiley = ["😐", "😡", "🙁", "🙂", "😃"];
-  final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
 
 
   final String _greyMapStyle = '''[
@@ -156,6 +154,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
   bool isAvailableNow = true;
   TabController? _subCategoryTabController;
   String? _selectedSubCategoryId;
+  int activeButtonIndex = 0;
 
 
 
@@ -555,7 +554,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
       text: TextSpan(
         text: subCategorySelected
             ? "\$${charges.replaceAll(RegExp(r"\.0+$"), "")}"
-            : "${smiley[index]} $text",
+            : "⭐ $text",
         style: const TextStyle(
           color: Colors.black,
           fontSize: 28,
@@ -779,6 +778,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
       return true;
     }).toList();
+
+    if(activeButtonIndex == 1){
+      //sort by distance
+      sortVendorsByDistanceNearestFirst(filtered);
+
+    }else if(activeButtonIndex == 2){
+      //sort by popularity
+      sortVendorsByRatingHighFirst(filtered);
+
+    }else if(activeButtonIndex == 3){
+      //sort by rating
+      sortVendorsByRatingHighFirst(filtered);
+
+    }
 
     _originalVendors.assignAll(filtered);
     _filterVendors();
@@ -1085,7 +1098,95 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 15,),
+                  Text(
+                    'Sort by',
+                    style: kHeadingStyle.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 15,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 1);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==1? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==1? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Near by',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 2);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==2? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==2? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Popular',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 3);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==3? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==3? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Rating',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
 
                   // Filter options...
                   SwitchListTile(
@@ -1121,20 +1222,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                         (value) => setState(() => homeVisitAvailable = value),
                   ),
 
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Nearby'),
-                    subtitle: const Text('Sort by closest distance'),
-                    value: nearby,
-                    activeColor: Colors.white,
-                    activeTrackColor: kPrimaryColor,
-                    trackOutlineColor: const WidgetStatePropertyAll(
-                      Colors.transparent,
-                    ),
-                    inactiveTrackColor: kGreyColor2,
-                    inactiveThumbColor: Colors.white,
-                    onChanged: (value) => setState(() => nearby = value),
-                  ),
+
 
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -1275,6 +1363,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                               priceRange = const RangeValues(0, 500);
                               isAvailableNow = true;
                               selectedTime = TimeOfDay.now();
+                              activeButtonIndex = 0;
                             });
                             _fetchNearbyVendors(); // Load all vendors
                             Navigator.pop(context);
@@ -1347,5 +1436,32 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
         );
       },
     );
+  }
+
+  void sortVendorsByRatingHighFirst(List<dynamic> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double ratingA = _toDouble(a['shopRating']);
+      double ratingB = _toDouble(b['shopRating']);
+
+      return ratingB.compareTo(ratingA); // high → low
+    });
+  }
+
+  void sortVendorsByDistanceNearestFirst(List<dynamic> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double distanceA = _toDouble(a['distance']);
+      double distanceB = _toDouble(b['distance']);
+
+      return distanceA.compareTo(distanceB); // far → near
+    });
+    print("applying filter");
+  }
+
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 }

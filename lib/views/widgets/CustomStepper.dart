@@ -9,9 +9,8 @@ class CustomStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+    return SizedBox(
+      height: 70, 
       child: Column(
         children: [
           SizedBox(

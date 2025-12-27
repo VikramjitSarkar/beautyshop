@@ -48,6 +48,7 @@ class UserBookingController extends GetxController {
             body['message'] ?? 'Booking created successfully',
           );
 
+          print("created booking: $body");
           return true;
         } else {
           print("Booking failed: ${response.body}");

@@ -28,7 +28,7 @@ class SearchCardScreen extends StatefulWidget {
 }
 
 class _SearchCardScreenState extends State<SearchCardScreen> {
-  final GenralController _genralController = Get.put(GenralController());
+  final GenralController _generalController = Get.put(GenralController());
   final TextEditingController _searchController = TextEditingController();
   
   // Cache for vendor categories
@@ -42,6 +42,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
   RangeValues priceRange = const RangeValues(0, 300);
   TimeOfDay selectedTime = TimeOfDay.now();
   bool isAvailableNow = true;
+
+  int activeButtonIndex = 0;
 
   @override
   void initState() {
@@ -97,10 +99,10 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         // Location services are not enabled, load without location
-        final result = await _genralController.fetchFilteredSubcategories(
+        final result = await _generalController.fetchFilteredSubcategories(
           categoryId: widget.categoryId,
         );
-        _genralController.filteredSubcategories.assignAll(result);
+        _generalController.filteredSubcategories.assignAll(result);
         return;
       }
 
@@ -110,20 +112,20 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           // Permissions are denied, load without location
-          final result = await _genralController.fetchFilteredSubcategories(
+          final result = await _generalController.fetchFilteredSubcategories(
             categoryId: widget.categoryId,
           );
-          _genralController.filteredSubcategories.assignAll(result);
+          _generalController.filteredSubcategories.assignAll(result);
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         // Permissions are permanently denied, load without location
-        final result = await _genralController.fetchFilteredSubcategories(
+        final result = await _generalController.fetchFilteredSubcategories(
           categoryId: widget.categoryId,
         );
-        _genralController.filteredSubcategories.assignAll(result);
+        _generalController.filteredSubcategories.assignAll(result);
         return;
       }
 
@@ -133,18 +135,18 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
       );
 
       // Load vendors with location
-      final result = await _genralController.fetchFilteredSubcategories(
+      final result = await _generalController.fetchFilteredSubcategories(
         userLat: position.latitude.toString(),
         userLong: position.longitude.toString(),
         categoryId: widget.categoryId,
       );
-      _genralController.filteredSubcategories.assignAll(result);
+      _generalController.filteredSubcategories.assignAll(result);
     } catch (e) {
       // Fallback if any error occurs
-      final result = await _genralController.fetchFilteredSubcategories(
+      final result = await _generalController.fetchFilteredSubcategories(
         categoryId: widget.categoryId,
       );
-      _genralController.filteredSubcategories.assignAll(result);
+      _generalController.filteredSubcategories.assignAll(result);
       Get.snackbar('Location Error', 'Using default location: ${e.toString()}');
     }
   }
@@ -172,7 +174,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      await _genralController.fetchFilteredsSubcategories(
+      await _generalController.fetchFilteredsSubcategories(
         categoryId: widget.categoryId,
         status: onlineNow ? "online" : null,
         homeVisit: homeVisitAvailable ? "on" : null,
@@ -186,6 +188,21 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
         userLat: position.latitude.toString(),
         userLong: position.longitude.toString(),
       );
+
+      if(activeButtonIndex == 1){
+        //sort by distance
+        sortVendorsByDistanceNearestFirst(_generalController.filteredSubcategories);
+
+      }else if(activeButtonIndex == 2){
+        //sort by popularity
+        sortVendorsByRatingHighFirst(_generalController.filteredSubcategories);
+
+      }else if(activeButtonIndex == 3){
+        //sort by rating
+        sortVendorsByRatingHighFirst(_generalController.filteredSubcategories);
+
+      }
+
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
@@ -234,19 +251,19 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
               // Salon List
               Expanded(
                 child: Obx(() {
-                  if (_genralController.isLoading.value) {
+                  if (_generalController.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (_genralController.filteredSubcategories.isEmpty) {
+                  if (_generalController.filteredSubcategories.isEmpty) {
                     return const Center(child: Text("No salons found"));
                   }
 
                   final searchQuery = widget.searchQuery.trim().toLowerCase();
                   final se =
                       searchQuery.isEmpty
-                          ? _genralController.filteredSubcategories
-                          : _genralController.filteredSubcategories.where((
+                          ? _generalController.filteredSubcategories
+                          : _generalController.filteredSubcategories.where((
                             vendor,
                           ) {
                             final name =
@@ -305,7 +322,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                                     distanceKm: vendor['distance'],
                                     rating: rating,
                                     imageUrl: shopBanner,
-                                    shopeName: shopName,
+                                    shopName: shopName,
                                     location: vendor['locationAddres'],
                                     categories: categories.take(3).toList(),
                                     isFavorite: isFav,
@@ -589,7 +606,95 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 15,),
+                  Text(
+                    'Sort by',
+                    style: kHeadingStyle.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 15,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 1);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==1? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==1? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Near by',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 2);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==2? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==2? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Popular',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 3);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==3? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==3? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Rating',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
 
                   // Filter options...
                   SwitchListTile(
@@ -625,20 +730,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                         (value) => setState(() => homeVisitAvailable = value),
                   ),
 
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Nearby'),
-                    subtitle: const Text('Sort by closest distance'),
-                    value: nearby,
-                    activeColor: Colors.white,
-                    activeTrackColor: kPrimaryColor,
-                    trackOutlineColor: const WidgetStatePropertyAll(
-                      Colors.transparent,
-                    ),
-                    inactiveTrackColor: kGreyColor2,
-                    inactiveThumbColor: Colors.white,
-                    onChanged: (value) => setState(() => nearby = value),
-                  ),
+
 
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -662,7 +754,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                   RangeSlider(
                     values: priceRange,
                     min: 0,
-                    max: 300,
+                    max: 500,
                     divisions: 50,
                     activeColor: kPrimaryColor,
                     inactiveColor: kGreyColor2,
@@ -780,6 +872,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                               priceRange = const RangeValues(0, 500);
                               isAvailableNow = true;
                               selectedTime = TimeOfDay.now();
+                              activeButtonIndex = 0;
                             });
                             _loadAllVendors(); // Load all vendors
                             Navigator.pop(context);
@@ -834,5 +927,31 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
         );
       },
     );
+  }
+
+  void sortVendorsByRatingHighFirst(List<Map<String, dynamic>> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double ratingA = _toDouble(a['shopRating']);
+      double ratingB = _toDouble(b['shopRating']);
+
+      return ratingB.compareTo(ratingA); // high → low
+    });
+  }
+
+  void sortVendorsByDistanceNearestFirst(List<Map<String, dynamic>> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double distanceA = _toDouble(a['distance']);
+      double distanceB = _toDouble(b['distance']);
+
+      return distanceA.compareTo(distanceB); // far → near
+    });
+  }
+
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 }

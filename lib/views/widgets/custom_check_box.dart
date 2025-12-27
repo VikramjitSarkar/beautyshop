@@ -43,7 +43,7 @@ class CustomCheckBox extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(width: 10), // Space between checkboxes
+           // Space between checkboxes
         ],
       ),
     );

@@ -175,8 +175,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   statusController
                                                           .isOnline
                                                           .value
-                                                      ? 'Online'
-                                                      : 'Offline',
+                                                      ? 'Go Offline'
+                                                      : 'Go Online',
                                                   style: kHeadingStyle.copyWith(
                                                     fontSize: 14,
                                                     color:
@@ -205,23 +205,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const SizedBox(height: 16),
                               GestureDetector(
                                 onTap: () async {
-                                  if (dashCtrl.listing.value == 'paid') {
-                                    final picked = await ImagePicker()
-                                        .pickImage(source: ImageSource.gallery);
-                                    if (picked != null) {
-                                      await dashCtrl
-                                          .updateVendorVerificationImage(
-                                            verificationImage: File(
-                                              picked.path,
-                                            ),
-                                            token:
-                                                GlobalsVariables
-                                                    .vendorLoginToken!,
-                                          );
-                                    }
-                                  } else {
-                                    showPremiumFeatureDialog(context);
+                                  final picked = await ImagePicker()
+                                      .pickImage(source: ImageSource.gallery);
+                                  if (picked != null) {
+                                    await dashCtrl
+                                        .updateVendorVerificationImage(
+                                      verificationImage: File(
+                                        picked.path,
+                                      ),
+                                      token:
+                                      GlobalsVariables
+                                          .vendorLoginToken!,
+                                    );
                                   }
+                                  // if (dashCtrl.listing.value == 'paid') {
+                                  //   final picked = await ImagePicker()
+                                  //       .pickImage(source: ImageSource.gallery);
+                                  //   if (picked != null) {
+                                  //     await dashCtrl
+                                  //         .updateVendorVerificationImage(
+                                  //           verificationImage: File(
+                                  //             picked.path,
+                                  //           ),
+                                  //           token:
+                                  //               GlobalsVariables
+                                  //                   .vendorLoginToken!,
+                                  //         );
+                                  //   }
+                                  // } else {
+                                  //   showPremiumFeatureDialog(context);
+                                  // }
                                 },
                                 child: Obx(() {
                                   final bannerUrl = dashCtrl.bannerImage.value;

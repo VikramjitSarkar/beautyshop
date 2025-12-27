@@ -214,7 +214,7 @@ class _VendorCardState extends State<_VendorCard> {
           rating: rating,
           location: where,
           imageUrl: shopBanner,
-          shopeName: name,
+          shopName: name,
           categories: _categories,
           isFavorite: isFav,
           onFavoriteTap: () {

@@ -197,7 +197,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   onPressed: () {
                     Navigator.pop(context, true);
                   },
-                  child: const Text('Yes, Discard'),
+                  child: const Text('Yes, Discard', style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),

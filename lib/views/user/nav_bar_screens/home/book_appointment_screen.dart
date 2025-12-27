@@ -67,7 +67,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   List<String> get times {
     if (isAmSelected) {
-      return ["08:00 am", "09:00 am", "10:00 am", "11:00 am", "12:00 pm"];
+      return ["01:00 am",
+        "02:00 am",
+        "03:00 am",
+        "04:00 am",
+        "05:00 am",
+        "06:00 am",
+        "07:00 am",
+        "08:00 am",
+        "09:00 am",
+        "10:00 am",
+        "11:00 am",
+        "12:00 pm",];
     } else {
       return [
         "01:00 pm",
@@ -81,6 +92,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         "09:00 pm",
         "10:00 pm",
         "11:00 pm",
+        "12:00 am",
       ];
     }
   }
@@ -347,6 +359,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       selectedTime = times.first;
                                     }),
                               ),
+                              SizedBox(width: 10,),
                               CustomCheckBox(
                                 title: 'PM',
                                 isSelected: !isAmSelected,
@@ -795,6 +808,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                         times.first; // Reset to first AM time
                                   }),
                             ),
+                            SizedBox(width: 10,),
                             CustomCheckBox(
                               title: 'PM',
                               isSelected: !isAmSelected,

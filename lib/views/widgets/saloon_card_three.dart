@@ -1,11 +1,12 @@
 import 'dart:ui';
 
 import 'package:beautician_app/utils/libs.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SaloonCardThree extends StatelessWidget {
   final String imageUrl;
-  final String shopeName;
+  final String shopName;
   final double rating; // Rating out of 5
   final void Function() onTap;
   final String location;
@@ -19,7 +20,7 @@ class SaloonCardThree extends StatelessWidget {
     super.key,
     required this.rating,
     required this.imageUrl,
-    required this.shopeName,
+    required this.shopName,
     required this.onTap,
     required this.location,
     this.etaMinutes,
@@ -89,17 +90,17 @@ class SaloonCardThree extends StatelessWidget {
                 bottomRight: Radius.circular(18),
               ),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                filter: ImageFilter.blur(sigmaX: 500, sigmaY: 500),
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  padding: const EdgeInsets.fromLTRB(14, 5, 14, 5),
                   decoration: BoxDecoration(
                     // subtle golden tint
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0x66E3DFD5), // pale gold
-                        Color(0x33FFFFFF), // gold
+                        Color(0xFFF5F3EF), // soft beige white
+                        Color(0xFFFEFEFE),// pure white
                       ],
                     ),
                     border: Border.all(color: const Color(0x99FFFFFF), width: 0.6),
@@ -114,7 +115,7 @@ class SaloonCardThree extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              shopeName,
+                              shopName,
                               style: GoogleFonts.manrope(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -130,22 +131,28 @@ class SaloonCardThree extends StatelessWidget {
                             children: [
                               for (int i = 1; i <= 5; i++)
                                 Padding(
-                                  padding: const EdgeInsets.only(right: 3),
-                                  child: Image.asset(
-                                    i <= rating ? 'assets/star.png' : 'assets/star2.png',
-                                    height: 14,
+                                  padding: const EdgeInsets.only(right: 2),
+                                  child: Icon(
+                                    Icons.star_rounded,  // rounded star
+                                    size: 15,
+                                    color: i <= rating.floor()
+                                        ? CupertinoColors.systemYellow
+                                        : Colors.grey.shade400,
                                   ),
                                 ),
+
+                              const SizedBox(width: 4),
+
                               Text(
                                 rating.toStringAsFixed(1),
                                 style: GoogleFonts.manrope(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
-                                )
+                                ),
                               ),
                             ],
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 6),

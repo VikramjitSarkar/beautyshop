@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:beautician_app/utils/libs.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SaloonCardFour extends StatelessWidget {
@@ -86,7 +87,7 @@ class SaloonCardFour extends StatelessWidget {
                 bottomRight: Radius.circular(18),
               ),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                filter: ImageFilter.blur(sigmaX: 500, sigmaY: 500),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(14, 0 , 14, 0),
                   decoration: BoxDecoration(
@@ -95,8 +96,8 @@ class SaloonCardFour extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0x66E3DFD5), // pale gold
-                        Color(0x33FFFFFF), // gold
+                        Color(0xFFF5F3EF), // soft beige white
+                        Color(0xFFFEFEFE),
                       ],
                     ),
                     border: Border.all(color: const Color(0x99FFFFFF), width: 0.6),
@@ -127,10 +128,13 @@ class SaloonCardFour extends StatelessWidget {
                             children: [
                               for (int i = 1; i <= 5; i++)
                                 Padding(
-                                  padding: const EdgeInsets.only(right: 3),
-                                  child: Image.asset(
-                                    i <= rating ? 'assets/star.png' : 'assets/star2.png',
-                                    height: 14,
+                                  padding: const EdgeInsets.only(right: 2),
+                                  child: Icon(
+                                    Icons.star_rounded,  // rounded star
+                                    size: 15,
+                                    color: i <= rating.floor()
+                                        ? CupertinoColors.systemYellow
+                                        : Colors.grey.shade400,
                                   ),
                                 ),
                               Text(

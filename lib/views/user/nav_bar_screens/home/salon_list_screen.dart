@@ -42,6 +42,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
   TimeOfDay selectedTime = TimeOfDay.now();
   bool isAvailableNow = true;
 
+  int activeButtonIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -192,6 +194,20 @@ class _SalonListScreenState extends State<SalonListScreen> {
         userLong: position.longitude.toString(),
       );
       print('Home Visit Available: $homeVisitAvailable');
+
+      if(activeButtonIndex == 1){
+        //sort by distance
+        sortVendorsByDistanceNearestFirst(_generalController.filteredSubcategories);
+
+      }else if(activeButtonIndex == 2){
+        //sort by popularity
+        sortVendorsByRatingHighFirst(_generalController.filteredSubcategories);
+
+      }else if(activeButtonIndex == 3){
+        //sort by rating
+        sortVendorsByRatingHighFirst(_generalController.filteredSubcategories);
+
+      }
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
@@ -401,7 +417,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                 distanceKm: vendor['distance'],
                                 rating: rating,
                                 imageUrl: shopBanner,
-                                shopeName: shopName,
+                                shopName: shopName,
                                 location: vendor['locationAddres'],
                                 categories: categories.take(3).toList(),
                                 isFavorite: isFav,
@@ -639,6 +655,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
   }
 
   void _showFilterBottomSheet() {
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -674,7 +691,95 @@ class _SalonListScreenState extends State<SalonListScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 15,),
+                  Text(
+                    'Sort by',
+                    style: kHeadingStyle.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 15,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 1); 
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==1? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==1? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Near by',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 2);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==2? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==2? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Popular',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() => activeButtonIndex = 3);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: activeButtonIndex==3? kPrimaryColor : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            side: activeButtonIndex==3? BorderSide.none : BorderSide(color: kPrimaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Rating',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
 
                   // Filter options...
                   SwitchListTile(
@@ -710,20 +815,20 @@ class _SalonListScreenState extends State<SalonListScreen> {
                         (value) => setState(() => homeVisitAvailable = value),
                   ),
 
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Nearby'),
-                    subtitle: const Text('Sort by closest distance'),
-                    value: nearby,
-                    activeColor: Colors.white,
-                    activeTrackColor: kPrimaryColor,
-                    trackOutlineColor: const WidgetStatePropertyAll(
-                      Colors.transparent,
-                    ),
-                    inactiveTrackColor: kGreyColor2,
-                    inactiveThumbColor: Colors.white,
-                    onChanged: (value) => setState(() => nearby = value),
-                  ),
+                  // SwitchListTile(
+                  //   contentPadding: EdgeInsets.zero,
+                  //   title: const Text('Nearby'),
+                  //   subtitle: const Text('Sort by closest distance'),
+                  //   value: nearby,
+                  //   activeColor: Colors.white,
+                  //   activeTrackColor: kPrimaryColor,
+                  //   trackOutlineColor: const WidgetStatePropertyAll(
+                  //     Colors.transparent,
+                  //   ),
+                  //   inactiveTrackColor: kGreyColor2,
+                  //   inactiveThumbColor: Colors.white,
+                  //   onChanged: (value) => setState(() => nearby = value),
+                  // ),
 
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -864,6 +969,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
                               priceRange = const RangeValues(0, 500);
                               isAvailableNow = true;
                               selectedTime = TimeOfDay.now();
+                              activeButtonIndex = 0;
                             });
                             _loadAllVendors(); // Load all vendors
                             Navigator.pop(context);
@@ -919,4 +1025,32 @@ class _SalonListScreenState extends State<SalonListScreen> {
       },
     );
   }
+
+  void sortVendorsByRatingHighFirst(List<Map<String, dynamic>> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double ratingA = _toDouble(a['shopRating']);
+      double ratingB = _toDouble(b['shopRating']);
+
+      return ratingB.compareTo(ratingA); // high → low
+    });
+  }
+
+  void sortVendorsByDistanceNearestFirst(List<Map<String, dynamic>> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      double distanceA = _toDouble(a['distance']);
+      double distanceB = _toDouble(b['distance']);
+
+      return distanceA.compareTo(distanceB); // far → near
+    });
+  }
+
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+
 }

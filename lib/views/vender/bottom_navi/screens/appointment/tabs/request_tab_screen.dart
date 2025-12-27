@@ -60,6 +60,7 @@ class RequestTabScreen extends StatelessWidget {
               itemCount: requestBookingController.bookings.length,
               itemBuilder: (context, index) {
                 final booking = requestBookingController.bookings[index];
+                print("Bookings: $booking");
                 final user = booking['user']?['userName'] ?? 'Unknown';
                 final address = booking['user']?['location'] ?? 'No address';
                 final services = booking['services'];

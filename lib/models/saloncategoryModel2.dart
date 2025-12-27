@@ -63,7 +63,7 @@ class SalonCategoryWidget2 extends StatelessWidget {
               rating: rating,
               location: vendor['locationAddres'],
               imageUrl: vendor['profileImage'] ?? '',
-              shopeName: vendor['shopName'] ?? 'No Name',
+              shopName: vendor['shopName'] ?? 'No Name',
               onTap: () {
                 print('galleryImages: ---------$galleyImages');
                 Get.to(

@@ -5,6 +5,7 @@ import 'package:beautician_app/controllers/users/auth/genralController.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/utils/text_styles.dart';
 import 'package:beautician_app/views/onboarding/user_vender_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -127,7 +128,7 @@ class SaloonDetailPageAppBar extends StatelessWidget
               bottomRight: Radius.circular(30),
             ),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              filter: ImageFilter.blur(sigmaX: 500, sigmaY: 500),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
@@ -136,8 +137,8 @@ class SaloonDetailPageAppBar extends StatelessWidget
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0x66E3DFD5), // subtle gold matte
-                      const Color(0x33FFFFFF),
+                      Color(0xFFF5F3EF), // soft beige white
+                      Color(0xFFFEFEFE),
                     ],
                   ),
                   border: Border.all(
@@ -241,32 +242,36 @@ class SaloonDetailPageAppBar extends StatelessWidget
   }
 
   Widget _buildRatingStars(double rating) {
-    final smileys = ["😡", "🙁", "🙂", "😃"];
-    int activeIndex = rating.floor().clamp(0, smileys.length - 1);
+    int fullStars = rating.floor().clamp(0, 5);
+
     return Row(
       children: [
-        ...List.generate(
-          smileys.length,
-              (index) => Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(
-              smileys[index],
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.white.withOpacity(
-                    index == activeIndex ? 1.0 : 0.4),
-              ),
+        for (int i = 1; i <= 5; i++)
+          Padding(
+            padding: const EdgeInsets.only(right: 2),
+            child: Icon(
+              Icons.star_rounded,  // rounded star
+              size: 15,
+              color: i <= rating.floor()
+                  ? CupertinoColors.systemYellow
+                  : Colors.grey.shade400,
             ),
           ),
-        ),
-        const SizedBox(width: 8),
+
+        const SizedBox(width: 6),
+
         Text(
           rating.toStringAsFixed(1),
-          style: const TextStyle(fontSize: 14, color: Colors.white),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
       ],
     );
   }
+
 
   @override
   Size get preferredSize => const Size.fromHeight(380);

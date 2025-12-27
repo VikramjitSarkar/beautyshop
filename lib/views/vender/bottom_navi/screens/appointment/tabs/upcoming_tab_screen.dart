@@ -45,6 +45,7 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
 
           final bookings = _bookingController.activeBooking;
 
+
           if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: padding),
@@ -105,6 +106,7 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
 
     final userName = user['userName'] ?? 'Client';
     final location = user['location'] ?? 'No address';
+    print("location: $location");
     final serviceNames = booking['services'];
 
     final profilemage = booking['user']?['profileImage'] ?? 'Unknown';

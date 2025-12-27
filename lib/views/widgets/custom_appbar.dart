@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/home/home_controller.dart';
 import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
