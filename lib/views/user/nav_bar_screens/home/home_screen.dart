@@ -21,14 +21,14 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, RouteAware {
   final userServicesController = Get.put(UserSubcategoryServiceController());
   final homeController = Get.put(HomeController());
   final profileController = Get.put(UserProfileController());
 
   String greetings = "";
   String asset = "";
-  bool _isFirstBuild = true;
+  bool _hasInitialized = false;
 
   String getGreetingBasedOnTime() {
     final now = DateTime.now();
@@ -126,20 +126,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     greetings = getGreetingBasedOnTime();
-    userServicesController.fetchSubcategories();
-    GlobalsVariables.loadToken();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Skip the first build, but refresh on subsequent builds (when returning to this screen)
-    if (!_isFirstBuild) {
-      print('Home screen dependencies changed - refreshing location');
-      Future.microtask(() => homeController.refreshLocationData());
+    
+    // Only fetch data once during initialization
+    if (!_hasInitialized) {
+      userServicesController.fetchSubcategories();
+      GlobalsVariables.loadToken();
+      _hasInitialized = true;
     }
-    _isFirstBuild = false;
+    
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override

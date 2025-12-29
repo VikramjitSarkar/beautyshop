@@ -125,9 +125,12 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
                 Row(
                   children: [
                     Text('Monday - Friday : ', style: kSubheadingStyle),
-                    Text(
-                      '${widget.openingTime['weekdays']['from']} - ${widget.openingTime['weekdays']['to']}',
-                      style: kHeadingStyle.copyWith(fontSize: 14),
+                    Flexible(
+                      child: Text(
+                        '${widget.openingTime['weekdays']['from']} - ${widget.openingTime['weekdays']['to']}',
+                        style: kHeadingStyle.copyWith(fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -135,9 +138,12 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
                 Row(
                   children: [
                     Text('Saturday - Sunday: ', style: kSubheadingStyle),
-                    Text(
-                      '${widget.openingTime['weekends']['from']} - ${widget.openingTime['weekends']['to']}',
-                      style: kHeadingStyle.copyWith(fontSize: 14),
+                    Flexible(
+                      child: Text(
+                        '${widget.openingTime['weekends']['from']} - ${widget.openingTime['weekends']['to']}',
+                        style: kHeadingStyle.copyWith(fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -269,7 +275,7 @@ class ActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 50,
-        width: 150,
+        constraints: const BoxConstraints(maxWidth: 150),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(30),
@@ -278,15 +284,18 @@ class ActionButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: color == kBlackColor ? Colors.white : kBlackColor,
+            Flexible(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: color == kBlackColor ? Colors.white : kBlackColor,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 6),
             Image.asset('assets/$image.png', height: 20, color: color == kBlackColor ? Colors.white : kBlackColor),
           ],
         ),

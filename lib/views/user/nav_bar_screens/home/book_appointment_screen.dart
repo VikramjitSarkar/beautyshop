@@ -199,7 +199,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                       )
                       : Text(
-                        "Booking successfully",
+                        "Review Booking",
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -229,7 +229,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                       ),
                       child: CustomStepper(
-                        listStep: ["Book Appointment", "Booking successfully"],
+                        listStep: ["Book Appointment", "Review Booking"],
                         step: activeStep,
                       ),
                     ),
@@ -497,62 +497,77 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 SizedBox(height: 15),
                                 Divider(color: kGreyColor2),
                                 SizedBox(height: 15),
+                                ...widget.services.map((service) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(bottom: 10),
+                                    child: Row(
+                                      children: [
+                                        Image(
+                                          image: AssetImage('assets/cutter.png'),
+                                          height: 54,
+                                        ),
+                                        SizedBox(width: 15),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      service['serviceName'] ?? '',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.w700,
+                                                        fontSize: 13,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    '\$${service['price']}',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                service['categoryName'] ?? '',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: kGreyColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                SizedBox(height: 8),
                                 Row(
                                   children: [
                                     Image(
-                                      image: AssetImage('assets/cutter.png'),
-                                      height: 54,
+                                      image: AssetImage(
+                                        'assets/timer.png',
+                                      ),
+                                      height: 14,
                                     ),
-                                    SizedBox(width: 15),
+                                    SizedBox(width: 3),
                                     Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  serviceName[0],
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 13,
-                                                  ),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              Text(
-                                                '',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Image(
-                                                image: AssetImage(
-                                                  'assets/timer.png',
-                                                ),
-                                                height: 14,
-                                              ),
-                                              SizedBox(width: 3),
-                                              Expanded(
-                                                child: Text(
-                                                  '02:30 pm - 05 Jun, 2024',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 12,
-                                                  ),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                      child: Text(
+                                        '${DateFormat('d MMMM, yyyy').format(DateTime(currentMonth.year, currentMonth.month, selectedDate))} at $selectedTime',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 12,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -594,8 +609,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       vendorId: widget.vendorId,
                       serviceIds: servicesId,
                       bookingDate: selectedDateTime,
-                      userName: profileController.userName.value,
-                      userAddress: profileController.locationAdress.value,
+                      userName: profileController.name.value,
+                      userAddress: profileController.locationAddress.value,
                       userLat: profileController.userLat.value,
                       userLong: profileController.userLong.value,
                     );
@@ -645,7 +660,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       ),
                     )
                     : Text(
-                      "Booking successfully",
+                      "Review Booking",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
@@ -675,7 +690,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       ),
                     ),
                     child: CustomStepper(
-                      listStep: ["Book Appointment", "Booking successfully"],
+                      listStep: ["Book Appointment", "Review Booking"],
                       step: activeStep,
                     ),
                   ),
@@ -982,7 +997,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         SizedBox(height: 20),
                         Center(
                           child: Text(
-                            "Your appointment\nbooking is successfully.",
+                            "Review Your\nBooking Details",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 22,
@@ -1001,9 +1016,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 75),
+                        SizedBox(height: 20),
                         Container(
-                          height: 210,
                           padding: EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
@@ -1045,59 +1059,82 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   color: kGreyColor,
                                   fontWeight: FontWeight.w400,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               SizedBox(height: 15),
                               Divider(color: kGreyColor2),
                               SizedBox(height: 15),
+                              ...widget.services.map((service) {
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 10),
+                                  child: Row(
+                                    children: [
+                                      Image(
+                                        image: AssetImage('assets/cutter.png'),
+                                        height: 54,
+                                      ),
+                                      SizedBox(width: 15),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    service['serviceName'] ?? '',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  '\$${service['price']}',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              service['categoryName'] ?? '',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: kGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              SizedBox(height: 8),
                               Row(
                                 children: [
                                   Image(
-                                    image: AssetImage('assets/cutter.png'),
-                                    height: 54,
+                                    image: AssetImage(
+                                      'assets/timer.png',
+                                    ),
+                                    height: 14,
                                   ),
-                                  SizedBox(width: 15),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              'Hair Cut',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            Text(
-                                              '\$$totalPrice',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Image(
-                                              image: AssetImage(
-                                                'assets/timer.png',
-                                              ),
-                                              height: 14,
-                                            ),
-                                            SizedBox(width: 3),
-                                            Text(
-                                              '${DateFormat('d MMMM, yyyy').format(DateTime(currentMonth.year, currentMonth.month, selectedDate))} at $selectedTime',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                  SizedBox(width: 3),
+                                  Flexible(
+                                    child: Text(
+                                      '${DateFormat('d MMMM, yyyy').format(DateTime(currentMonth.year, currentMonth.month, selectedDate))} at $selectedTime',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -1111,70 +1148,80 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               ),
             ),
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: MaterialButton(
-              elevation: 0,
-              minWidth: double.maxFinite,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              height: 50,
-              onPressed: () async {
-                if (activeStep < 1) {
-                  setState(() {
-                    activeStep++;
-                  });
-                } else {
-                  // print(widget.subcategoryId);
-
-                  final selectedDateTime = DateTime(
-                    currentMonth.year,
-                    currentMonth.month,
-                    selectedDate,
-                    _parseTimeTo24Hour(selectedTime).hour,
-                    _parseTimeTo24Hour(selectedTime).minute,
-                  );
-
-                  final success = await bookingController.createBooking(
-                    vendorId: widget.vendorId.toString(),
-                    serviceIds: widget.services,
-                    bookingDate: selectedDateTime,
-                    userName: profileController.userName.value,
-                    userAddress: profileController.locationAdress.value,
-                    userLat: profileController.userLat.value,
-                    userLong: profileController.userLong.value,
-                  );
-
-                  if (success) {
+          bottomNavigationBar: Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, -5),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: MaterialButton(
+                elevation: 0,
+                minWidth: double.maxFinite,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                height: 50,
+                onPressed: () async {
+                  if (activeStep < 1) {
                     setState(() {
-                      activeStep = 1;
+                      activeStep++;
                     });
-                    await Get.offAll(() => CustomerBottomNavBarScreen());
+                  } else {
+                    // print(widget.subcategoryId);
+
+                    final selectedDateTime = DateTime(
+                      currentMonth.year,
+                      currentMonth.month,
+                      selectedDate,
+                      _parseTimeTo24Hour(selectedTime).hour,
+                      _parseTimeTo24Hour(selectedTime).minute,
+                    );
+
+                    final success = await bookingController.createBooking(
+                      vendorId: widget.vendorId.toString(),
+                      serviceIds: widget.services,
+                      bookingDate: selectedDateTime,
+                      userName: profileController.name.value,
+                      userAddress: profileController.locationAddress.value,
+                      userLat: profileController.userLat.value,
+                      userLong: profileController.userLong.value,
+                    );
+
+                    if (success) {
+                      setState(() {
+                        activeStep = 1;
+                      });
+                      await Get.offAll(() => CustomerBottomNavBarScreen());
+                    }
                   }
-                }
-              },
-              color: kPrimaryColor,
-              child:
-                  activeStep == 0
-                      ? Text(
-                        "Continue",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                },
+                color: kPrimaryColor,
+                child:
+                    activeStep == 0
+                        ? Text(
+                          "Continue",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )
+                        : Text(
+                          "Finish booking",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      )
-                      : Text(
-                        "Continue booking",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+              ),
             ),
           ),
         );
