@@ -8,7 +8,7 @@ import { Review } from "../model/Review.js";
 
 export const createBooking = async (req, res, next) => {
   try {
-    const { vendor, services } = req.body;
+    const { vendor, services, userName, userLocation } = req.body;
     const user = req.user.userId;
     if (services?.length === 0) {
       return res.status(400).json({
@@ -24,6 +24,8 @@ export const createBooking = async (req, res, next) => {
       vendor: vendor.toString(),
       services: serviceIds, // use converted strings here
       status: "pending",
+      userName: userName || "",
+      userLocation: userLocation || {},
     });
 
     const qrData = booking._id.toString();
@@ -380,6 +382,11 @@ export const getBookingsByUser = async (req, res, next) => {
       totalServices: enrichedServices.length,
       totalCharges,
       vendorRating: parseFloat(avgRating.toFixed(1)),
+      vendorProfileImage: booking.vendor?.profileImage || "",
+      vendorShopName: booking.vendor?.shopName || "",
+      vendorLocationAddress: booking.vendor?.locationAddres || "",
+      vendorLat: booking.vendor?.vendorLat || 0,
+      vendorLong: booking.vendor?.vendorLong || 0,
     };
   })
 );
@@ -422,8 +429,9 @@ export const getBookingsByVendor = async (req, res, next) => {
     services: enrichedServices,
     totalServices: enrichedServices.length,
     totalCharges,
-    userName: booking.user?.username || "",
+    userName: booking.userName || booking.user?.username || "",
     userProfilePic: booking.user?.profile_picture || "",
+    userLocation: booking.userLocation || {},
   };
 });
 

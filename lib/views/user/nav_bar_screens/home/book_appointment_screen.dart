@@ -5,6 +5,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
 
 import '../../../../controllers/users/home/userBookingController.dart';
+import '../../../../controllers/users/profile/profile_controller.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   final String vendorId;
@@ -23,6 +24,7 @@ class BookAppointmentScreen extends StatefulWidget {
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final bookingController = Get.put(UserBookingController());
+  final profileController = Get.put(UserProfileController());
   bool isAmSelected = false; // false for PM, true for AM
   DateTime now = DateTime.now();
   late DateTime currentMonth;
@@ -592,6 +594,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       vendorId: widget.vendorId,
                       serviceIds: servicesId,
                       bookingDate: selectedDateTime,
+                      userName: profileController.userName.value,
+                      userAddress: profileController.locationAdress.value,
+                      userLat: profileController.userLat.value,
+                      userLong: profileController.userLong.value,
                     );
                     // await Get.offAll(() => CustomNavBar());
 
@@ -1136,6 +1142,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     vendorId: widget.vendorId.toString(),
                     serviceIds: widget.services,
                     bookingDate: selectedDateTime,
+                    userName: profileController.userName.value,
+                    userAddress: profileController.locationAdress.value,
+                    userLat: profileController.userLat.value,
+                    userLong: profileController.userLong.value,
                   );
 
                   if (success) {

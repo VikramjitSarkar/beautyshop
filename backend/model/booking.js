@@ -30,6 +30,12 @@ const bookingSchema = new mongoose.Schema({
     default: Date.now,
   },
   qrCode: { type: String },
+  userLocation: {
+    address: { type: String },
+    latitude: { type: Number },
+    longitude: { type: Number },
+  },
+  userName: { type: String },
 });
 
 export const Booking = mongoose.model("Booking", bookingSchema);

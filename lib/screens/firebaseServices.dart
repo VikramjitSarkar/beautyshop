@@ -26,8 +26,18 @@ class FirebaseService {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    const DarwinInitializationSettings iOSSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
     const InitializationSettings initializationSettings =
-        InitializationSettings(android: androidSettings);
+        InitializationSettings(
+      android: androidSettings,
+      iOS: iOSSettings,
+    );
 
     await _localNotifications.initialize(
       initializationSettings,

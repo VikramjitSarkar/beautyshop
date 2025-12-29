@@ -21,13 +21,14 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final userServicesController = Get.put(UserSubcategoryServiceController());
   final homeController = Get.put(HomeController());
   final profileController = Get.put(UserProfileController());
 
   String greetings = "";
   String asset = "";
+  bool _isFirstBuild = true;
 
   String getGreetingBasedOnTime() {
     final now = DateTime.now();
@@ -127,6 +128,34 @@ class _HomeScreenState extends State<HomeScreen> {
     greetings = getGreetingBasedOnTime();
     userServicesController.fetchSubcategories();
     GlobalsVariables.loadToken();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Skip the first build, but refresh on subsequent builds (when returning to this screen)
+    if (!_isFirstBuild) {
+      print('Home screen dependencies changed - refreshing location');
+      Future.microtask(() => homeController.refreshLocationData());
+    }
+    _isFirstBuild = false;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When app comes back to foreground or this screen becomes visible
+    if (state == AppLifecycleState.resumed) {
+      print('Home screen resumed - refreshing location');
+      homeController.refreshLocationData();
+    }
   }
 
   @override

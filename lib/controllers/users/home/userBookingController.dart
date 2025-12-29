@@ -12,6 +12,10 @@ class UserBookingController extends GetxController {
     required String vendorId,
     required List serviceIds,
     required DateTime bookingDate,
+    required String userName,
+    required String userAddress,
+    required String userLat,
+    required String userLong,
   }) async {
     try {
       isLoading.value = true;
@@ -34,6 +38,12 @@ class UserBookingController extends GetxController {
           "vendor": vendorId,
           "services": subcategoryIdList, // ✅ send subcategory IDs
           "bookingDate": bookingDate.toUtc().toIso8601String(),
+          "userName": userName,
+          "userLocation": {
+            "address": userAddress,
+            "latitude": double.tryParse(userLat) ?? 0.0,
+            "longitude": double.tryParse(userLong) ?? 0.0,
+          },
         }),
       );
 

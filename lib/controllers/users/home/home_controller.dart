@@ -5,6 +5,7 @@ import 'package:beautician_app/controllers/users/profile/profile_controller.dart
 import 'package:beautician_app/controllers/vendors/auth/profile_setup_Controller.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 
 import '../userProfile/userProfileController.dart';
 
@@ -18,15 +19,72 @@ class HomeController extends GetxController {
   var nearbyCategoryData = <Map<String, dynamic>>[].obs;
   var controller = Get.put(UserProfileControllers());
   var profileController = Get.put(UserProfileController());
+  
   @override
   void onInit() {
     super.onInit();
     // fetchCategories(); // 🟢 Call when controller initializes
+    _initializeData();
+  }
 
-    fetchVendors();
+  Future<void> _initializeData() async {
+    try {
+      // Fetch all data first
+      await Future.wait([
+        fetchVendors(),
+        fetchCategoriesWithVendors(),
+      ]);
 
-    fetchCategoriesWithVendors();
-    controller.getUserProfile();
+      // Get user profile to retrieve location
+      final userProfile = await controller.getUserProfile();
+      
+      // Get current location
+      await _fetchAndApplyLocation();
+    } catch (e) {
+      print('Error initializing data: $e');
+    }
+  }
+
+  Future<void> _fetchAndApplyLocation() async {
+    try {
+      // Always get fresh location from device
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        
+        // Update profile controller with fresh location
+        profileController.userLat.value = position.latitude.toString();
+        profileController.userLong.value = position.longitude.toString();
+        
+        print('Location fetched: ${position.latitude}, ${position.longitude}');
+        
+        // Apply location-based filtering
+        filterVendorsWithin30Km(userLat: position.latitude, userLong: position.longitude);
+        filterVendorsInCategoryByLocation(userLat: position.latitude, userLong: position.longitude);
+      } catch (e) {
+        print('Error getting current location: $e');
+        
+        // Fall back to stored location if current location fails
+        double? userLat = double.tryParse(profileController.userLat.value);
+        double? userLong = double.tryParse(profileController.userLong.value);
+        
+        if (userLat != null && userLong != null && 
+            !(userLat == 0.0 && userLong == 0.0)) {
+          print('Using stored location: $userLat, $userLong');
+          filterVendorsWithin30Km(userLat: userLat, userLong: userLong);
+          filterVendorsInCategoryByLocation(userLat: userLat, userLong: userLong);
+        }
+      }
+    } catch (e) {
+      print('Error fetching and applying location: $e');
+    }
+  }
+
+  /// Call this method when home screen becomes visible to refresh location data
+  Future<void> refreshLocationData() async {
+    print('Refreshing location data...');
+    await _fetchAndApplyLocation();
   }
 
   // ------------ Fetch Categories Method -------------

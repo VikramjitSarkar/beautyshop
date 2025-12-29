@@ -41,12 +41,23 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
   ];
 
   void _onItemTapped(int index) {
+    final previousIndex = _selectedIndex;
     setState(() {
       _selectedIndex = index;
-      if (_selectedIndex == 0) {
-        Get.put(HomeController());
-      }
     });
+    
+    // If switching to home tab from another tab, refresh location
+    if (_selectedIndex == 0 && previousIndex != 0) {
+      print('Switching to home tab - refreshing location data');
+      try {
+        final homeController = Get.find<HomeController>();
+        homeController.refreshLocationData();
+      } catch (e) {
+        print('Error finding HomeController: $e');
+        final homeController = Get.put(HomeController());
+        homeController.refreshLocationData();
+      }
+    }
   }
 
   Future<bool> _onWillPop() async {
