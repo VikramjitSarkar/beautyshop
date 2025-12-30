@@ -16,8 +16,10 @@ class SalonServicesCard2 extends StatefulWidget {
   final String vedorId;
   final String shopName;
   final String shopAddress;
+  final bool hasPhysicalShop;
+  final bool homeServiceAvailable;
 
-  const SalonServicesCard2({super.key, required this.vedorId, required this.shopName, required this.shopAddress});
+  const SalonServicesCard2({super.key, required this.vedorId, required this.shopName, required this.shopAddress, required this.hasPhysicalShop, required this.homeServiceAvailable});
 
   @override
   State<SalonServicesCard2> createState() => _SalonServicesCardState();
@@ -170,6 +172,8 @@ class _SalonServicesCardState extends State<SalonServicesCard2> {
                                 shopName: widget.shopName,
                                 services: selected,
                                     vendorId: widget.vedorId,
+                                    hasPhysicalShop: widget.hasPhysicalShop,
+                                    homeServiceAvailable: widget.homeServiceAvailable,
                                   )
                                   : UserVendorScreen(),
                         );
@@ -193,6 +197,8 @@ class _SalonServicesCardState extends State<SalonServicesCard2> {
                                 shopName: widget.shopName,
                                 services: selected,
                                     vendorId: widget.vedorId,
+                                    hasPhysicalShop: widget.hasPhysicalShop,
+                                    homeServiceAvailable: widget.homeServiceAvailable,
                                   )
                                   : UserVendorScreen(),
                         );

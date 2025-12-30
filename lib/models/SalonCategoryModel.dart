@@ -206,6 +206,8 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                   status: vendor["status"] ?? '',
                                   title: vendor["title"] ?? '',
                                   userName: vendor["userName"] ?? '',
+                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                 ),
                               );
                             },

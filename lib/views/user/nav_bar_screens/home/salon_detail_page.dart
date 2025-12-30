@@ -19,6 +19,8 @@ class SaloonDetailPageScreen extends StatefulWidget {
   final String latitude;
   final double rating;
   final Map<String, dynamic> openingTime;
+  final bool hasPhysicalShop;
+  final bool homeServiceAvailable;
 
   const SaloonDetailPageScreen({
     super.key,
@@ -36,6 +38,8 @@ class SaloonDetailPageScreen extends StatefulWidget {
     required this.status,
     required this.title,
     required this.userName,
+    required this.hasPhysicalShop,
+    required this.homeServiceAvailable,
   });
 
   @override
@@ -135,8 +139,8 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                         ),
                         buildScrollView(
                           isDesktop
-                              ? SalonServicesCard2(vedorId: widget.vendorId, shopName: widget.shopName, shopAddress: widget.location,)
-                              : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,shopName: widget.shopName, shopAddress: widget.location,),
+                              ? SalonServicesCard2(vedorId: widget.vendorId, shopName: widget.shopName, shopAddress: widget.location, hasPhysicalShop: widget.hasPhysicalShop, homeServiceAvailable: widget.homeServiceAvailable,)
+                              : SalonServicesCard(vendorId: widget.vendorId, status: widget.status,shopName: widget.shopName, shopAddress: widget.location, hasPhysicalShop: widget.hasPhysicalShop, homeServiceAvailable: widget.homeServiceAvailable,),
                         ),
                         buildScrollView(
                           SingleChildScrollView(child: SalonGalleryCard(galleryMedia: widget.galleryImage)),

@@ -238,6 +238,8 @@ class _VendorCardState extends State<_VendorCard> {
               status: widget.v["status"] ?? '',
               title: widget.v["title"] ?? '',
               userName: widget.v["userName"] ?? name,
+              hasPhysicalShop: widget.v["hasPhysicalShop"] ?? false,
+              homeServiceAvailable: widget.v["homeServiceAvailable"] ?? false,
             ));
           },
         );

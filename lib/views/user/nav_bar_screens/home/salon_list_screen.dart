@@ -443,6 +443,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                   status: vendor["status"] ?? '',
                                   title: vendor["title"] ?? '',
                                   userName: vendor["userName"] ?? '',
+                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                 ),
                               );
                             },
@@ -497,6 +499,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
             status: vendor["status"] ?? '',
             title: vendor["title"] ?? '',
             userName: vendor["userName"] ?? '',
+            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
           ));
         },
         child: Row(
@@ -628,6 +632,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                 status: vendor["status"] ?? '',
                                 title: vendor["title"] ?? '',
                                 userName: vendor["userName"] ?? '',
+                                hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                               ),
                             );
                           },

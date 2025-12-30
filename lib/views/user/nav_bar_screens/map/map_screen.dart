@@ -475,6 +475,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
               status: vendor["status"] ?? '',
               title: vendor["title"] ?? '',
               userName: vendor["userName"] ?? '',
+              hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+              homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
             ));
           },
           markerId: MarkerId(vendor['_id']),
@@ -1037,6 +1039,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                                         status: vendor["status"] ?? '',
                                         title: vendor["title"] ?? '',
                                         userName: vendor["userName"] ?? '',
+                                        hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                        homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                       ));
                                     },
                                   ),

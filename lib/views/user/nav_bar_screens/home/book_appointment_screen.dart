@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
@@ -12,10 +13,13 @@ class BookAppointmentScreen extends StatefulWidget {
   final List<Map<String, dynamic>> services;
   final String shopName;
   final String shopAddress;
+  final bool hasPhysicalShop;
+  final bool homeServiceAvailable;
+  final String? vendorPhone;
   BookAppointmentScreen({
     super.key,
     required this.services,
-    required this.vendorId, required this.shopName, required this.shopAddress,
+    required this.vendorId, required this.shopName, required this.shopAddress, required this.hasPhysicalShop, required this.homeServiceAvailable, this.vendorPhone,
   });
 
   @override
@@ -34,6 +38,16 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   String selectedTime = "01:00 pm";
   bool isDayNight = false;
+  String? serviceLocationType; // 'salon' or 'home'
+  
+  // Always show location selection section if at least one option is available
+  bool get showLocationSelection => widget.hasPhysicalShop || widget.homeServiceAvailable || 
+                                    (!widget.hasPhysicalShop && !widget.homeServiceAvailable);
+  
+  // Show both buttons only if both options available or both false (unconfigured)
+  bool get showBothButtons => (widget.hasPhysicalShop && widget.homeServiceAvailable) || 
+                              (!widget.hasPhysicalShop && !widget.homeServiceAvailable);
+  
   List<int> get dates {
     final now = DateTime.now();
     final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
@@ -163,11 +177,325 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     currentMonth = DateTime(now.year, now.month);
     selectedDate = now.day;
     id = generateRandomNumericId();
+    
+    // Auto-select service location based on what's available
+    if (widget.hasPhysicalShop && !widget.homeServiceAvailable) {
+      serviceLocationType = 'salon';
+    } else if (widget.homeServiceAvailable && !widget.hasPhysicalShop) {
+      serviceLocationType = 'home';
+    }
+    // If both or neither, user must select
+  }
+
+  Future<void> _showAddressDialog() async {
+    final addressLine1Controller = TextEditingController();
+    final addressLine2Controller = TextEditingController();
+    final pincodeController = TextEditingController();
+    double? selectedLat;
+    double? selectedLong;
+
+    await Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: StatefulBuilder(
+          builder: (context, setDialogState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your Address',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    TextField(
+                      controller: addressLine1Controller,
+                      decoration: InputDecoration(
+                        labelText: 'Address Line 1',
+                        hintText: 'Street, Building name',
+                        hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: addressLine2Controller,
+                      decoration: InputDecoration(
+                        labelText: 'Address Line 2',
+                        hintText: 'Area, Landmark',
+                        hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: pincodeController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      decoration: InputDecoration(
+                        labelText: 'Pincode',
+                        hintText: 'Enter pincode',
+                        hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6)),
+                        counterText: '',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kGreyColor2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        // TODO: Open map to select location
+                        // For now, use current location
+                        try {
+                          Position position = await Geolocator.getCurrentPosition(
+                            desiredAccuracy: LocationAccuracy.high,
+                          );
+                          setDialogState(() {
+                            selectedLat = position.latitude;
+                            selectedLong = position.longitude;
+                          });
+                          Get.snackbar(
+                            'Location Selected',
+                            'Lat: ${position.latitude.toStringAsFixed(4)}, Long: ${position.longitude.toStringAsFixed(4)}',
+                            snackPosition: SnackPosition.BOTTOM,
+                            duration: Duration(seconds: 2),
+                          );
+                        } catch (e) {
+                          Get.snackbar(
+                            'Error',
+                            'Failed to get location: $e',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          border: Border.all(color: kGreyColor2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: kPrimaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.location_on, 
+                                color: Colors.black,
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedLat != null && selectedLong != null
+                                        ? 'Location: ${selectedLat!.toStringAsFixed(4)}, ${selectedLong!.toStringAsFixed(4)}'
+                                        : 'Click here to select location',
+                                    style: TextStyle(
+                                      color: selectedLat != null ? Colors.black : kGreyColor,
+                                      fontSize: 14,
+                                      fontWeight: selectedLat != null ? FontWeight.w500 : FontWeight.w400,
+                                    ),
+                                  ),
+                                  if (selectedLat == null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        'Tap to get current location',
+                                        style: TextStyle(
+                                          color: kGreyColor.withOpacity(0.7),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 28),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Get.back(),
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              side: BorderSide(color: kGreyColor2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (addressLine1Controller.text.isEmpty) {
+                                Get.snackbar(
+                                  'Error',
+                                  'Please enter address line 1',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                                return;
+                              }
+                              if (pincodeController.text.isEmpty) {
+                                Get.snackbar(
+                                  'Error',
+                                  'Please enter pincode',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                                return;
+                              }
+                              if (selectedLat == null || selectedLong == null) {
+                                Get.snackbar(
+                                  'Error',
+                                  'Please select location on map',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                                return;
+                              }
+
+                              // Combine address lines
+                              String fullAddress = addressLine1Controller.text;
+                              if (addressLine2Controller.text.isNotEmpty) {
+                                fullAddress += ', ${addressLine2Controller.text}';
+                              }
+                              fullAddress += ', ${pincodeController.text}';
+
+                              // Update profile controller
+                              profileController.locationAddress.value = fullAddress;
+                              profileController.userLat.value = selectedLat.toString();
+                              profileController.userLong.value = selectedLong.toString();
+
+                              // Save to database
+                              await profileController.updateUserProfile(
+                                locationAddress: fullAddress,
+                                userLat: selectedLat.toString(),
+                                userLong: selectedLong.toString(),
+                                userName: profileController.name.value,
+                                email: profileController.email.value,
+                                phoneNumber: profileController.phoneNumber.value,
+                                dateOfBirth: profileController.dateOfBirth.value,
+                                gender: profileController.gender.value,
+                              );
+
+                              Get.back();
+                              Get.snackbar(
+                                'Success',
+                                'Address saved successfully',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: kPrimaryColor,
+                                colorText: Colors.black,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: kPrimaryColor,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Confirm',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     print('vendorId: ${widget.vendorId}');
+    print('hasPhysicalShop: ${widget.hasPhysicalShop}');
+    print('homeServiceAvailable: ${widget.homeServiceAvailable}');
+    print('showLocationSelection: $showLocationSelection');
+    print('serviceLocationType: $serviceLocationType');
     print('Service: ${widget.services}');
     final List<Map<String, dynamic>> subcategories = widget.services;
     final totalPrice = subcategories.fold<double>(
@@ -238,6 +566,77 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Service location selection (only if both options available)
+                          if (showLocationSelection) ...[
+                            const Text(
+                              "Select service location",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              children: [
+                                // Show Visit Salon button if physical shop available or both false
+                                if (widget.hasPhysicalShop || !widget.homeServiceAvailable)
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => setState(() => serviceLocationType = 'salon'),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 15),
+                                        decoration: BoxDecoration(
+                                          color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Visit Salon",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (showBothButtons) const SizedBox(width: 10),
+                                // Show Home Service button if home service available or both false
+                                if (widget.homeServiceAvailable || !widget.hasPhysicalShop)
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => setState(() => serviceLocationType = 'home'),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 15),
+                                        decoration: BoxDecoration(
+                                          color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Home Service",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 25),
+                          ],
                           const Text(
                             "Select date",
                             style: TextStyle(
@@ -699,6 +1098,77 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Service location selection
+                        if (showLocationSelection) ...[
+                          const Text(
+                            "Select service location",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          Row(
+                            children: [
+                              // Show Visit Salon button if physical shop available or both false
+                              if (widget.hasPhysicalShop || !widget.homeServiceAvailable)
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() => serviceLocationType = 'salon'),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 15),
+                                      decoration: BoxDecoration(
+                                        color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Visit Salon",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              if (showBothButtons) const SizedBox(width: 10),
+                              // Show Home Service button if home service available or both false
+                              if (widget.homeServiceAvailable || !widget.hasPhysicalShop)
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() => serviceLocationType = 'home'),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 15),
+                                      decoration: BoxDecoration(
+                                        color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Home Service",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 25),
+                        ],
                         const Text(
                           "Select date",
                           style: TextStyle(
@@ -1062,6 +1532,71 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              if (widget.vendorPhone != null && widget.vendorPhone!.isNotEmpty) ...[
+                                SizedBox(height: 4),
+                                Text(
+                                  'Vendor Phone: ${widget.vendorPhone}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: kGreyColor,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                              SizedBox(height: 15),
+                              Divider(color: kGreyColor2),
+                              SizedBox(height: 15),
+                              Text(
+                                'Your Details',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              if (serviceLocationType == 'home' && profileController.locationAddress.value.isNotEmpty)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            profileController.locationAddress.value,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: kGreyColor,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        InkWell(
+                                          onTap: () async {
+                                            await _showAddressDialog();
+                                          },
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 18,
+                                            color: kPrimaryColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 4),
+                                  ],
+                                ),
+                              if (profileController.phoneNumber.value.isNotEmpty)
+                                Text(
+                                  'Phone: ${profileController.phoneNumber.value}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: kGreyColor,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                               SizedBox(height: 15),
                               Divider(color: kGreyColor2),
                               SizedBox(height: 15),
@@ -1175,6 +1710,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     });
                   } else {
                     // print(widget.subcategoryId);
+
+                    // Validate address if home service is selected
+                    if (serviceLocationType == 'home' && 
+                        (profileController.locationAddress.value.isEmpty || 
+                         profileController.locationAddress.value == '')) {
+                      await _showAddressDialog();
+                      return;
+                    }
 
                     final selectedDateTime = DateTime(
                       currentMonth.year,

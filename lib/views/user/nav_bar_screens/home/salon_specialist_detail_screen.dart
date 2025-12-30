@@ -355,6 +355,8 @@ class _SalonSpecialistDetailScreenState
                         shopName: userName,
                         shopAddress: "",
                         status: status,
+                        hasPhysicalShop: false,
+                        homeServiceAvailable: false,
                       ),
                       SalonReviewCard(vendorId: widget.vendorId),
                     ],

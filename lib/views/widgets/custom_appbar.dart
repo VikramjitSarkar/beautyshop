@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   double long = 0;
 
   CustomAppBar({super.key, required this.title}) {
-    _getCurrentLocation();
+    _initLocation();
   }
 
   // Gets just the street name and city
@@ -32,6 +32,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return fullAddress.length > 20
         ? '${fullAddress.substring(0, 20)}...'
         : fullAddress;
+  }
+
+  // Initialize location - use saved location if available, otherwise fetch new
+  Future<void> _initLocation() async {
+    // Check if we already have a location saved
+    if (profileController.locationAddress.value.isNotEmpty) {
+      currentLocation.value = _getShortAddress(profileController.locationAddress.value);
+      print('Using saved location: ${currentLocation.value}');
+      return;
+    }
+    
+    // No saved location, fetch new one
+    await _getCurrentLocation();
   }
 
   Future<void> _getCurrentLocation() async {

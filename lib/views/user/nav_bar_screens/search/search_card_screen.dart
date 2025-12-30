@@ -348,6 +348,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                                   status: vendor["status"] ?? '',
                                   title: vendor["title"] ?? '',
                                   userName: vendor["userName"] ?? '',
+                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                 ),
                               );
                             },
@@ -415,6 +417,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
             status: vendor["status"] ?? '',
             title: vendor["title"] ?? '',
             userName: vendor["userName"] ?? '',
+            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
           ));
         },
         child: Row(
@@ -544,6 +548,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                                 status: vendor["status"] ?? '',
                                 title: vendor["title"] ?? '',
                                 userName: vendor["userName"] ?? '',
+                                hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                               )
                             );
                           },
