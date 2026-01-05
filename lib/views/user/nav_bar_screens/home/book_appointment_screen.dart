@@ -33,6 +33,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   DateTime now = DateTime.now();
   late DateTime currentMonth;
   late int selectedDate;
+  final TextEditingController specialRequestsController = TextEditingController();
 
 
 
@@ -489,6 +490,17 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     );
   }
 
+  String _formatDuration(Duration d) =>
+      '${d.inMinutes.toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
+
+  int _calculateTotalDuration() {
+    // Calculate total duration from all services
+    // Default to 30 minutes per service if no duration specified
+    return widget.services.fold<int>(0, (sum, service) {
+      return sum + 30; // Default 30 minutes per service
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print('vendorId: ${widget.vendorId}');
@@ -814,6 +826,67 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 }).toList(),
                           ),
 
+                          const SizedBox(height: 25),
+                          
+                          // Buffer Time Info Banner
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'Note: We automatically add 1-hour buffer between appointments to account for delays and travel time.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.blue.shade900,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Special Requests Section
+                          const Text(
+                            "Special requests (Optional)",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            controller: specialRequestsController,
+                            maxLines: 3,
+                            maxLength: 500,
+                            decoration: InputDecoration(
+                              hintText: 'Any specific requirements, preferences, or notes for the vendor...',
+                              hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6), fontSize: 13),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: kGreyColor2),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: kGreyColor2),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                          
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -971,6 +1044,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                     ),
                                   ],
                                 ),
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.schedule, size: 14, color: kGreyColor),
+                                    SizedBox(width: 3),
+                                    Text(
+                                      'Estimated duration: ${_calculateTotalDuration()} minutes',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 12,
+                                        color: kGreyColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -1002,6 +1090,29 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       _parseTimeTo24Hour(selectedTime).hour,
                       _parseTimeTo24Hour(selectedTime).minute,
                     );
+                    
+                    // Validate past date
+                    if (selectedDateTime.isBefore(DateTime.now())) {
+                      Get.snackbar(
+                        'Invalid Date',
+                        'Cannot book appointments in the past',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+                    
+                    // Validate service location selection if needed
+                    if (showLocationSelection && serviceLocationType == null) {
+                      Get.snackbar(
+                        'Selection Required',
+                        'Please select service location (Salon or Home)',
+                        backgroundColor: Colors.orange,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+                    
                     print('vendorId: ${widget.vendorId}');
 
                     final success = await bookingController.createBooking(
@@ -1012,6 +1123,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       userAddress: profileController.locationAddress.value,
                       userLat: profileController.userLat.value,
                       userLong: profileController.userLong.value,
+                      specialRequests: specialRequestsController.text.trim(),
+                      serviceLocationType: serviceLocationType,
                     );
                     // await Get.offAll(() => CustomNavBar());
 
@@ -1314,6 +1427,33 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                         const SizedBox(height: 25),
 
+                        // Buffer Time Info Banner for mobile view
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Note: We automatically add 1-hour buffer between appointments for delays.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.blue.shade900,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
@@ -1353,6 +1493,40 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               }).toList(),
                         ),
 
+                        const SizedBox(height: 25),
+                        
+                        // Special Requests Section
+                        const Text(
+                          "Special requests (Optional)",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: specialRequestsController,
+                          maxLines: 3,
+                          maxLength: 500,
+                          decoration: InputDecoration(
+                            hintText: 'Any specific requirements, preferences, or notes for the vendor...',
+                            hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6), fontSize: 13),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: kGreyColor2),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: kGreyColor2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                        
                         const SizedBox(height: 20),
                         // const Text(
                         //   "Top specialists",
@@ -1674,6 +1848,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   ),
                                 ],
                               ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.schedule, size: 14, color: kGreyColor),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'Estimated duration: ${_calculateTotalDuration()} minutes',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 13,
+                                      color: kGreyColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -1705,6 +1894,37 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 height: 50,
                 onPressed: () async {
                   if (activeStep < 1) {
+                    // Validate before moving to next step
+                    final selectedDateTime = DateTime(
+                      currentMonth.year,
+                      currentMonth.month,
+                      selectedDate,
+                      _parseTimeTo24Hour(selectedTime).hour,
+                      _parseTimeTo24Hour(selectedTime).minute,
+                    );
+                    
+                    // Validate past date
+                    if (selectedDateTime.isBefore(DateTime.now())) {
+                      Get.snackbar(
+                        'Invalid Date',
+                        'Cannot book appointments in the past',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+                    
+                    // Validate service location selection if needed
+                    if (showLocationSelection && serviceLocationType == null) {
+                      Get.snackbar(
+                        'Selection Required',
+                        'Please select service location (Salon or Home)',
+                        backgroundColor: Colors.orange,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+                    
                     setState(() {
                       activeStep++;
                     });
@@ -1735,6 +1955,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       userAddress: profileController.locationAddress.value,
                       userLat: profileController.userLat.value,
                       userLong: profileController.userLong.value,
+                      specialRequests: specialRequestsController.text.trim(),
+                      serviceLocationType: serviceLocationType,
                     );
 
                     if (success) {

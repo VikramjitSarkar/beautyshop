@@ -13,6 +13,7 @@ import {
   scanQrAndConfirmBooking,
   bookingById,
 } from "../controller/bookingController.js";
+import { getUserSpending, getVendorEarnings } from "../controller/analyticsController.js";
 import jwt from "jsonwebtoken";
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -39,6 +40,11 @@ bookingRoute.route("/reject/:bookingId").put(rejectBooking);
 bookingRoute.route("/reschedule/:bookingId").put(rescheduleBooking);
 bookingRoute.route("/scanQrCode").put(scanQrAndConfirmBooking);
 bookingRoute.route("/get/:bookingId").get(bookingById);
+
+// Analytics routes
+bookingRoute.get("/user-spending/:userId", getUserSpending);
+bookingRoute.get("/vendor-earnings/:vendorId", getVendorEarnings);
+
 bookingRoute.get("/user/:userId/bookings", async (req, res) => {
   const { userId } = req.params;
   try {

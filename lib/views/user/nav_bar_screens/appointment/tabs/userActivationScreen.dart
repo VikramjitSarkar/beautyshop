@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/vendors/booking/bookingPendingController.dart';
 import 'package:beautician_app/utils/colors.dart';
 import 'package:beautician_app/views/vender/bottom_navi/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
 import '../../../custom_nav_bar.dart';
 import 'userReviewScreen.dart';
 import 'package:beautician_app/controllers/vendors/booking/qrCodeController.dart';
@@ -28,15 +31,39 @@ class UserActivationScreen extends StatefulWidget {
 class _UserActivationScreenState extends State<UserActivationScreen> {
   final SocketController socketController = Get.find<SocketController>();
   late Timer _timer;
-  Duration _remainingTime = const Duration(minutes: 45);
+  Duration _remainingTime = const Duration(minutes: 45); // Default, will be updated
   bool _isCompleted = false;
+  bool _isDurationLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadBookingDuration();
     initSocketAndEvents();
     _startTimer();
     _setupFirebaseNotificationListeners();
+  }
+
+  Future<void> _loadBookingDuration() async {
+    try {
+      // Fetch booking details to get actual duration
+      final response = await http.get(
+        Uri.parse('${GlobalsVariables.baseUrlapp}/booking/get/${widget.bookingId}'),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'success' && data['data']['totalDuration'] != null) {
+          setState(() {
+            _remainingTime = Duration(minutes: data['data']['totalDuration']);
+            _isDurationLoaded = true;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading booking duration: $e');
+      // Keep default 45 minutes if error
+    }
   }
 
   Future<void> initSocketAndEvents() async {

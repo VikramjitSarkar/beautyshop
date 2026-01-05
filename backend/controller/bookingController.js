@@ -6,26 +6,186 @@ import { Vendor } from "../model/Vendor.js";
 import notify from "../utils/notification.js";
 import { Review } from "../model/Review.js";
 
+// Helper function to calculate distance between two coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
 export const createBooking = async (req, res, next) => {
   try {
-    const { vendor, services, userName, userLocation } = req.body;
+    const { vendor, services, userName, userLocation, specialRequests, serviceLocationType, bookingDate } = req.body;
     const user = req.user.userId;
+    
+    // Debug: Log incoming request data
+    console.log('🔵 BOOKING REQUEST RECEIVED:', {
+      specialRequests,
+      serviceLocationType,
+      userName,
+      hasUserLocation: !!userLocation
+    });
+    
     if (services?.length === 0) {
       return res.status(400).json({
         status: "fail",
         message: "Please provide services",
       });
     }
+
+    // Validate booking date is not in the past
+    const requestedDate = new Date(bookingDate);
+    const now = new Date();
+    if (requestedDate < now) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Cannot book appointments in the past",
+      });
+    }
+
     // Convert services IDs to strings
     const serviceIds = services.map((id) => id.toString());
-    // console.log("serivice ids ===", serviceIds);
+    
+    // Fetch vendor details
+    const vendorData = await Vendor.findById(vendor);
+    if (!vendorData) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Vendor not found",
+      });
+    }
+
+    // Check if vendor accepts the requested service location type
+    if (serviceLocationType === "home") {
+      if (!vendorData.homeServiceAvailable) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Vendor does not offer home services",
+        });
+      }
+      
+      // Validate distance for home service
+      if (userLocation?.latitude && userLocation?.longitude && 
+          vendorData.vendorLat && vendorData.vendorLong) {
+        const distance = calculateDistance(
+          parseFloat(vendorData.vendorLat),
+          parseFloat(vendorData.vendorLong),
+          userLocation.latitude,
+          userLocation.longitude
+        );
+        
+        const maxServiceRadius = 50; // Maximum 50km service radius
+        
+        if (distance > maxServiceRadius) {
+          return res.status(400).json({
+            status: "fail",
+            message: `Location is ${distance.toFixed(1)}km away. Vendor only serves within ${maxServiceRadius}km radius.`,
+            distance: distance.toFixed(1)
+          });
+        }
+      }
+    }
+    if (serviceLocationType === "salon" && !vendorData.hasPhysicalShop) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Vendor does not have a physical shop",
+      });
+    }
+
+    // Validate working hours
+    if (vendorData.openingTime) {
+      const bookingDay = requestedDate.getDay(); // 0=Sunday, 6=Saturday
+      const isWeekend = bookingDay === 0 || bookingDay === 6;
+      const hours = isWeekend ? vendorData.openingTime.weekends : vendorData.openingTime.weekdays;
+      
+      if (hours && hours.from && hours.to) {
+        const [openHour, openMin] = hours.from.split(':').map(Number);
+        const [closeHour, closeMin] = hours.to.split(':').map(Number);
+        const bookingHour = requestedDate.getHours();
+        const bookingMin = requestedDate.getMinutes();
+        
+        const bookingMinutes = bookingHour * 60 + bookingMin;
+        const openMinutes = openHour * 60 + openMin;
+        const closeMinutes = closeHour * 60 + closeMin;
+        
+        if (bookingMinutes < openMinutes || bookingMinutes >= closeMinutes) {
+          return res.status(400).json({
+            status: "fail",
+            message: `Vendor is closed at this time. Working hours: ${hours.from} - ${hours.to}`,
+          });
+        }
+      }
+    }
+
+    // Check vendor online status
+    if (vendorData.status === "offline") {
+      return res.status(400).json({
+        status: "fail",
+        message: "Vendor is currently offline and not accepting bookings",
+      });
+    }
+
+    // Fetch services to get total duration for overlap check
+    const serviceDetails = await Promise.all(
+      serviceIds.map(id => import('../model/Service.js').then(m => m.Service.findById(id)))
+    );
+    const estimatedDuration = serviceDetails.reduce((sum, s) => sum + (Number(s?.duration) || 30), 0);
+    
+    // Add 1 hour buffer time for mobile services (vendor can be late, service can run over)
+    const BUFFER_TIME_MINUTES = 60;
+    const totalTimeNeeded = estimatedDuration + BUFFER_TIME_MINUTES;
+    const estimatedEndTime = new Date(requestedDate.getTime() + totalTimeNeeded * 60000);
+
+    // Check for overlapping bookings with buffer time (1-hour gap between bookings)
+    const bufferStart = new Date(requestedDate.getTime() - BUFFER_TIME_MINUTES * 60000);
+    const bufferEnd = new Date(estimatedEndTime.getTime());
+    
+    const overlappingBookings = await Booking.find({
+      vendor: vendor,
+      status: { $in: ['pending', 'accept', 'active'] },
+      $or: [
+        {
+          // Existing booking overlaps with new booking window (including buffer)
+          bookingDate: { $lte: bufferEnd },
+          estimatedEndTime: { $gt: bufferStart }
+        }
+      ]
+    });
+
+    if (overlappingBookings.length > 0) {
+      const existingTime = new Date(overlappingBookings[0].bookingDate).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      return res.status(400).json({
+        status: "fail",
+        message: `This time slot conflicts with another booking at ${existingTime}. Please allow at least 1 hour gap between appointments.`,
+      });
+    }
+
     const booking = await Booking.create({
       user,
       vendor: vendor.toString(),
-      services: serviceIds, // use converted strings here
+      services: serviceIds,
       status: "pending",
       userName: userName || "",
       userLocation: userLocation || {},
+      specialRequests: specialRequests || "",
+      serviceLocationType: serviceLocationType || "salon",
+      bookingDate: requestedDate,
+    });
+    
+    // Debug: Log what was saved to database
+    console.log('🟢 BOOKING CREATED:', {
+      specialRequests: booking.specialRequests,
+      serviceLocationType: booking.serviceLocationType,
+      bookingDate: booking.bookingDate
     });
 
     const qrData = booking._id.toString();
@@ -34,6 +194,15 @@ export const createBooking = async (req, res, next) => {
     booking.qrId = qrData;
     // Save to booking
     booking.qrCode = qrCode;
+    
+    // Populate services to calculate duration
+    await booking.populate('services');
+    
+    // Calculate total duration and estimated end time
+    const totalDuration = booking.services.reduce((sum, s) => sum + (Number(s.duration) || 30), 0);
+    booking.totalDuration = totalDuration;
+    booking.estimatedEndTime = new Date(requestedDate.getTime() + totalDuration * 60000);
+    
     await booking.save();
     const userData = await Vendor.findById(vendor);
     const title = "New Booking";
@@ -60,6 +229,8 @@ export const createBooking = async (req, res, next) => {
     ...populatedBooking.toObject(),
     totalServices: serviceIds.length,
     totalCharges,
+    totalDuration: populatedBooking.totalDuration,
+    estimatedEndTime: populatedBooking.estimatedEndTime,
   },
 });
   } catch (error) {
@@ -250,13 +421,27 @@ export const acceptBooking = async (req, res, next) => {
 
 export const rejectBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.bookingId,
-      { status: "reject" },
-      { new: true }
-    );
-
+    const booking = await Booking.findById(req.params.bookingId);
+    
     if (!booking) return res.status(404).json({ message: "Booking not found" });
+    
+    // Cancellation policy: Cannot cancel within 24 hours for accepted bookings
+    if (booking.status === 'accept') {
+      const hoursUntilBooking = (new Date(booking.bookingDate) - Date.now()) / (1000 * 60 * 60);
+      
+      if (hoursUntilBooking < 24) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Cannot cancel within 24 hours of appointment. Please contact vendor directly."
+        });
+      }
+    }
+    
+    // Update booking status and record cancellation
+    booking.status = "reject";
+    booking.cancelledAt = new Date();
+    booking.cancellationReason = req.body.reason || "";
+    await booking.save();
     if (booking) {
       const userData = await User.findById(booking.user);
       const title = "Booking Rejected";

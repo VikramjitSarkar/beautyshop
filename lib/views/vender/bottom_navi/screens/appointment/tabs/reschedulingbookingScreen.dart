@@ -587,7 +587,34 @@ class _ReschedulingBookingScreenState extends State<ReschedulingBookingScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 height: 50,
-                onPressed: () async {},
+                onPressed: () async {
+                  if (activeStep == 0) {
+                    // Validate date and time selection
+                    final selectedDateTime = DateTime(
+                      currentMonth.year,
+                      currentMonth.month,
+                      selectedDate,
+                      _parseTimeTo24Hour(selectedTime).hour,
+                      _parseTimeTo24Hour(selectedTime).minute,
+                    );
+                    
+                    // Prevent past date selection
+                    if (selectedDateTime.isBefore(DateTime.now())) {
+                      Get.snackbar(
+                        'Invalid Date',
+                        'Cannot reschedule to a past date',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+                    
+                    // Move to confirmation step
+                    setState(() {
+                      activeStep = 1;
+                    });
+                  }
+                },
                 color: kPrimaryColor,
                 child:
                     activeStep == 0

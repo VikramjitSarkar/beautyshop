@@ -26,6 +26,8 @@ class _BeauticianProfileCreationScreenState
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController shopNameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController whatsappController = TextEditingController();
 
   File? _image;
 
@@ -109,6 +111,8 @@ class _BeauticianProfileCreationScreenState
     descriptionController.dispose();
     addressController.dispose();
     shopNameController.dispose();
+    phoneController.dispose();
+    whatsappController.dispose();
     _cameraController?.dispose();
     super.dispose();
   }
@@ -225,6 +229,57 @@ class _BeauticianProfileCreationScreenState
                           value == null || value.isEmpty
                               ? 'Shop name is required'
                               : null,
+                ),
+                const SizedBox(height: 16),
+                Text('Title/Designation', style: kHeadingStyle.copyWith(fontSize: 14)),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  hintText: "e.g. Professional Beautician, Hair Stylist",
+                  controller: titleController,
+                  inputType: TextInputType.text,
+                  radius: 20,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Title is required'
+                              : null,
+                ),
+
+                const SizedBox(height: 16),
+                Text('Phone Number', style: kHeadingStyle.copyWith(fontSize: 14)),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  hintText: "Enter phone number",
+                  controller: phoneController,
+                  inputType: TextInputType.phone,
+                  radius: 20,
+                  prefixIcon: const Icon(Icons.phone),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Phone number is required';
+                    }
+                    if (value.length < 10) {
+                      return 'Enter a valid phone number';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+                Text('WhatsApp Number', style: kHeadingStyle.copyWith(fontSize: 14)),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  hintText: "Enter WhatsApp number (optional)",
+                  controller: whatsappController,
+                  inputType: TextInputType.phone,
+                  radius: 20,
+                  prefixIcon: const Icon(Icons.phone_android, color: Colors.green),
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty && value.length < 10) {
+                      return 'Enter a valid WhatsApp number';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -374,6 +429,10 @@ class _BeauticianProfileCreationScreenState
                           desc: descriptionController.text.trim(),
                           titleText: titleController.text.trim(),
                           loc: addressController.text.trim(),
+                          phone: phoneController.text.trim(),
+                          whatsapp: whatsappController.text.trim().isEmpty 
+                            ? phoneController.text.trim() 
+                            : whatsappController.text.trim(),
                           image: _image,
                         );
                         widget.vendorController.submitRegistration();

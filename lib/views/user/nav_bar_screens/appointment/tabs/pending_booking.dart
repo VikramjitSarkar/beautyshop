@@ -3,7 +3,9 @@ import 'package:beautician_app/controllers/users/booking/userPendingController.d
 import 'package:beautician_app/controllers/vendors/booking/pastBookingController.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserpendingBookingscreen extends StatefulWidget {
   final bool? isShow;
@@ -223,6 +225,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
     final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
     final bookingDate = booking['bookingDate'];
+    
     final formattedDate =
         bookingDate != null
             ? DateFormat('dd MMM yyyy').format(DateTime.parse(bookingDate))
@@ -232,247 +235,343 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
             ? DateFormat('hh:mm a').format(DateTime.parse(bookingDate))
             : '';
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Column(
-        children: [
-          if (widget.isShow == false)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 110,
-                  width: 110,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white,
-                    border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
+    final imageUrl = vendor['shopBanner'] ?? '';
 
-                  ),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child:
-                      booking['vendor'] != null? booking['vendor']['shopBanner'] != null
-                          ? Image.network(
-                        booking['vendor']['shopBanner'],
-                        height: 100,
-                        width: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                            Image.asset(
-                              'assets/app icon 2.png',
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                            ),
-                      )
-                          : Image.asset(
-                        'assets/app icon 2.png',
-                        height: 100,
-                        width: 100,
-                        fit: BoxFit.cover,
-                      ) : Image.asset(
-                        'assets/app icon 2.png',
-                        height: 100,
-                        width: 100,
-                        fit: BoxFit.cover,
-                      )
-                  ),
-                ),
-                SizedBox(width: 15),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              vendor['shopName'] ?? 'Unkown',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            if (widget.isShow == false)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey.shade100,
+                        border: imageUrl.isEmpty ? Border.all(color: kPrimaryColor.withOpacity(0.3), width: 1) : null,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset(
+                                      'assets/app icon 2.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                              )
+                            : Image.asset(
+                                'assets/app icon 2.png',
+                                fit: BoxFit.cover,
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                await vendorPendingController.deleteBooking(
-                                  booking['_id'],
-                                );
-                                _bookingController.fetchUpcomingBookings();
-                              },
-                              child: Image.asset(
-                                'assets/delete-Outline.png',
-                                height: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          vendor['locationAddres'] ??
-                              vendor['location'] ??
-                              'Unknown location',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: kGreyColor,
-                          ),
-                        ),
-                        RichText(
-                          text: TextSpan(
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Content
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: 'Services: ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
+                              Expanded(
+                                child: Text(
+                                  vendor['shopName'] ?? 'Unknown',
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              TextSpan(
-                                text: _bookingController
-                                    .getServiceNamesWithTotal(services),
-                                style: TextStyle(
-                                  height: 1.5,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  color: kGreyColor,
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: () async {
+                                  final bookingDate = DateTime.parse(booking['bookingDate']);
+                                  final hoursDifference = bookingDate.difference(DateTime.now()).inHours;
+                                  final bookingStatus = booking['status'];
+                                  
+                                  if (bookingStatus == 'accept' && hoursDifference < 24 && hoursDifference > 0) {
+                                    Get.defaultDialog(
+                                      title: "Cancellation Policy",
+                                      middleText: "You cannot cancel this booking within 24 hours of the appointment time.\n\nAppointment: ${DateFormat('dd MMM yyyy, hh:mm a').format(bookingDate)}",
+                                      textConfirm: "OK",
+                                      confirmTextColor: Colors.white,
+                                      onConfirm: () => Get.back(),
+                                    );
+                                    return;
+                                  }
+                                  
+                                  Get.defaultDialog(
+                                    title: "Cancel Booking?",
+                                    middleText: "Are you sure you want to cancel this booking?",
+                                    textCancel: "No",
+                                    textConfirm: "Yes, Cancel",
+                                    confirmTextColor: Colors.white,
+                                    onConfirm: () async {
+                                      Get.back();
+                                      await vendorPendingController.deleteBooking(booking['_id']);
+                                      _bookingController.fetchUpcomingBookings();
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.delete_outline,
+                                    size: 18,
+                                    color: Colors.red.shade400,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )
-          else
-            Column(
-              children: [
-                Container(
-                  height: 180,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    image: DecorationImage(
-                      image:
-                          vendor['gallery'] != null &&
-                                  vendor['gallery'].isNotEmpty
-                              ? NetworkImage(vendor['gallery'][0])
-                              : AssetImage('assets/map_appoinment.png')
-                                  as ImageProvider,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(height: 4),
+                          if (vendor['locationAddres'] != null || vendor['location'] != null)
+                            Row(
+                              children: [
+                                Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    vendor['locationAddres'] ?? vendor['location'] ?? 'Unknown location',
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 12,
+                                      color: kGreyColor,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 6),
                           Text(
-                            vendor['shopName'] ?? 'Lotus Salon',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                            _bookingController.getServiceNamesWithTotal(services),
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          Image.asset('assets/delete-Outline.png', height: 20),
-                        ],
-                      ),
-                      Text(
-                        vendor['locationAddres'] ??
-                            vendor['location'] ??
-                            'Unknown location',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                          color: kGreyColor,
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Services: ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
+                          if (booking['serviceLocationType'] != null) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: booking['serviceLocationType'] == 'home' 
+                                    ? Colors.orange.shade50 
+                                    : Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            ),
-                            TextSpan(
-                              text: _bookingController.getServiceNamesWithTotal(
-                                services,
-                              ),
-                              style: TextStyle(
-                                height: 1.5,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                color: kGreyColor,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    booking['serviceLocationType'] == 'home' ? Icons.home_rounded : Icons.store_rounded,
+                                    size: 14,
+                                    color: booking['serviceLocationType'] == 'home' ? Colors.orange.shade700 : Colors.green.shade700,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    booking['serviceLocationType'] == 'home' ? 'Home Service' : 'At Salon',
+                                    style: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                      color: booking['serviceLocationType'] == 'home' ? Colors.orange.shade700 : Colors.green.shade700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          SizedBox(height: 10),
-          Container(
-            margin: const EdgeInsets.only(top: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.calendar_month, color: Colors.black, size: 18),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: Colors.black,
+                        ],
                       ),
                     ),
-                    if (formattedTime.isNotEmpty)
+                  ],
+                ),
+              )
+            else
+              // Desktop/Tablet view
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 160,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey.shade100,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: vendor['gallery'] != null && vendor['gallery'].isNotEmpty
+                            ? Image.network(
+                                vendor['gallery'][0],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset('assets/map_appoinment.png', fit: BoxFit.cover),
+                              )
+                            : Image.asset('assets/map_appoinment.png', fit: BoxFit.cover),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                vendor['shopName'] ?? 'Unknown',
+                                style: GoogleFonts.manrope(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              if (vendor['locationAddres'] != null || vendor['location'] != null)
+                                Text(
+                                  vendor['locationAddres'] ?? vendor['location'] ?? '',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12,
+                                    color: kGreyColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _bookingController.getServiceNamesWithTotal(services),
+                                style: GoogleFonts.manrope(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.delete_outline, size: 20, color: Colors.red.shade400),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            // Date/Time Badge at bottom
+            Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: kPrimaryColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.black87, size: 16),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        formattedTime,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
+                        formattedDate,
+                        style: GoogleFonts.manrope(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                           color: Colors.black87,
                         ),
                       ),
+                      if (formattedTime.isNotEmpty)
+                        Text(
+                          formattedTime,
+                          style: GoogleFonts.manrope(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            color: Colors.black87,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (booking['specialRequests'] != null && booking['specialRequests'].toString().isNotEmpty) ...[
+                    const Spacer(),
+                    Tooltip(
+                      message: booking['specialRequests'],
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(Icons.note_outlined, size: 16, color: Colors.blue.shade700),
+                      ),
+                    ),
                   ],
-                ),
-              ],
+                  if (booking['serviceLocationType'] == 'salon' && vendor['vendorLat'] != null && vendor['vendorLong'] != null) ...[
+                    const Spacer(),
+                    InkWell(
+                      onTap: () async {
+                        final lat = vendor['vendorLat'];
+                        final lng = vendor['vendorLong'];
+                        final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(Icons.directions, size: 16, color: Colors.green.shade700),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

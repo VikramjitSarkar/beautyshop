@@ -36,6 +36,24 @@ const bookingSchema = new mongoose.Schema({
     longitude: { type: Number },
   },
   userName: { type: String },
+  specialRequests: { 
+    type: String,
+    maxlength: 500 
+  },
+  serviceLocationType: { 
+    type: String, 
+    enum: ["salon", "home"],
+    default: "salon"
+  },
+  totalDuration: { 
+    type: Number,
+    comment: "Total service duration in minutes" 
+  },
+  estimatedEndTime: { 
+    type: Date 
+  },
+  cancelledAt: { type: Date },
+  cancellationReason: { type: String },
 });
 
 export const Booking = mongoose.model("Booking", bookingSchema);

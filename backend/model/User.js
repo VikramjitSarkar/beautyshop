@@ -32,6 +32,14 @@ const userSchema = new Schema({
   role: { type: String, enum: ["user","admin"], default: "user" },
 
   socialId: { type: String, unique: true, index: true },
+  
+  bookingStats: {
+    totalBookings: { type: Number, default: 0 },
+    completedBookings: { type: Number, default: 0 },
+    noShows: { type: Number, default: 0 },
+    cancellations: { type: Number, default: 0 },
+    reliabilityScore: { type: Number, default: 100 }
+  },
 
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });

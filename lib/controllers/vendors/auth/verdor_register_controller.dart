@@ -19,6 +19,7 @@ class VendorRegisterController extends GetxController {
   // Step 2 data
   String phone = '', location = '';
   String shopName = '', description = '', title = '';
+  String whatsapp = '';
   String listingPlan = 'free';
   File? profileImage;
   bool homeServiceAvailable=false;
@@ -43,6 +44,8 @@ class VendorRegisterController extends GetxController {
     required String desc,
     required String titleText,
     required String loc,
+    required String phone,
+    required String whatsapp,
     required File? image,
     required bool homeServiceAvailable,
     required bool hasPhysicalShop,
@@ -51,6 +54,8 @@ class VendorRegisterController extends GetxController {
     description = desc;
     title = titleText;
     location = loc;
+    this.phone = phone;
+    this.whatsapp = whatsapp;
     profileImage = image;
     homeServiceAvailable=homeServiceAvailable;
     hasPhysicalShop=hasPhysicalShop;
@@ -110,7 +115,8 @@ class VendorRegisterController extends GetxController {
       'email': email,
       'password': password,
       'phone': phone,
-      'locationAddres': location,
+      'whatsapp': whatsapp,
+      'locationAddress': location,
       'shopName': shopName,
       'description': description,
       'title': title,

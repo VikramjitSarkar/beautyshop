@@ -58,6 +58,15 @@ const vendorSchema = new Schema({
       to:   { type: String }
     }
   },
+  blockedDates: [{
+    date: { type: Date },
+    reason: { type: String }
+  }],
+  maxServiceRadius: {
+    type: Number,
+    default: 50,
+    comment: "Maximum service radius in km for home services"
+  },
 
   createdAt:           { type: Date, default: Date.now }
 });

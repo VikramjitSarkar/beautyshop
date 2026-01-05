@@ -4,9 +4,11 @@ import 'package:beautician_app/controllers/users/home/userUpcommingBokingControl
 import 'package:beautician_app/controllers/vendors/booking/bookingPendingController.dart';
 import 'package:beautician_app/controllers/vendors/booking/pastBookingController.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/appointment/tabs/reschedulingbookingScreen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../controllers/users/home/pastUserBookingController.dart';
 
@@ -115,203 +117,280 @@ class _PastTabScreenState extends State<PastTabScreen> {
   ) {
     final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
+    final imageUrl = vendor['shopBanner'] ?? '';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 110,
-                width: 110,
-                decoration: BoxDecoration(
-                  color: Colors.white, 
-                  borderRadius: BorderRadius.circular(15),
-                  border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
-
-                ),
-                child:
-                booking['vendor'] != null? booking['vendor']['shopBanner'] != null
-                    ? Image.network(
-                  booking['vendor']['shopBanner'],
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) =>
-                      Image.asset(
-                        'assets/app icon 2.png',
-                        height: 100,
-                        width: 100,
-                        fit: BoxFit.cover,
-                      ),
-                )
-                    : Image.asset(
-                  'assets/app icon 2.png',
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
-                ) : Image.asset(
-                  'assets/app icon 2.png',
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
-                )
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            vendor['shopName'] ?? 'Unkown',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await vendorPendingController.deleteBooking(
-                                booking['_id'],
-                              );
-                              controller.fetchPastBookings();
-                            },
-                            child: Image(
-                              image: AssetImage('assets/delete-Outline.png'),
-                              height: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        vendor['locationAddres'] ??
-                            vendor['location'] ??
-                            'No Address Available',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                          color: kGreyColor,
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image
+                  Container(
+                    height: 100,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey.shade100,
+                      border: imageUrl.isEmpty ? Border.all(color: kPrimaryColor.withOpacity(0.3), width: 1) : null,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
+                            )
+                          : Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextSpan(
-                              text: 'Services: ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
+                            Expanded(
+                              child: Text(
+                                vendor['shopName'] ?? 'Unknown',
+                                style: GoogleFonts.manrope(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            TextSpan(
-                              text: controller.getServiceNamesWithTotal(
-                                services,
-                              ),
-                              style: TextStyle(
-                                height: 1.5,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                color: kGreyColor,
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () async {
+                                await vendorPendingController.deleteBooking(booking['_id']);
+                                controller.fetchPastBookings();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.delete_outline, size: 18, color: Colors.red.shade400),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: kGreyColor2),
-                    color: kGretLiteColor,
-                  ),
-                  child: Text(
-                    'Review',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: kGreyColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    final userId = GlobalsVariables.userId ?? '';
-                    final vendorId = vendor['_id'] ?? '';
-
-                    if (userId == null || vendorId == null) {
-                      Get.snackbar('Error', 'Missing user or vendor ID');
-                      return;
-                    }
-
-                    try {
-                      final chatData = await chatcontroller.createChatRoom(
-                        userId: userId,
-                        vendorId: vendorId,
-                      );
-
-                      if (chatData != null) {
-                        Get.to(
-                          () => UserChatScreen(
-                            vendorName: vendor['userName'] ?? 'Vendor',
-                            chatId: chatData['_id'],
-                            currentUser: chatData['user'],
-                            reciverId: chatData['other'],
+                        const SizedBox(height: 4),
+                        if (vendor['locationAddres'] != null || vendor['location'] != null)
+                          Row(
+                            children: [
+                              Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  vendor['locationAddres'] ?? vendor['location'] ?? 'No Address Available',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12,
+                                    color: kGreyColor,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      } else {
-                        Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
-                      }
-                    } catch (e) {
-                      Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
-                      print('Chat room creation error: $e');
-                    }
-                  },
-                  child: Container(
-                    height: 36,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: kPrimaryColor,
+                        const SizedBox(height: 6),
+                        Text(
+                          controller.getServiceNamesWithTotal(services),
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (booking['serviceLocationType'] != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: booking['serviceLocationType'] == 'home' 
+                                  ? Colors.orange.shade50 
+                                  : Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  booking['serviceLocationType'] == 'home' ? Icons.home_rounded : Icons.store_rounded,
+                                  size: 14,
+                                  color: booking['serviceLocationType'] == 'home' ? Colors.orange.shade700 : Colors.green.shade700,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  booking['serviceLocationType'] == 'home' ? 'Home Service' : 'At Salon',
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    color: booking['serviceLocationType'] == 'home' ? Colors.orange.shade700 : Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (booking['specialRequests'] != null && booking['specialRequests'].toString().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.note_outlined, size: 18, color: Colors.blue.shade700),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Special Request:',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.blue.shade900,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        booking['specialRequests'],
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.blue.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                    child: Text(
-                      'Reschedule',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                  ),
+                ],
+              ),
+            ),
+            // Action Buttons
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 42,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
+                        color: Colors.grey.shade50,
+                      ),
+                      child: Text(
+                        'Review',
+                        style: GoogleFonts.manrope(
+                          fontSize: 14,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        final userId = GlobalsVariables.userId ?? '';
+                        final vendorId = vendor['_id'] ?? '';
+
+                        if (userId.isEmpty || vendorId.isEmpty) {
+                          Get.snackbar('Error', 'Missing user or vendor ID');
+                          return;
+                        }
+
+                        try {
+                          final chatData = await chatcontroller.createChatRoom(
+                            userId: userId,
+                            vendorId: vendorId,
+                          );
+
+                          if (chatData != null) {
+                            Get.to(
+                              () => UserChatScreen(
+                                vendorName: vendor['userName'] ?? 'Vendor',
+                                chatId: chatData['_id'],
+                                currentUser: chatData['user'],
+                                reciverId: chatData['other'],
+                              ),
+                            );
+                          } else {
+                            Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
+                          }
+                        } catch (e) {
+                          Get.snackbar("Failed", "Please try again later.", backgroundColor: Colors.white);
+                          print('Chat room creation error: $e');
+                        }
+                      },
+                      child: Container(
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: kPrimaryColor,
+                        ),
+                        child: Text(
+                          'Reschedule',
+                          style: GoogleFonts.manrope(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

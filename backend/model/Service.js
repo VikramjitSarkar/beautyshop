@@ -18,6 +18,11 @@ const serviceSchema = new Schema({
   charges: {
     type: String,
   },
+  duration: {
+    type: Number,
+    default: 30,
+    comment: "Service duration in minutes"
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vendor",

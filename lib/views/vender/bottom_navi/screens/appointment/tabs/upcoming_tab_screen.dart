@@ -4,6 +4,8 @@ import 'package:beautician_app/views/vender/bottom_navi/screens/appointment/tabs
 import 'package:beautician_app/views/user/nav_bar_screens/appointment/tabs/qr_scanner_screen.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../../constants/globals.dart';
 
@@ -86,314 +88,177 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
   Widget _buildBookingItem(Map<String, dynamic> booking) {
     String getServiceNamesWithTotal(List<dynamic> services) {
       double total = 0.0;
-
-      final serviceList =
-          services.map((service) {
-            final name = service['serviceName'];
-            final charge =
-                double.tryParse(service['charges'].toString()) ?? 0.0;
-            total += charge;
-            return '$name ';
-          }).toList();
-
+      final serviceList = services.map((service) {
+        final name = service['serviceName'];
+        final charge = double.tryParse(service['charges'].toString()) ?? 0.0;
+        total += charge;
+        return '$name';
+      }).toList();
       final serviceText = serviceList.join(', ');
-      return '$serviceText \n Total: \$${total.toStringAsFixed(2)}';
+      return '$serviceText (Total: \$${total.toStringAsFixed(2)})';
     }
 
     final user = booking['user'] ?? {};
-    // final services = booking['services'] as List<dynamic>? ?? [];
-    final bookingDate = booking['bookingDate'] ?? '';
-
     final userName = user['userName'] ?? 'Client';
     final location = user['location'] ?? 'No address';
-    print("location: $location");
     final serviceNames = booking['services'];
-
-    final profilemage = booking['user']?['profileImage'] ?? 'Unknown';
+    final profileImage = booking['user']?['profileImage'] ?? '';
+    final bookingDate = booking['bookingDate'] ?? '';
     final dateTime = DateTime.tryParse(bookingDate);
-    final formattedDate =
-        dateTime != null
-            ? "${dateTime.day.toString().padLeft(2, '0')}  ${_monthName(dateTime.month)}, ${dateTime.year}"
-            : 'N/A';
-    final formattedTime =
-        dateTime != null
-            ? "${dateTime.hour.toString().padLeft(2, '0')}: ${dateTime.minute.toString().padLeft(2, '0')}"
-            : 'N/A';
+    final formattedDate = dateTime != null
+        ? "${dateTime.day.toString().padLeft(2, '0')} ${_monthName(dateTime.month)}, ${dateTime.year}"
+        : 'N/A';
+    final formattedTime = dateTime != null
+        ? "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}"
+        : 'N/A';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Column(
-        children: [
-          if (widget.isShow == false)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 110,
-                  width: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      image: NetworkImage(profilemage),
-                      fit: BoxFit.cover,
-                    ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            if (widget.isShow == true && user['profileImage'] != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    user['profileImage'],
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.asset('assets/app icon 2.png', height: 180, fit: BoxFit.cover),
                   ),
                 ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 9),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.isShow == false)
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey.shade100,
+                        border: profileImage.isEmpty ? Border.all(color: kPrimaryColor.withOpacity(0.3), width: 1) : null,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: profileImage.isNotEmpty
+                            ? Image.network(
+                                profileImage,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
+                              )
+                            : Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
+                      ),
+                    ),
+                  if (widget.isShow == false) const SizedBox(width: 12),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                            Expanded(
+                              child: Text(
+                                userName,
+                                style: GoogleFonts.manrope(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                pastController.deleteBooking(booking['_id']);
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () async {
+                                await pastController.deleteBooking(booking['_id']);
+                                await _bookingController.fetchActiveBooking(vendorId: GlobalsVariables.vendorId!);
                               },
-                              child: Image(
-                                image: AssetImage('assets/delete-Outline.png'),
-                                height: 20,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.delete_outline, size: 18, color: Colors.red.shade400),
                               ),
                             ),
                           ],
                         ),
-                        Text(
-                          location,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: kGreyColor,
-                          ),
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Services: ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              TextSpan(
-                                text: getServiceNamesWithTotal(serviceNames),
-                                style: TextStyle(
-                                  height: 1.5,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                location,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
                                   color: kGreyColor,
+                                  fontWeight: FontWeight.w400,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 5),
-                          child: GestureDetector(
-                            onTap: () async {
-                              Get.to(
-                                () => ViewQRCodeScreen(
-                                  vendorId: booking['_id'],
-                                  qrData: booking['qrCode'] ?? '',
-                                ),
-                              );
-                            },
-                            child: Icon(Icons.qr_code),
+                        const SizedBox(height: 6),
+                        Text(
+                          getServiceNamesWithTotal(serviceNames),
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            )
-          else
-            Column(
-              children: [
-                Container(
-                  height: 180,
-                  width: double.maxFinite,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/map_appoinment.png'),
-                      fit: BoxFit.fill,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: GestureDetector(
+                      onTap: () async {
+                        Get.to(
+                          () => ViewQRCodeScreen(
+                            vendorId: booking['_id'],
+                            qrData: booking['qrCode'] ?? '',
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.qr_code),
                     ),
                   ),
-                ),
-                const SizedBox(width: 15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            userName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await pastController.deleteBooking(
-                                booking['_id'],
-                              );
-                              await _bookingController.fetchActiveBooking(
-                                vendorId: GlobalsVariables.vendorId!,
-                              );
-                            },
-                            child: const Image(
-                              image: AssetImage('assets/delete-Outline.png'),
-                              height: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        location,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                          color: kGreyColor,
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'Services: ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                              ),
-                            ),
-                            TextSpan(
-                              text: serviceNames,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                color: kGreyColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          const SizedBox(height: 10),
-          Container(
-            height: 52,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: kGretLiteColor,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Row(
-                    children: [
-                      const Image(
-                        image: AssetImage('assets/timer.png'),
-                        height: 16,
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          "$formattedTime - $formattedDate",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: kGreyColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Container(
-                      //   height: 22,
-                      //   width: 40,
-                      //   padding: const EdgeInsets.all(1),
-                      //   child: FittedBox(
-                      //     fit: BoxFit.cover,
-                      //     child: Switch(
-                      //       trackOutlineColor: const WidgetStatePropertyAll(
-                      //           Colors.transparent),
-                      //       activeTrackColor: kPrimaryColor,
-                      //       inactiveTrackColor: kGreyColor2,
-                      //       inactiveThumbColor: Colors.white,
-                      //       value: true,
-                      //       onChanged: (value) {},
-                      //     ),
-                      //   ),
-                      // ),
-                      // Expanded(
-                      //   child: DropdownButton(
-                      //     isExpanded: true,
-                      //     value: selectedTime,
-                      //     icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                      //         color: Colors.black),
-                      //     dropdownColor: Colors.white,
-                      //     underline: const SizedBox(),
-                      //     items: [
-                      //       DropdownMenuItem(
-                      //         value: '30 min before',
-                      //         child: Text('30 min before',
-                      //             style: TextStyle(
-                      //                 color: kGreyColor, fontSize: 12)),
-                      //       ),
-                      //       DropdownMenuItem(
-                      //         value: '15 min before',
-                      //         child: Text('15 min before',
-                      //             style: TextStyle(
-                      //                 color: kGreyColor, fontSize: 12)),
-                      //       ),
-                      //     ],
-                      //     onChanged: (value) {
-                      //       setState(() {
-                      //         selectedTime = value;
-                      //       });
-                      //     },
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

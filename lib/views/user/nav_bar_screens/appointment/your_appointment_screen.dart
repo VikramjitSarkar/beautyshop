@@ -1,6 +1,7 @@
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/home/pastUserBookingController.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/appointment/tabs/pending_booking.dart';
+import 'package:beautician_app/views/user/nav_bar_screens/appointment/tabs/upcoming_tab_screen.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/appointment/tabs/qr_scanner_screen.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/appointment/tabs/qr_view_screen.dart';
 import 'package:responsive_builder/responsive_builder.dart';

@@ -2,7 +2,9 @@ import 'package:beautician_app/controllers/users/home/userUpcommingBokingControl
 import 'package:beautician_app/views/user/nav_bar_screens/appointment/tabs/qr_scanner_screen.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UpcomingTabScreen extends StatefulWidget {
   final bool? isShow;
@@ -223,47 +225,46 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
   Widget _buildBookingItem(Map<String, dynamic> booking) {
     final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
-    final shopName = vendor['shopName'] ?? 'Unkown';
-    final address =
-        vendor['locationAddres'] ??
-        vendor['location'] ??
-        'No Address Available';
+    final shopName = vendor['shopName'] ?? 'Unknown';
+    final address = vendor['locationAddres'] ?? vendor['location'] ?? 'No Address Available';
     final serviceNames = controller.getServiceNamesWithTotal(services);
+    final imageUrl = vendor['shopBanner'] ?? '';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade200,
-              blurRadius: 5,
-              spreadRadius: 1,
-              offset: Offset(0, 4),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(14.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.isShow == true &&
-                  vendor['gallery'] != null &&
-                  vendor['gallery'].isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.isShow == true && vendor['gallery'] != null && vendor['gallery'].isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.network(
                     vendor['gallery'][0],
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.asset('assets/app icon 2.png', height: 180, fit: BoxFit.cover),
                   ),
                 ),
-              if (widget.isShow == true) const SizedBox(height: 10),
-              Row(
+              ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.isShow == false)
@@ -271,40 +272,20 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                       height: 100,
                       width: 100,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.white,
-                        border: booking['vendor'] != null? (booking['vendor']['shopBanner'] != null? null : Border.all(color: Colors.lightGreen, width: 0.5)) : Border.all(color: Colors.lightGreen, width: 0.5),
-
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey.shade100,
+                        border: imageUrl.isEmpty ? Border.all(color: kPrimaryColor.withOpacity(0.3), width: 1) : null,
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child:
-                            booking['vendor'] != null? booking['vendor']['shopBanner'] != null
-                                ? Image.network(
-                              booking['vendor']['shopBanner'],
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) =>
-                                  Image.asset(
-                                    'assets/app icon 2.png',
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                            )
-                                : Image.asset(
-                              'assets/app icon 2.png',
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                            ) : Image.asset(
-                              'assets/app icon 2.png',
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                            )
+                        borderRadius: BorderRadius.circular(12),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
+                              )
+                            : Image.asset('assets/app icon 2.png', fit: BoxFit.cover),
                       ),
                     ),
                   if (widget.isShow == false) const SizedBox(width: 12),
@@ -314,111 +295,274 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(
                                 shopName,
-                                style: TextStyle(
+                                style: GoogleFonts.manrope(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 16,
+                                  color: Colors.black87,
                                 ),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            GestureDetector(
+                            const SizedBox(width: 8),
+                            InkWell(
                               onTap: () async {
-                                await vendorPendingController.deleteBooking(
-                                  booking['_id'],
+                                final bookingDate = DateTime.parse(booking['bookingDate']);
+                                final hoursDifference = bookingDate.difference(DateTime.now()).inHours;
+                                final bookingStatus = booking['status'];
+
+                                if (bookingStatus == 'accept' && hoursDifference < 24 && hoursDifference > 0) {
+                                  Get.defaultDialog(
+                                    title: "Cancellation Policy",
+                                    middleText:
+                                        "You cannot cancel this booking within 24 hours of the appointment time.\n\nAppointment: ${DateFormat('dd MMM yyyy, hh:mm a').format(bookingDate)}",
+                                    textConfirm: "OK",
+                                    confirmTextColor: Colors.white,
+                                    onConfirm: () => Get.back(),
+                                  );
+                                  return;
+                                }
+
+                                Get.defaultDialog(
+                                  title: "Cancel Booking?",
+                                  middleText: "Are you sure you want to cancel this booking?",
+                                  textCancel: "No",
+                                  textConfirm: "Yes, Cancel",
+                                  confirmTextColor: Colors.white,
+                                  onConfirm: () async {
+                                    Get.back();
+                                    await vendorPendingController.deleteBooking(booking['_id']);
+                                    controller.fetchPendingBookings();
+                                  },
                                 );
-                                controller.fetchPendingBookings();
                               },
-                              child: Image.asset(
-                                'assets/delete-Outline.png',
-                                height: 20,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.delete_outline, size: 18, color: Colors.red.shade400),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
+                            Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
+                            const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 address,
-                                style: TextStyle(color: kGreyColor),
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  color: kGreyColor,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Services: ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              TextSpan(
-                                text: serviceNames,
-                                style: TextStyle(
-                                  color: kGreyColor,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          serviceNames,
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (widget.isShow == true) ...[
+                        if (booking['serviceLocationType'] != null) ...[
                           const SizedBox(height: 6),
-                          Text(
-                            booking['status'] ?? 'Unknown Status',
-                            style: TextStyle(
-                              color: kPrimaryColor1,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: booking['serviceLocationType'] == 'home' 
+                                  ? Colors.orange.shade50 
+                                  : Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  booking['serviceLocationType'] == 'home' ? Icons.home_rounded : Icons.store_rounded,
+                                  size: 14,
+                                  color: booking['serviceLocationType'] == 'home' 
+                                      ? Colors.orange.shade700 
+                                      : Colors.green.shade700,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  booking['serviceLocationType'] == 'home' ? 'Home Service' : 'At Salon',
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    color: booking['serviceLocationType'] == 'home' 
+                                        ? Colors.orange.shade700 
+                                        : Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      ],
+                        if (widget.isShow == true && booking['status'] != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: kPrimaryColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              booking['status'].toString().toUpperCase(),
+                              style: GoogleFonts.manrope(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: kPrimaryColor1,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (booking['specialRequests'] != null && booking['specialRequests'].toString().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.note_outlined, size: 18, color: Colors.blue.shade700),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Special Request:',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.blue.shade900,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        booking['specialRequests'],
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.blue.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    final result = await Get.to(
-                      () => QRScannerScreen(
-                        qrCode: '${booking['qrCode']}',
-                        userId: booking['_id'],
+            ),
+            // Contact Buttons
+            if (vendor['phone'] != null || vendor['whatsapp'] != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                child: Row(
+                  children: [
+                    if (vendor['phone'] != null && vendor['phone'].toString().isNotEmpty)
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final uri = Uri(scheme: 'tel', path: vendor['phone'].toString());
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri);
+                            }
+                          },
+                          child: Container(
+                            height: 42,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
+                              color: Colors.grey.shade50,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.call, size: 16, color: Colors.black87),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Call',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    );
-                    if (result != null) {
-                      print('Scanned QR Code: $result');
-                    }
-                  },
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: BorderSide(color: Colors.green),
-                  ),
-                  icon: Icon(Icons.qr_code, color: Colors.green),
-                  label: Text(
-                    'Show QR',
-                    style: TextStyle(color: Colors.green),
-                  ),
+                    if (vendor['phone'] != null && vendor['whatsapp'] != null)
+                      const SizedBox(width: 10),
+                    if (vendor['whatsapp'] != null && vendor['whatsapp'].toString().isNotEmpty)
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final phone = vendor['whatsapp'].toString().replaceAll(RegExp(r'[^\d+]'), '');
+                            final uri = Uri.parse('https://wa.me/$phone');
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            }
+                          },
+                          child: Container(
+                            height: 42,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: const Color(0xFF25D366),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.chat, size: 16, color: Colors.white),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'WhatsApp',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

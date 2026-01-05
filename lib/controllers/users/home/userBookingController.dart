@@ -16,6 +16,8 @@ class UserBookingController extends GetxController {
     required String userAddress,
     required String userLat,
     required String userLong,
+    String? specialRequests,
+    String? serviceLocationType,
   }) async {
     try {
       isLoading.value = true;
@@ -37,25 +39,34 @@ class UserBookingController extends GetxController {
         body: jsonEncode({
           "vendor": vendorId,
           "services": subcategoryIdList, // ✅ send subcategory IDs
-          "bookingDate": bookingDate.toUtc().toIso8601String(),
+          "bookingDate": bookingDate.toIso8601String(),
           "userName": userName,
           "userLocation": {
             "address": userAddress,
             "latitude": double.tryParse(userLat) ?? 0.0,
             "longitude": double.tryParse(userLong) ?? 0.0,
           },
+          "specialRequests": specialRequests ?? "",
+          "serviceLocationType": serviceLocationType ?? "salon",
         }),
       );
+
+      // Debug: Log what we're sending to backend
+      debugPrint('🔵 BOOKING REQUEST: specialRequests="$specialRequests", serviceLocationType="$serviceLocationType"');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final body = jsonDecode(response.body);
 
         if (body['status'] == 'success') {
           bookingResponse.value = body['data'];
+          
+          // Debug: Log what backend returned
+          debugPrint('🟢 BOOKING RESPONSE: specialRequests=${body['data']?['specialRequests']}, serviceLocationType=${body['data']?['serviceLocationType']}');
 
           Get.snackbar(
             'Success',
-            body['message'] ?? 'Booking created successfully',
+            '${body['message'] ?? 'Booking created successfully'}\\n\\nNote: Your appointment includes 1-hour buffer time to account for any delays.',
+            duration: Duration(seconds: 5),
           );
 
           print("created booking: $body");
@@ -67,10 +78,24 @@ class UserBookingController extends GetxController {
         }
       } else {
         debugPrint("Booking failed with status: ${response.statusCode}");
-        Get.snackbar(
-          'Error',
-          'Booking failed with status ${response.statusCode}',
-        );
+        debugPrint("Response body: ${response.body}");
+        
+        // Try to parse error message from response
+        try {
+          final errorBody = jsonDecode(response.body);
+          final errorMessage = errorBody['message'] ?? 'Booking failed';
+          Get.snackbar(
+            'Booking Failed',
+            errorMessage,
+            duration: Duration(seconds: 6),
+            backgroundColor: Colors.red[100],
+          );
+        } catch (e) {
+          Get.snackbar(
+            'Error',
+            'Booking failed with status ${response.statusCode}',
+          );
+        }
         return false;
       }
     } catch (e) {
