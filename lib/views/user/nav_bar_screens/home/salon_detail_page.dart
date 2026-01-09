@@ -149,6 +149,7 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
                       ],
                     ),
                   ),
+                  const SizedBox(height: 40)
                 ],
               ),
             ),

@@ -198,60 +198,62 @@ class _ChatScreenState extends State<VendorChatScreen> {
               );
             }),
           ),
-          Container(
-            color: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: messageController,
-                            style: TextStyle(color: Colors.black, fontSize: 16),
-                            decoration: InputDecoration(
-                              hintText: "Type a message",
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none,
+          SafeArea(
+            child: Container(
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: messageController,
+                              style: TextStyle(color: Colors.black, fontSize: 16),
+                              decoration: InputDecoration(
+                                hintText: "Type a message",
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    final msg = messageController.text.trim();
-                    if (msg.isNotEmpty) {
-                      chatController.sendSocketMessage(
-                        receiverId: widget.reciverId,
-                        chatId: widget.chatId,
-                        content: msg,
-                      );
-                      messageController.clear();
-                    }
-                  },
-                  child: Container(
-                    height: 48,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: kPrimaryColor,
-                      shape: BoxShape.circle,
+                  SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      final msg = messageController.text.trim();
+                      if (msg.isNotEmpty) {
+                        chatController.sendSocketMessage(
+                          receiverId: widget.reciverId,
+                          chatId: widget.chatId,
+                          content: msg,
+                        );
+                        messageController.clear();
+                      }
+                    },
+                    child: Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: kPrimaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.send, color: Colors.black),
                     ),
-                    child: Icon(Icons.send, color: Colors.black),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

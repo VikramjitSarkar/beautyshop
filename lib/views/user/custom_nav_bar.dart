@@ -178,27 +178,28 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                       ),
                     )
                     : _pages[_selectedIndex],
-              bottomNavigationBar: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-                height: 70,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFF4F4F4), Color(0xFFEDEDED)],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26.withOpacity(0.08),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
+              bottomNavigationBar: SafeArea(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                  height: 70,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF4F4F4), Color(0xFFEDEDED)],
                     ),
-                  ],
-                  border: Border.all(color: Color(0xFFE6E6E6), width: 2),
-                ),
-                child: Row(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26.withOpacity(0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                    border: Border.all(color: Color(0xFFE6E6E6), width: 2),
+                  ),
+                  child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(_icons.length, (index) {
@@ -243,6 +244,7 @@ class _CustomerBottomNavBarScreenState extends State<CustomerBottomNavBarScreen>
                   }),
                 ),
               ),
+            ),
 
 
 

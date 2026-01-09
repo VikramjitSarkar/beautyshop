@@ -87,7 +87,19 @@ class SaloonDetailPageAppBar extends StatelessWidget
             children: [
               InkWell(
                 onTap: () => Get.back(),
-                child: Image.asset('assets/arrow.png'),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                ),
               ),
               const Spacer(),
               InkWell(
@@ -96,7 +108,19 @@ class SaloonDetailPageAppBar extends StatelessWidget
                       '$shopeName\n\n$desc\n\n📍 Location: https://www.google.com/maps/search/?api=1&query=$vendorLat,$vendorLong';
                   await Share.share(shareText);
                 },
-                child: Image.asset('assets/share.png'),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.share,
+                    color: Colors.black,
+                    size: 20,
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
               Obx(

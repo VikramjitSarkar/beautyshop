@@ -671,13 +671,14 @@ class _SalonListScreenState extends State<SalonListScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Column(
+            return SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1025,6 +1026,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
                   ),
                 ],
               ),
+            ),
             );
           },
         );

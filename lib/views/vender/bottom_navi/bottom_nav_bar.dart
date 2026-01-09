@@ -52,31 +52,34 @@ class _VendorBottomNavBarScreenState extends State<VendorBottomNavBarScreen> {
           child: Scaffold(
             backgroundColor: Colors.white,
             body: _pages[_selectedIndex],
-            bottomNavigationBar: Container(
-              height: 72,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2))],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(_icons.length, (index) {
-                  bool isSelected = index == _selectedIndex;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(index),
-                      child: Image.asset(
-                        _icons[index],
-                        width: 24,
-                        height: 24,
-                        color: isSelected ? Colors.black : kGreyColor,
+            bottomNavigationBar: SafeArea(
+              child: Container(
+                height: 72,
+                margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2))],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(_icons.length, (index) {
+                    bool isSelected = index == _selectedIndex;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onItemTapped(index),
+                        child: Image.asset(
+                          _icons[index],
+                          width: 24,
+                          height: 24,
+                          color: isSelected ? Colors.black : kGreyColor,
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ),
           ),

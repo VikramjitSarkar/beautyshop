@@ -65,9 +65,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
             onPressed: () => _handleClose(),
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
@@ -158,6 +159,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
@@ -272,8 +274,8 @@ class StarRating extends StatefulWidget {
 }
 
 class _StarRatingState extends State<StarRating> {
-  final List<String> emojis = ['😡', '🙁', '🙂', '😃'];
-  final List<String> labels = ['Very Bad', 'Bad', 'Good', 'Great'];
+  final List<String> emojis = ['😡', '🙁', '🙂', '😃', '🤩'];
+  final List<String> labels = ['Very Bad', 'Bad', 'Good', 'Great', 'Excellent'];
 
   void _handleGesture(Offset localPosition, double width) {
     final itemWidth = width / emojis.length;

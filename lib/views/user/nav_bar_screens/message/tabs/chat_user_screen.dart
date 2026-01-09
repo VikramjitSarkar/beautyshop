@@ -276,7 +276,9 @@ class _ChatScreenState extends State<UserChatScreen> {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          SafeArea(
+            child: SizedBox(height: 10),
+          ),
         ],
       ),
     );

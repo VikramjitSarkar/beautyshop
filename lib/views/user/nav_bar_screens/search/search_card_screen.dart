@@ -586,7 +586,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
+            return SafeArea(
+              child: Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -928,6 +929,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                   ),
                 ],
               ),
+            ),
             );
           },
         );

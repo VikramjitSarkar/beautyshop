@@ -112,9 +112,10 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-        child: Row(
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+          child: Row(
           children: [
             Expanded(
               child: CustomButton(
@@ -166,6 +167,7 @@ class _SalonServicesCardState extends State<SalonServicesCard> {
               ),
             ),
           ],
+        ),
         ),
       ),
       body: GetX<CategoryController>(

@@ -748,17 +748,30 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
     final filtered = vendors.where((vendor) {
       final itemStatus = vendor['status']?.toLowerCase();
-      final itemHomeVisit = vendor['homeVisit']?.toString();
-      final itemHasSalon = vendor['hasSalon']?.toString();
-      final itemCharges = int.tryParse(vendor['charges']?.toString() ?? '0') ?? 0;
+      final itemHomeVisit = vendor['homeServiceAvailable'] == true;
+      final itemHasSalon = vendor['hasPhysicalShop'] == true;
+      
+      // Get minimum charge from all services
+      final services = vendor['services'] as List<dynamic>?;
+      int minServiceCharge = 999999;
+      if (services != null && services.isNotEmpty) {
+        for (var service in services) {
+          final charges = int.tryParse(service['charges']?.toString() ?? '0') ?? 0;
+          if (charges > 0 && charges < minServiceCharge) {
+            minServiceCharge = charges;
+          }
+        }
+      }
+      if (minServiceCharge == 999999) minServiceCharge = 0;
+      
       final itemOnline = itemStatus == 'online';
       final itemOpeningTime = vendor['openingTime'];
 
       if (status != null && itemStatus != status.toLowerCase()) return false;
-      if (homeVisit != null && itemHomeVisit != homeVisit) return false;
-      if (hasSalon != null && itemHasSalon != hasSalon) return false;
-      if (minPrice != null && itemCharges < minPrice) return false;
-      if (maxPrice != null && itemCharges > maxPrice) return false;
+      if (homeVisit == "on" && !itemHomeVisit) return false;
+      if (hasSalon == "on" && !itemHasSalon) return false;
+      if (minPrice != null && minServiceCharge < minPrice) return false;
+      if (maxPrice != null && minServiceCharge > maxPrice) return false;
       if (onlineNow == true && !itemOnline) return false;
 
       if (isAvailableNow == true && itemOpeningTime is Map) {
@@ -983,7 +996,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                             // add cacheExtent or itemExtent if items are same width
                             itemBuilder: (context, index) {
                               final vendor = filtered[index];
-                              final rating = 0.0;
+                              final rating = double.tryParse(vendor['avgRating']?.toString() ?? '0') ?? 0.0;
                               final shopName = vendor['shopName'];
                               final distance = vendor['distance'];
                               final shopBanner = vendor['shopBanner'] ?? '';
@@ -1076,13 +1089,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Column(
+            return SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1117,6 +1131,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            this.setState(() => activeButtonIndex = 1);
                             setState(() => activeButtonIndex = 1);
                           },
                           style: ElevatedButton.styleFrom(
@@ -1142,6 +1157,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            this.setState(() => activeButtonIndex = 2);
                             setState(() => activeButtonIndex = 2);
                           },
                           style: ElevatedButton.styleFrom(
@@ -1167,6 +1183,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            this.setState(() => activeButtonIndex = 3);
                             setState(() => activeButtonIndex = 3);
                           },
                           style: ElevatedButton.styleFrom(
@@ -1207,7 +1224,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                     ),
                     inactiveTrackColor: kGreyColor2,
                     inactiveThumbColor: Colors.white,
-                    onChanged: (value) => setState(() => onlineNow = value),
+                    onChanged: (value) {
+                      this.setState(() => onlineNow = value);
+                      setState(() => onlineNow = value);
+                    },
                   ),
 
                   SwitchListTile(
@@ -1222,8 +1242,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                     ),
                     inactiveTrackColor: kGreyColor2,
                     inactiveThumbColor: Colors.white,
-                    onChanged:
-                        (value) => setState(() => homeVisitAvailable = value),
+                    onChanged: (value) {
+                      this.setState(() => homeVisitAvailable = value);
+                      setState(() => homeVisitAvailable = value);
+                    },
                   ),
 
 
@@ -1240,8 +1262,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                     ),
                     inactiveTrackColor: kGreyColor2,
                     inactiveThumbColor: Colors.white,
-                    onChanged:
-                        (value) => setState(() => hasSalonLocation = value),
+                    onChanged: (value) {
+                      this.setState(() => hasSalonLocation = value);
+                      setState(() => hasSalonLocation = value);
+                    },
                   ),
 
                   const SizedBox(height: 16),
@@ -1258,7 +1282,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       '\$${priceRange.start.toInt()}',
                       '\$${priceRange.end.toInt()}',
                     ),
-                    onChanged: (values) => setState(() => priceRange = values),
+                    onChanged: (values) {
+                      this.setState(() => priceRange = values);
+                      setState(() => priceRange = values);
+                    },
                   ),
 
                   const SizedBox(height: 16),
@@ -1358,8 +1385,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () {
-                            setState(() {
+                            this.setState(() {
                               // Reset all filters
+                              onlineNow = false;
+                              nearby = false;
+                              homeVisitAvailable = false;
+                              hasSalonLocation = false;
+                              priceRange = const RangeValues(0, 500);
+                              isAvailableNow = true;
+                              selectedTime = TimeOfDay.now();
+                              activeButtonIndex = 0;
+                            });
+                            setState(() {
                               onlineNow = false;
                               nearby = false;
                               homeVisitAvailable = false;
@@ -1435,6 +1472,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                   ),
                 ],
               ),
+            ),
             );
           },
         );
@@ -1444,19 +1482,36 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
   void sortVendorsByRatingHighFirst(List<dynamic> fetchedVendors) {
     fetchedVendors.sort((a, b) {
-      double ratingA = _toDouble(a['shopRating']);
-      double ratingB = _toDouble(b['shopRating']);
+      double ratingA = _toDouble(a['avgRating']);
+      double ratingB = _toDouble(b['avgRating']);
 
       return ratingB.compareTo(ratingA); // high → low
     });
   }
 
   void sortVendorsByDistanceNearestFirst(List<dynamic> fetchedVendors) {
+    // Calculate distance for each vendor if not already present
+    for (var vendor in fetchedVendors) {
+      if (vendor['distance'] == null && _currentPosition != null) {
+        final lat = double.tryParse(vendor['vendorLat']?.toString() ?? '0');
+        final lng = double.tryParse(vendor['vendorLong']?.toString() ?? '0');
+        if (lat != null && lng != null && lat != 0 && lng != 0) {
+          final distance = Geolocator.distanceBetween(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+            lat,
+            lng,
+          ) / 1000; // Convert to km
+          vendor['distance'] = distance;
+        }
+      }
+    }
+    
     fetchedVendors.sort((a, b) {
       double distanceA = _toDouble(a['distance']);
       double distanceB = _toDouble(b['distance']);
 
-      return distanceA.compareTo(distanceB); // far → near
+      return distanceA.compareTo(distanceB); // near → far
     });
     print("applying filter");
   }
