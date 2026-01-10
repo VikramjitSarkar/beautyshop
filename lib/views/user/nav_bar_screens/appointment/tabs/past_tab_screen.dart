@@ -204,14 +204,14 @@ class _PastTabScreenState extends State<PastTabScreen> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        if (vendor['locationAddres'] != null || vendor['location'] != null)
+                        if (vendor['locationAddress'] != null || vendor['location'] != null)
                           Row(
                             children: [
                               Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  vendor['locationAddres'] ?? vendor['location'] ?? 'No Address Available',
+                                  vendor['locationAddress'] ?? vendor['location'] ?? 'No Address Available',
                                   style: GoogleFonts.manrope(
                                     fontSize: 12,
                                     color: kGreyColor,
@@ -520,7 +520,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          vendor['locationAddres'] ??
+                          vendor['locationAddress'] ??
                               vendor['location'] ??
                               'Unknown location',
                           style: TextStyle(fontSize: 14, color: Colors.black87),

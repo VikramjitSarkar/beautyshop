@@ -187,7 +187,7 @@ class GenralController extends GetxController {
 
             'avgRating': item['avgRating'] ?? '0.0',
             'distance': item['distance'] ?? '0.0',
-            'locationAddres': item['locationAddres'] ?? 'No Address',
+            'locationAddress': item['locationAddress'] ?? 'No Address',
             'status': item['status'] ?? 'offline',
             'charges': item['charges'] ?? '0',
           };
@@ -303,7 +303,7 @@ class GenralController extends GetxController {
                     (item['distance']?.toString() == '')
                         ? '0.0'
                         : item['distance']?.toString() ?? '0.0',
-                'locationAddres': item['locationAddres'] ?? 'No Address',
+                'locationAddress': item['locationAddress'] ?? 'No Address',
                 'status': item['status'] ?? 'offline',
                 'charges': item['charges']?.toString() ?? '0',
                 'openingTime': item['openingTime'] ?? {},

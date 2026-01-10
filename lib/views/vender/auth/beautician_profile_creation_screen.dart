@@ -2,11 +2,13 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:beautician_app/controllers/vendors/auth/verdor_register_controller.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:beautician_app/services/auths_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'widgets/map_location_picker.dart';
 
 class BeauticianProfileCreationScreen extends StatefulWidget {
@@ -28,6 +30,17 @@ class _BeauticianProfileCreationScreenState
   final TextEditingController shopNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController whatsappController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  String phoneCountryCode = '+1';
+  String whatsappCountryCode = '+1';
+  String _fullPhoneNumber = '';
+  String _fullWhatsappNumber = '';
+  bool _isOtpSent = false;
+  bool _isPhoneVerified = false;
+  bool _isSendingOtp = false;
+  bool _isVerifyingOtp = false;
+  
+  final AuthService _authService = AuthService();
 
   File? _image;
 
@@ -43,6 +56,78 @@ class _BeauticianProfileCreationScreenState
   void initState() {
     super.initState();
     _initializeCamera();
+  }
+
+  Future<void> _sendOtp() async {
+    if (_fullPhoneNumber.isEmpty || phoneController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid phone number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    setState(() => _isSendingOtp = true);
+
+    final success = await _authService.sendOtp(_fullPhoneNumber);
+    
+    setState(() => _isSendingOtp = false);
+
+    if (success) {
+      setState(() => _isOtpSent = true);
+      Get.snackbar(
+        'Success',
+        'OTP sent to your phone number',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to send OTP. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    final code = otpController.text.trim();
+    
+    if (code.isEmpty || code.length < 4) {
+      Get.snackbar(
+        'Error',
+        'Please enter the 4-digit code',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    setState(() => _isVerifyingOtp = true);
+
+    final success = await _authService.verifyOtp(_fullPhoneNumber, code);
+    
+    setState(() => _isVerifyingOtp = false);
+
+    if (success) {
+      setState(() => _isPhoneVerified = true);
+      Get.snackbar(
+        'Success',
+        'Phone number verified successfully!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Invalid OTP. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Future<void> _openMapPicker() async {
@@ -113,6 +198,7 @@ class _BeauticianProfileCreationScreenState
     shopNameController.dispose();
     phoneController.dispose();
     whatsappController.dispose();
+    otpController.dispose();
     _cameraController?.dispose();
     super.dispose();
   }
@@ -246,71 +332,194 @@ class _BeauticianProfileCreationScreenState
                 ),
 
                 const SizedBox(height: 16),
-                Text('Phone Number', style: kHeadingStyle.copyWith(fontSize: 14)),
+                Text('Phone Number *', style: kHeadingStyle.copyWith(fontSize: 14)),
                 const SizedBox(height: 8),
-                CustomTextField(
-                  hintText: "Enter phone number",
+                IntlPhoneField(
                   controller: phoneController,
-                  inputType: TextInputType.phone,
-                  radius: 20,
-                  prefixIcon: const Icon(Icons.phone),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
+                  enabled: !_isPhoneVerified,
+                  decoration: InputDecoration(
+                    hintText: 'Enter phone number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: _isPhoneVerified ? Colors.green : Colors.grey.shade300,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: _isPhoneVerified ? Colors.green : Colors.grey.shade300,
+                        width: _isPhoneVerified ? 2 : 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: _isPhoneVerified ? Colors.green : kPrimaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                  initialCountryCode: 'US',
+                  onChanged: (phone) {
+                    setState(() {
+                      phoneCountryCode = phone.countryCode;
+                      _fullPhoneNumber = phone.completeNumber;
+                      _isOtpSent = false;
+                      _isPhoneVerified = false;
+                    });
+                  },
+                  validator: (phone) {
+                    if (phone == null || phone.number.isEmpty) {
                       return 'Phone number is required';
                     }
-                    if (value.length < 10) {
-                      return 'Enter a valid phone number';
-                    }
                     return null;
                   },
                 ),
+                
+                if (!_isPhoneVerified) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (_isSendingOtp || phoneController.text.isEmpty) 
+                          ? null 
+                          : _sendOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPrimaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        disabledBackgroundColor: Colors.grey[300],
+                      ),
+                      child: _isSendingOtp
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.black,
+                              ),
+                            )
+                          : const Text(
+                              'Verify Now',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+
+                if (_isOtpSent && !_isPhoneVerified) ...[
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: otpController,
+                    hintText: 'Enter 4-digit code',
+                    inputType: TextInputType.number,
+                    radius: 20,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isVerifyingOtp ? null : _verifyOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _isVerifyingOtp
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Verify',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+
+                if (_isPhoneVerified)
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green),
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Colors.green),
+                        SizedBox(width: 8),
+                        Text(
+                          'Phone number verified',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                 const SizedBox(height: 16),
-                Text('WhatsApp Number', style: kHeadingStyle.copyWith(fontSize: 14)),
+                Text('WhatsApp Number (Optional)', style: kHeadingStyle.copyWith(fontSize: 14)),
                 const SizedBox(height: 8),
-                CustomTextField(
-                  hintText: "Enter WhatsApp number (optional)",
+                IntlPhoneField(
                   controller: whatsappController,
-                  inputType: TextInputType.phone,
-                  radius: 20,
-                  prefixIcon: const Icon(Icons.phone_android, color: Colors.green),
-                  validator: (value) {
-                    if (value != null && value.isNotEmpty && value.length < 10) {
-                      return 'Enter a valid WhatsApp number';
-                    }
+                  decoration: InputDecoration(
+                    hintText: 'Enter WhatsApp number',
+                    prefixIcon: const Icon(Icons.phone_android, color: Colors.green),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                  initialCountryCode: 'US',
+                  onChanged: (phone) {
+                    setState(() {
+                      whatsappCountryCode = phone.countryCode;
+                      _fullWhatsappNumber = phone.completeNumber;
+                    });
+                  },
+                  validator: (phone) {
                     return null;
                   },
-                ),
-
-                const SizedBox(height: 24),
-                Text(
-                  "Shop and Location/Address",
-                  style: kHeadingStyle.copyWith(fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RadioListTile<bool>(
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                        title: const Text('Off'),
-                        value: false,
-                        groupValue: isShow,
-                        onChanged: (value) => setState(() => isShow = value!),
-                      ),
-                    ),
-                    Expanded(
-                      child: RadioListTile<bool>(
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                        title: const Text('On'),
-                        value: true,
-                        groupValue: isShow,
-                        onChanged: (value) => setState(() => isShow = value!),
-                      ),
-                    ),
-                  ],
                 ),
 
                 const SizedBox(height: 24),
@@ -332,14 +541,55 @@ class _BeauticianProfileCreationScreenState
                               : null,
                 ),
 
+                const SizedBox(height: 24),
+                Text(
+                  "Do you have a physical shop?",
+                  style: kHeadingStyle.copyWith(fontSize: 14),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Select if customers can visit your shop/salon',
+                  style: kSubheadingStyle.copyWith(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        title: const Text('No'),
+                        value: false,
+                        groupValue: isShow,
+                        onChanged: (value) => setState(() => isShow = value!),
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        title: const Text('Yes'),
+                        value: true,
+                        groupValue: isShow,
+                        onChanged: (value) => setState(() => isShow = value!),
+                      ),
+                    ),
+                  ],
+                ),
+
                 if (isShow) ...[
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Shop Address *',
+                    style: kHeadingStyle.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Location / Address',
-                        style: kHeadingStyle.copyWith(fontSize: 14),
+                        'Enter your shop location',
+                        style: kSubheadingStyle.copyWith(fontSize: 12, color: Colors.grey),
                       ),
                       GestureDetector(
                         onTap: _openMapPicker,
@@ -362,7 +612,7 @@ class _BeauticianProfileCreationScreenState
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Select from maps',
+                                'Pick on map',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.black,
@@ -392,25 +642,70 @@ class _BeauticianProfileCreationScreenState
                 ],
 
                 const SizedBox(height: 24),
-                SwitchListTile(
-                  title: Text(
-                    "Provide Home Service?",
-                    style: kSubheadingStyle,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
                   ),
-                  value: hasHomeService,
-                  onChanged: (value) => setState(() => hasHomeService = value),
-
-                  activeColor: Colors.white,              // handle (thumb) color
-                  activeTrackColor: kPrimaryColor,          // active body/track color
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.home_work, color: kPrimaryColor, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Do you provide home services?",
+                                  style: kHeadingStyle.copyWith(fontSize: 14),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Visit customers at their location',
+                                  style: kSubheadingStyle.copyWith(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: hasHomeService,
+                            onChanged: (value) => setState(() => hasHomeService = value),
+                            activeColor: Colors.white,
+                            activeTrackColor: kPrimaryColor,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 32),
                 Obx(
                   () => CustomButton(
                     isLoading: widget.vendorController.isLoading.value,
-                    isEnabled: !widget.vendorController.isLoading.value,
+                    isEnabled: !widget.vendorController.isLoading.value && _isPhoneVerified,
                     title: "Continue",
                     onPressed: () {
+                      if (!_isPhoneVerified) {
+                        Get.snackbar(
+                          'Verification Required',
+                          'Please verify your phone number before continuing.',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.orange,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 3),
+                        );
+                        return;
+                      }
+
                       if (_image == null) {
                         Get.snackbar(
                           "Missing Photo",
@@ -429,11 +724,13 @@ class _BeauticianProfileCreationScreenState
                           desc: descriptionController.text.trim(),
                           titleText: titleController.text.trim(),
                           loc: addressController.text.trim(),
-                          phone: phoneController.text.trim(),
-                          whatsapp: whatsappController.text.trim().isEmpty 
-                            ? phoneController.text.trim() 
-                            : whatsappController.text.trim(),
+                          phone: _fullPhoneNumber,
+                          whatsapp: _fullWhatsappNumber.isEmpty 
+                            ? _fullPhoneNumber 
+                            : _fullWhatsappNumber,
                           image: _image,
+                          latitude: _selectedMapPosition?.latitude,
+                          longitude: _selectedMapPosition?.longitude,
                         );
                         widget.vendorController.submitRegistration();
                       }

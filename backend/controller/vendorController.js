@@ -124,8 +124,17 @@ export const ProfileSetup = catchAsyncError(async (req, res, next) => {
   const userId = req?.user?.userId;
   let updatedFields = { ...data };
 
+  console.log('=== PROFILE SETUP ENDPOINT ===');
+  console.log('Received fields:', Object.keys(data));
+  console.log('hasPhysicalShop in request:', data.hasPhysicalShop);
+  console.log('homeServiceAvailable in request:', data.homeServiceAvailable);
+
   const existingUser = await Vendor.findById(userId);
   if (!existingUser) return res.status(404).json({ message: "User not found" });
+
+  console.log('BEFORE UPDATE:');
+  console.log('hasPhysicalShop:', existingUser.hasPhysicalShop);
+  console.log('homeServiceAvailable:', existingUser.homeServiceAvailable);
 
   const uploadIfPresent = async (key, folder, options = {}) => {
     if (req.files?.[key]) {
@@ -171,6 +180,12 @@ export const ProfileSetup = catchAsyncError(async (req, res, next) => {
   if (!updatedFields.license && existingUser.license) updatedFields.license = existingUser.license;
 
   const updatedUser = await Vendor.findByIdAndUpdate(userId, updatedFields, { new: true });
+
+  console.log('AFTER UPDATE:');
+  console.log('hasPhysicalShop:', updatedUser.hasPhysicalShop);
+  console.log('homeServiceAvailable:', updatedUser.homeServiceAvailable);
+  console.log('updatedFields keys:', Object.keys(updatedFields));
+  console.log('==============================');
 
   const requiredFields = [
     "age", "cnic", "description", "email", "gender", "homeServiceAvailable", "listingPlan",

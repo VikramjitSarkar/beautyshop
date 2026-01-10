@@ -78,7 +78,7 @@ class DashBoardController extends GetxController {
           
           vendorLate.value = data['vendorLat']?.toString() ?? '';
           vendorLong.value = data['vendorLong']?.toString() ?? '';
-          locationAddress.value = data['locationAddres'] ?? '';
+          locationAddress.value = data['locationAddress'] ?? '';
           vendorId.value = data['_id'];
           
           print('✅ AFTER SETTING - vendorLate.value: "${vendorLate.value}"');

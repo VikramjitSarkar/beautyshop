@@ -11,6 +11,48 @@ import '../../../constants/globals.dart';
 class VendorListingController extends GetxController {
   var isLoading = false.obs;
 
+  Future<void> redeemReferralCode(String referralCode) async {
+    final vendorId = GlobalsVariables.vendorId;
+
+    if (vendorId == null) {
+      Get.snackbar('Error', 'Vendor ID not found');
+      return;
+    }
+
+    isLoading.value = true;
+    final url = Uri.parse('${GlobalsVariables.baseUrlapp}/referral/redeem');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'vendorId': vendorId,
+          'referralCode': referralCode,
+        }),
+      );
+
+      isLoading.value = false;
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar('Success', data['message'] ?? 'Referral code redeemed successfully! You got 3 months free subscription.');
+        
+        // Update DashboardController listing value to paid
+        final dashCtrl = Get.put(DashBoardController());
+        dashCtrl.listing.value = 'paid';
+        
+        // Navigate to AddServiceScreen after successful redemption
+        Get.to(() => AddServiceScreen());
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Referral code redemption failed');
+      }
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar('Exception', e.toString());
+    }
+  }
+
   Future<void> updateListingPlan(String plan, bool isService) async {
     isLoading.value = true;
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/update');

@@ -84,7 +84,7 @@ class FavoriteFromUserController extends GetxController {
             final body = jsonDecode(res.body);
             if (body is Map && body['data'] is Map) {
               final vendor = Map<String, dynamic>.from(body['data']);
-              print('Fetched vendor $vendorId: locationAddres=${vendor['locationAddres']}');
+              print('Fetched vendor $vendorId: locationAddres=${vendor['locationAddress']}');
               favoriteVendors.add(vendor);
             }
           } else {
@@ -211,7 +211,7 @@ class FavoriteFromUserController extends GetxController {
           
           // Debug: print address field for first vendor
           if (vendors.isNotEmpty) {
-            print('First vendor after mapping - locationAddres: ${vendors[0]['locationAddres']}, keys: ${vendors[0].keys.toList()}');
+            print('First vendor after mapping - locationAddres: ${vendors[0]['locationAddress']}, keys: ${vendors[0].keys.toList()}');
           }
           
           print('Found ${vendors.length} total vendors nearby');

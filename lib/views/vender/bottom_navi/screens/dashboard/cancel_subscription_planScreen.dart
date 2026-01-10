@@ -271,7 +271,15 @@ class _CancelShowPlanForMonthlyOrYearScreenState
                       itemCount: plans.length,
                       itemBuilder: (context, index) {
                         final plan = plans[index];
-                        final isActive = plan.id == GlobalsVariables.paymentId;
+                        // Only show as active if:
+                        // 1. Listing is paid
+                        // 2. Has active subscription
+                        // 3. Plan ID matches current subscription's planId
+                        final currentSub = subscriptionController.currentVendorSubscription;
+                        final currentPlanId = currentSub?['planId']?['_id'];
+                        final isActive = dashCtrl.listing.value == 'paid' && 
+                                        currentSub != null && 
+                                        currentPlanId == plan.id;
                         return _buildPlanCard(plan, isActive);
                       },
                     );
@@ -315,9 +323,15 @@ class _CancelShowPlanForMonthlyOrYearScreenState
 
                             if (confirm == true) {
                               await subscriptionController.deleteSubscription(subId!);
+                              
+                              // Refresh subscription data
+                              await subscriptionController.fetchAndSetVendorSubscription();
+                              
+                              // Clear payment ID
                               await GlobalsVariables.savePaymentId('');
+                              
+                              // Update listing to free
                               dashCtrl.listing.value = 'free';
-                              Get.snackbar('Success', 'Subscription cancelled successfully');
                             }
                           },
                         );

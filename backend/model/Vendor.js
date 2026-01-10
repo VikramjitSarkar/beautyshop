@@ -26,7 +26,7 @@ const vendorSchema = new Schema({
   resetPasswordToken:  { type: String },
   resetPasswordExpires:{ type: Date   },
 
-  locationAddres:      { type: String },
+  locationAddress:     { type: String },
   vendorLat:           { type: String },
   vendorLong:          { type: String },
   phone:               { type: String },

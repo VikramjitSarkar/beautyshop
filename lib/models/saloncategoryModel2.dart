@@ -61,7 +61,7 @@ class SalonCategoryWidget2 extends StatelessWidget {
             return SaloonCardThree(
               distanceKm: vendor['distance'],
               rating: rating,
-              location: vendor['locationAddres'],
+              location: vendor['locationAddress'],
               imageUrl: vendor['profileImage'] ?? '',
               shopName: vendor['shopName'] ?? 'No Name',
               onTap: () {
@@ -74,7 +74,7 @@ class SalonCategoryWidget2 extends StatelessWidget {
                     vendorId: vendor["_id"] ?? '',
                     desc: vendor["description"] ?? '',
                     imageUrl: vendor["shopBanner"] ?? '',
-                    location: vendor["locationAddres"] ?? '',
+                    location: vendor["locationAddress"] ?? '',
                     galleryImage: galleyImages,
                     openingTime: Map<String, dynamic>.from(openingTime),
                     shopName: vendor["shopName"] ?? '',

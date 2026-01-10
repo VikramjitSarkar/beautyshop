@@ -28,6 +28,9 @@ class VendorRegisterController extends GetxController {
   // New fields for latitude and longitude
   double? vendorLat;
   double? vendorLong;
+  
+  // To store coordinates from map picker
+  bool hasCoordinatesFromMap = false;
 
   void setBasicInfo({
     required String userName,
@@ -37,6 +40,11 @@ class VendorRegisterController extends GetxController {
     name = userName;
     email = userEmail;
     password = userPassword;
+    
+    print('=== PAGE 1: BASIC INFO SAVED ===');
+    print('Name: $name');
+    print('Email: $email');
+    print('Password length: ${password.length}');
   }
 
   void setProfileInfo({
@@ -49,6 +57,8 @@ class VendorRegisterController extends GetxController {
     required File? image,
     required bool homeServiceAvailable,
     required bool hasPhysicalShop,
+    double? latitude,
+    double? longitude,
   }) {
     shopName = shop;
     description = desc;
@@ -57,8 +67,25 @@ class VendorRegisterController extends GetxController {
     this.phone = phone;
     this.whatsapp = whatsapp;
     profileImage = image;
-    homeServiceAvailable=homeServiceAvailable;
-    hasPhysicalShop=hasPhysicalShop;
+    this.homeServiceAvailable = homeServiceAvailable;
+    this.hasPhysicalShop = hasPhysicalShop;
+    
+    print('=== PAGE 2: PROFILE INFO SAVED ===');
+    print('Shop Name: $shopName');
+    print('Phone: $phone');
+    print('WhatsApp: $whatsapp');
+    print('Location: $location');
+    print('Has Physical Shop: $hasPhysicalShop (${hasPhysicalShop.runtimeType})');
+    print('Home Service Available: $homeServiceAvailable (${homeServiceAvailable.runtimeType})');
+    print('Profile Image: ${image != null ? "YES" : "NO"}');
+    
+    // If coordinates provided from map picker, use them directly
+    if (latitude != null && longitude != null) {
+      vendorLat = latitude;
+      vendorLong = longitude;
+      hasCoordinatesFromMap = true;
+      print('Using coordinates from map: $vendorLat, $vendorLong');
+    }
   }
 
   /// Helper method to convert address into latitude and longitude.
@@ -102,7 +129,8 @@ class VendorRegisterController extends GetxController {
       return;
     }
 
-    if (location.isNotEmpty) {
+    // Only geocode address if coordinates weren't provided from map picker
+    if (!hasCoordinatesFromMap && location.isNotEmpty) {
       await _getLatLngFromAddress(location);
     }
 
@@ -122,9 +150,29 @@ class VendorRegisterController extends GetxController {
       'title': title,
       'listingPlan': listingPlan,
       'fcmToken': fcmToken,
-      'homeServiceAvailable':homeServiceAvailable.toString(),
-      'hasPhysicalShop':hasPhysicalShop.toString(),
+      'homeServiceAvailable': homeServiceAvailable.toString(),
+      'hasPhysicalShop': hasPhysicalShop.toString(),
     });
+
+    print('=== SUBMIT REGISTRATION DEBUG ===');
+    print('homeServiceAvailable field value: ${homeServiceAvailable.toString()}');
+    print('hasPhysicalShop field value: ${hasPhysicalShop.toString()}');
+    print('===== ALL FIELDS BEING SENT =====');
+    print('userName: $name');
+    print('email: $email');
+    print('phone: $phone');
+    print('whatsapp: $whatsapp');
+    print('shopName: $shopName');
+    print('title: $title');
+    print('description: $description');
+    print('locationAddress: $location');
+    print('vendorLat: ${vendorLat ?? "null"}');
+    print('vendorLong: ${vendorLong ?? "null"}');
+    print('homeServiceAvailable: ${homeServiceAvailable.toString()}');
+    print('hasPhysicalShop: ${hasPhysicalShop.toString()}');
+    print('listingPlan: $listingPlan');
+    print('profileImage: ${profileImage != null ? "attached" : "null"}');
+    print('====================================');
 
     // Add the latitude and longitude if available.
     if (vendorLat != null && vendorLong != null) {
@@ -163,6 +211,12 @@ class VendorRegisterController extends GetxController {
           await GlobalsVariables.saveVendorLoginToken(token);
           print('Saved vendor token: $token');
         }
+
+        print('=== PAGE 2: VENDOR CREATED IN DATABASE ===');
+        print('Vendor ID: $userId');
+        print('Response hasPhysicalShop: ${body['data']['hasPhysicalShop']}');
+        print('Response homeServiceAvailable: ${body['data']['homeServiceAvailable']}');
+        print('==========================================');
 
         Get.snackbar('Success', 'Vendor registered!');
         Get.offAll(() => ProfileSetupScreen());

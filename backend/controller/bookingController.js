@@ -569,7 +569,7 @@ export const getBookingsByUser = async (req, res, next) => {
       vendorRating: parseFloat(avgRating.toFixed(1)),
       vendorProfileImage: booking.vendor?.profileImage || "",
       vendorShopName: booking.vendor?.shopName || "",
-      vendorLocationAddress: booking.vendor?.locationAddres || "",
+      vendorLocationAddress: booking.vendor?.locationAddress || "",
       vendorLat: booking.vendor?.vendorLat || 0,
       vendorLong: booking.vendor?.vendorLong || 0,
     };

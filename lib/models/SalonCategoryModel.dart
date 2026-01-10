@@ -179,7 +179,7 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                               return SaloonCardThree(
                                 distanceKm: distanceKm,
                                 rating: rating,
-                                location: vendor['locationAddres'],
+                                location: vendor['locationAddress'],
                                 imageUrl: vendor['shopBanner'] ?? '',
                                 shopName: vendor['shopName'] ?? 'No Name',
                                 categories: categories.take(3).toList(),
@@ -200,7 +200,7 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                   vendorId: vendor["_id"] ?? '',
                                   desc: vendor["description"] ?? '',
                                   imageUrl: vendor["shopBanner"] ?? '',
-                                  location: vendor["locationAddres"] ?? '',
+                                  location: vendor["locationAddress"] ?? '',
                                   openingTime: openingTime,
                                   shopName: vendor["shopName"] ?? '',
                                   status: vendor["status"] ?? '',

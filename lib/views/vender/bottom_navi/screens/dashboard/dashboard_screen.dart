@@ -107,21 +107,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    'Dashboard',
-                                    style: kHeadingStyle.copyWith(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
+                                  Flexible(
+                                    child: Text(
+                                      'Dashboard',
+                                      style: kHeadingStyle.copyWith(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Obx(
                                     () => Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
                                           onPressed: () {
                                             Get.to(() => VendorSettings());
                                           },
                                           icon: Icon(Icons.settings),
+                                          padding: EdgeInsets.all(8),
+                                          constraints: BoxConstraints(),
                                         ),
                                         GestureDetector(
                                           onTap:
@@ -130,7 +135,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       .toggleStatus(),
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
+                                              horizontal: 10,
                                               vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
@@ -156,6 +161,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ),
                                             ),
                                             child: Row(
+                                              mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Container(
                                                   width: 8,
@@ -178,7 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       ? 'Go Offline'
                                                       : 'Go Online',
                                                   style: kHeadingStyle.copyWith(
-                                                    fontSize: 14,
+                                                    fontSize: 13,
                                                     color:
                                                         statusController
                                                                 .isOnline
@@ -191,14 +197,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ),
                                           ),
                                         ),
+                                        IconButton(
+                                          onPressed: () {
+                                            Get.to(() => VendorNotificationsScreen());
+                                          },
+                                          icon: Icon(Icons.notification_add_outlined),
+                                          padding: EdgeInsets.all(8),
+                                          constraints: BoxConstraints(),
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      Get.to(() => VendorNotificationsScreen());
-                                    },
-                                    icon: Icon(Icons.notification_add_outlined),
                                   ),
                                 ],
                               ),

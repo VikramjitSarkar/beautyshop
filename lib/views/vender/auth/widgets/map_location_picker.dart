@@ -156,7 +156,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
           ),
         ],
       ),
-      body: Stack(
+      body: SafeArea(
+        child: Stack(
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
@@ -310,6 +311,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
             ),
         ],
       ),
+        ),
     );
   }
 

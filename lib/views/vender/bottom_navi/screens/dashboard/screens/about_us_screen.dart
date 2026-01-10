@@ -44,7 +44,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
         final body = json.decode(resp.body) as Map<String, dynamic>;
         if (body['status'] == 'success') {
           final data = body['data'] as Map<String, dynamic>;
-          final address = (data['locationAddres'] ?? '').toString().trim();
+          final address = (data['locationAddress'] ?? '').toString().trim();
           
           print('📍 Got address from API: "$address"');
           

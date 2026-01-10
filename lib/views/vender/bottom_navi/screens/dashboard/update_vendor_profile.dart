@@ -58,7 +58,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
           phoneController.text = vendorData['phone'] ?? '';
           whatsappController.text = vendorData['whatsapp'] ?? '';
           descriptionController.text = vendorData['description'] ?? '';
-          addressController.text = vendorData['locationAddres'] ?? '';
+          addressController.text = vendorData['locationAddress'] ?? '';
         }
       }
     } catch (e) {
@@ -83,7 +83,7 @@ class _VendorUpdateProfileScreenState extends State<VendorUpdateProfileScreen> {
       "phone": phoneController.text,
       "whatsapp": whatsappController.text,
       "description": descriptionController.text,
-      "locationAddres": addressController.text,
+      "locationAddress": addressController.text,
       "profileImage": vendorData['profileImage'] ?? "",
       "gender": vendorData['gender'] ?? "",
       "listingPlan": vendorData['listingPlan'] ?? "free",

@@ -89,15 +89,13 @@ class _VendorSignUpScreenState extends State<VendorSignUpScreen> {
                             return 'Email is required';
                           }
 
-                          final hasUpperCase = RegExp(r'[A-Z]');
-                          if (hasUpperCase.hasMatch(value)) {
-                            return 'Enter a valid email';
-                          }
+                          // Convert to lowercase for validation
+                          final email = value.trim().toLowerCase();
 
                           final emailRegex = RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$',
                           );
-                          if (!emailRegex.hasMatch(value)) {
+                          if (!emailRegex.hasMatch(email)) {
                             return 'Enter a valid email';
                           }
                           return null;

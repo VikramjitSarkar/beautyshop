@@ -152,7 +152,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          vendor['locationAddres'] ??
+                          vendor['locationAddress'] ??
                               vendor['location'] ??
                               'No Address Available',
                           style: TextStyle(fontSize: 14, color: Colors.black87),
@@ -795,14 +795,14 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          if (vendor['locationAddres'] != null || vendor['location'] != null)
+                          if (vendor['locationAddress'] != null || vendor['location'] != null)
                             Row(
                               children: [
                                 Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    vendor['locationAddres'] ?? vendor['location'] ?? 'Unknown location',
+                                    vendor['locationAddress'] ?? vendor['location'] ?? 'Unknown location',
                                     style: GoogleFonts.manrope(
                                       fontSize: 12,
                                       color: kGreyColor,
@@ -907,9 +907,9 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
-                              if (vendor['locationAddres'] != null || vendor['location'] != null)
+                              if (vendor['locationAddress'] != null || vendor['location'] != null)
                                 Text(
-                                  vendor['locationAddres'] ?? vendor['location'] ?? '',
+                                  vendor['locationAddress'] ?? vendor['location'] ?? '',
                                   style: GoogleFonts.manrope(
                                     fontSize: 12,
                                     color: kGreyColor,

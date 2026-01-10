@@ -173,13 +173,15 @@ class ReviewTabScreen extends StatelessWidget {
   }
 
   List<String> _getEmojiSet(double rating) {
-    final fullSet = ['😡', '😐', '🙂', '😊'];
+    final fullSet = ['😡', '😐', '🙂', '😊', '😍'];
 
     if (rating >= 4.0) {
-      return fullSet; // all 4 emojis
+      return fullSet; // all 5 emojis
     } else if (rating >= 3.0) {
-      return fullSet.sublist(0, 3); // 3 emojis
+      return fullSet.sublist(0, 4); // 4 emojis
     } else if (rating >= 2.0) {
+      return fullSet.sublist(0, 3); // 3 emojis
+    } else if (rating >= 1.0) {
       return fullSet.sublist(0, 2); // 2 emojis
     } else {
       return fullSet.sublist(0, 1); // 1 emoji

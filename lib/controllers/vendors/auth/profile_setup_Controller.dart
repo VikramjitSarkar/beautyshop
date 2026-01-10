@@ -18,8 +18,6 @@ class ProfileSetupController extends GetxController {
     required String gender,
     required File cnic,
     required File license,
-    required String phone,
-    required String whatsapp,
   }) async {
     isLoading.value = true;
     final url = Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/profileSetup');
@@ -39,8 +37,16 @@ class ProfileSetupController extends GetxController {
     request.fields['surname'] = surname;
     request.fields['age'] = age;
     request.fields['gender'] = gender;
-    request.fields['phone'] = phone;
-    request.fields['whatsapp'] = whatsapp;
+
+    print('=== PAGE 3: PROFILE SETUP SUBMISSION ===');
+    print('userName: $name');
+    print('surname: $surname');
+    print('age: $age');
+    print('gender: $gender');
+    print('cnicImage: attached');
+    print('certificateImage: attached');
+    print('NOTE: NOT sending hasPhysicalShop or homeServiceAvailable');
+    print('=========================================');
 
     request.files.add(
       await http.MultipartFile.fromPath(
@@ -64,6 +70,12 @@ class ProfileSetupController extends GetxController {
       isLoading.value = false;
 
       if (res.statusCode == 200 || res.statusCode == 201) {
+        final body = jsonDecode(res.body);
+        print('=== PAGE 3: PROFILE UPDATED IN DATABASE ===');
+        print('Response hasPhysicalShop: ${body['data']['hasPhysicalShop']}');
+        print('Response homeServiceAvailable: ${body['data']['homeServiceAvailable']}');
+        print('===========================================');
+        
         Get.snackbar('Success', 'Profile setup completed');
         Get.off(() => FreeAndPaidListingServicesScreen());
       } else {

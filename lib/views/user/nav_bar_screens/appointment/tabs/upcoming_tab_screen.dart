@@ -153,7 +153,7 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          vendor['locationAddres'] ??
+                          vendor['locationAddress'] ??
                               vendor['location'] ??
                               'Unknown location',
                           style: TextStyle(fontSize: 14, color: Colors.black87),
@@ -668,7 +668,7 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
     final vendor = (booking['vendor'] as Map<String, dynamic>?) ?? {};
     final services = booking['services'] as List<dynamic>;
     final shopName = vendor['shopName'] ?? 'Unknown';
-    final address = vendor['locationAddres'] ?? vendor['location'] ?? 'No Address Available';
+    final address = vendor['locationAddress'] ?? vendor['location'] ?? 'No Address Available';
     final serviceNames = controller.getServiceNamesWithTotal(services);
     final imageUrl = vendor['shopBanner'] ?? '';
 

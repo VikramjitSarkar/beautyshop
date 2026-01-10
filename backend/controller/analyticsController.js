@@ -52,7 +52,7 @@ export const getUserSpending = async (req, res, next) => {
       status: { $in: ['completed', 'accept'] },
       createdAt: { $gte: startDate, $lte: endDate }
     })
-      .populate('vendor', 'shopName locationAddres')
+      .populate('vendor', 'shopName locationAddress')
       .populate('services.serviceId', 'serviceName')
       .sort({ createdAt: -1 });
 
@@ -65,7 +65,7 @@ export const getUserSpending = async (req, res, next) => {
       return {
         bookingId: booking._id,
         vendorName: booking.vendor?.shopName || 'Unknown',
-        vendorAddress: booking.vendor?.locationAddres || 'Unknown',
+        vendorAddress: booking.vendor?.locationAddress || 'Unknown',
         services: booking.services.map(s => ({
           name: s.serviceId?.serviceName || s.serviceName || 'Unknown',
           charge: parseFloat(s.charges) || 0

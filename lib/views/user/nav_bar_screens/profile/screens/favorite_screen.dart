@@ -177,12 +177,12 @@ class _VendorCardState extends State<_VendorCard> {
     print('Vendor $id all fields: ${widget.v.keys.toList()}');
     
     // Try multiple address field names
-    final where = (widget.v['locationAddres'] ?? 
+    final where = (widget.v['locationAddress'] ?? 
                    widget.v['locationAdress'] ?? 
                    widget.v['address'] ?? 
                    widget.v['location'] ?? '').toString();
     
-    print('Vendor $id address: locationAddres=${widget.v['locationAddres']}, where=$where');
+    print('Vendor $id address: locationAddress=${widget.v['locationAddress']}, where=$where');
     
     final distance = (widget.v['distance'] ?? '0').toString();
 

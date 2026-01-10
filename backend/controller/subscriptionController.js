@@ -125,10 +125,26 @@ export const getSubscriptionById = async (req, res, next) => {
 export const cancelSubscription = async (req, res, next) => {
   try {
     const sub = await Subscription.findById(req.params.id);
-    await stripe.subscriptions.del(sub.stripeSubscriptionId);
+    
+    if (!sub) {
+      return res.status(404).json({
+        status: "error",
+        message: "Subscription not found"
+      });
+    }
+
+    // Only cancel Stripe subscription if it exists (not for referral code subscriptions)
+    if (sub.stripeSubscriptionId) {
+      await stripe.subscriptions.del(sub.stripeSubscriptionId);
+    }
+    
     sub.status = "canceled";
     sub.endDate = new Date();
     await sub.save();
+    
+    // Update vendor's listing plan to free
+    await Vendor.findByIdAndUpdate(sub.vendorId, { listingPlan: "free" });
+    
     res.json({
       status: "success",
       message: "Subscription canceled",

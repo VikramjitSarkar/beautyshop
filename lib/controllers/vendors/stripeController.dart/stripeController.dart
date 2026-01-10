@@ -306,17 +306,29 @@ class StripeController extends GetxController {
       final url = Uri.parse('${GlobalsVariables.baseUrlapp}/subscription/$id');
       final response = await http.delete(url);
 
+      isCancelling.value = false;
+
       if (response.statusCode == 200) {
-        currentVendorSubscription!.value = {};
-        VendorListingController().updateListingPlan('Free', false);
+        final body = jsonDecode(response.body);
+        if (body['status'] == 'success') {
+          // Clear subscription data
+          currentVendorSubscription!.value = {};
+          
+          // Update listing plan to free
+          await VendorListingController().updateListingPlan('free', false);
+          
+          Get.snackbar("Success", "Subscription cancelled successfully");
+        } else {
+          Get.snackbar("Error", body['message'] ?? "Failed to cancel subscription.");
+        }
       } else {
-        Get.snackbar("Error", "Failed to cancel subscription.");
+        final body = jsonDecode(response.body);
+        Get.snackbar("Error", body['message'] ?? "Failed to cancel subscription.");
       }
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong.");
-      print("Cancel Error: $e");
-    } finally {
       isCancelling.value = false;
+      Get.snackbar("Error", "Something went wrong: $e");
+      print("Cancel Error: $e");
     }
   }
 }

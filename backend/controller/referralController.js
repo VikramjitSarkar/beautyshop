@@ -3,6 +3,7 @@ import { ReferralCode } from "../model/ReferralCode.js";
 import { generateReferralCodes } from "../utils/generateCodes.js";
 import { Subscription } from "../model/Subscription.js";
 import mongoose from "mongoose";
+import { Vendor } from "../model/Vendor.js";
 import notify from "../utils/notification.js";
 
 export const createReferralCodes = async (req, res, next) => {

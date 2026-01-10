@@ -2,6 +2,7 @@ import 'package:beautician_app/controllers/vendors/dashboard/dashboardController
 import 'package:beautician_app/views/vender/bottom_navi/screens/appointment/vendor_appointment_screen.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/dashboard/dashboard_screen.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/message/vendor_msg_screen.dart';
+import 'package:beautician_app/views/vender/bottom_navi/screens/earnings/vendor_earnings_screen.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
 
@@ -19,14 +20,16 @@ class _VendorBottomNavBarScreenState extends State<VendorBottomNavBarScreen> {
     'assets/home.png',
     'assets/booking.png',
     'assets/message.png',
+    'assets/email_big.png',
   ];
 
-  final List<String> _titles = ["Dashboard", "Appointments", "Messaging"];
+  final List<String> _titles = ["Dashboard", "Appointments", "Messaging", "Earnings"];
 
   final List<Widget> _pages = [
     DashboardScreen(),
     VendorAppointmentScreen(),
     VendorMsgScreen(),
+    VendorEarningsScreen(),
   ];
 
   void _onItemTapped(int index) {

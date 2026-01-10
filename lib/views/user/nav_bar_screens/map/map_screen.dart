@@ -379,7 +379,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
     for (int i = 0; i < _originalVendors.length; i++) {
       print("inner for loop");
       try {
-        final address = _originalVendors[i]['locationAddres'];
+        final address = _originalVendors[i]['locationAddress'];
         print("vendor address: $address");
         if (address == null || address.toString().isEmpty) continue;
 
@@ -469,7 +469,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
               vendorId: vendor["_id"] ?? '',
               desc: vendor["description"] ?? '',
               imageUrl: vendor["shopBanner"] ?? '',
-              location: vendor["locationAddres"] ?? '',
+              location: vendor["locationAddress"] ?? '',
               openingTime: openingTime,
               shopName: vendor["shopName"] ?? '',
               status: vendor["status"] ?? '',
@@ -1000,7 +1000,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                               final shopName = vendor['shopName'];
                               final distance = vendor['distance'];
                               final shopBanner = vendor['shopBanner'] ?? '';
-                              final location = vendor['locationAddres'];
+                              final location = vendor['locationAddress'];
                               final status = vendor['status'];
                               final id = vendor['_id'];
                               final openingTimeRaw = vendor['openingTime'];
@@ -1046,7 +1046,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                                         vendorId: vendor["_id"] ?? '',
                                         desc: vendor["description"] ?? '',
                                         imageUrl: vendor["shopBanner"] ?? '',
-                                        location: vendor["locationAddres"] ?? '',
+                                        location: vendor["locationAddress"] ?? '',
                                         openingTime: openingTime,
                                         shopName: vendor["shopName"] ?? '',
                                         status: vendor["status"] ?? '',
