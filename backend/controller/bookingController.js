@@ -617,6 +617,9 @@ export const getBookingsByVendor = async (req, res, next) => {
     userName: booking.userName || booking.user?.username || "",
     userProfilePic: booking.user?.profile_picture || "",
     userLocation: booking.userLocation || {},
+    bookingDate: booking.bookingDate,
+    serviceLocationType: booking.serviceLocationType || "salon",
+    specialRequests: booking.specialRequests || "",
   };
 });
 

@@ -167,7 +167,7 @@ export const ProfileSetup = catchAsyncError(async (req, res, next) => {
     updatedFields.gallery = uploadedGalleryUrls;
   }
 
-  // flags
+  // flags - convert string to boolean if provided
   if (typeof data.homeServiceAvailable !== "undefined") {
     updatedFields.homeServiceAvailable = data.homeServiceAvailable === "true";
   }
@@ -175,11 +175,24 @@ export const ProfileSetup = catchAsyncError(async (req, res, next) => {
     updatedFields.hasPhysicalShop = data.hasPhysicalShop === "true";
   }
 
-  // preserve existing
+  // preserve existing critical fields if not provided
   if (!updatedFields.cnic && existingUser.cnic) updatedFields.cnic = existingUser.cnic;
   if (!updatedFields.license && existingUser.license) updatedFields.license = existingUser.license;
+  
+  // ✅ FIX: Preserve boolean flags if not explicitly provided in update request
+  if (typeof data.homeServiceAvailable === "undefined") {
+    updatedFields.homeServiceAvailable = existingUser.homeServiceAvailable;
+  }
+  if (typeof data.hasPhysicalShop === "undefined") {
+    updatedFields.hasPhysicalShop = existingUser.hasPhysicalShop;
+  }
 
-  const updatedUser = await Vendor.findByIdAndUpdate(userId, updatedFields, { new: true });
+  // Use $set operator to only update provided fields
+  const updatedUser = await Vendor.findByIdAndUpdate(
+    userId, 
+    { $set: updatedFields }, 
+    { new: true }
+  );
 
   console.log('AFTER UPDATE:');
   console.log('hasPhysicalShop:', updatedUser.hasPhysicalShop);
@@ -509,7 +522,7 @@ export const UpdateProfile = catchAsyncError(async (req, res, next) => {
     updatedFields.gallery = [...existingGallery, ...uploadedGalleryUrls];
   }
 
-  // flags
+  // flags - convert string to boolean if provided
   if (typeof data.homeServiceAvailable !== "undefined") {
     updatedFields.homeServiceAvailable = data.homeServiceAvailable === "true";
   }
@@ -521,8 +534,21 @@ export const UpdateProfile = catchAsyncError(async (req, res, next) => {
   if (!updatedFields.cnic && existingUser.cnic) updatedFields.cnic = existingUser.cnic;
   if (!updatedFields.license && existingUser.license) updatedFields.license = existingUser.license;
   if (!updatedFields.profileImage && existingUser.profileImage) updatedFields.profileImage = existingUser.profileImage;
+  
+  // ✅ FIX: Preserve boolean flags if not explicitly provided in update request
+  if (typeof data.homeServiceAvailable === "undefined") {
+    updatedFields.homeServiceAvailable = existingUser.homeServiceAvailable;
+  }
+  if (typeof data.hasPhysicalShop === "undefined") {
+    updatedFields.hasPhysicalShop = existingUser.hasPhysicalShop;
+  }
 
-  const updatedUser = await Vendor.findByIdAndUpdate(userId, updatedFields, { new: true });
+  // Use $set operator to only update provided fields
+  const updatedUser = await Vendor.findByIdAndUpdate(
+    userId, 
+    { $set: updatedFields }, 
+    { new: true }
+  );
 
   const requiredFields = [
     "age", "cnic", "description", "email", "gender", "homeServiceAvailable", "listingPlan",

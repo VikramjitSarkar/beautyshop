@@ -202,7 +202,7 @@ export const getCategoriesWithVendors = async (req, res) => {
                 userName: '$$vendor.userName',
                 email: '$$vendor.email',
                 createdAt: '$$vendor.createdAt',
-                locationAddress: '$$vendor.locationAddress',
+                locationAddress: { $ifNull: ['$$vendor.locationAddress', '$$vendor.locationAddres'] },
                 vendorLat: '$$vendor.vendorLat',
                 vendorLong: '$$vendor.vendorLong',
                 phone: '$$vendor.phone',

@@ -185,4 +185,42 @@ adminRoute.get('/payments', async (req, res) => {
   res.json({ status:'success', data: logs });
 });
 
+// Quick fix endpoint for vendor flags (temporary debug endpoint)
+adminRoute.post('/quickFixVendor', async (req, res) => {
+  try {
+    const { vendorId, hasPhysicalShop, homeServiceAvailable } = req.body;
+    
+    if (!vendorId) {
+      return res.status(400).json({ message: 'vendorId is required' });
+    }
+    
+    const updateData = {};
+    if (hasPhysicalShop !== undefined) updateData.hasPhysicalShop = hasPhysicalShop;
+    if (homeServiceAvailable !== undefined) updateData.homeServiceAvailable = homeServiceAvailable;
+    
+    const vendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $set: updateData },
+      { new: true }
+    );
+    
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
+    
+    res.json({ 
+      status: 'success', 
+      message: 'Vendor updated',
+      data: {
+        vendorId: vendor._id,
+        shopName: vendor.shopName,
+        hasPhysicalShop: vendor.hasPhysicalShop,
+        homeServiceAvailable: vendor.homeServiceAvailable
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default adminRoute;

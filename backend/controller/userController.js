@@ -227,8 +227,16 @@ export const markFavorite = async (req, res, next) => {
       return res.status(400).json({ message: "Vendor already favorited" });
     }
 
+    // Add vendor to user's favorites
     user.favoriteVendors.push(vendorId);
     await user.save();
+
+    // Increment vendor's favoriteCount
+    await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $inc: { favoriteCount: 1 } },
+      { new: true }
+    );
 
     res.json({ status: "success", message: "Vendor favorited!" });
   } catch (error) {
@@ -249,6 +257,19 @@ export const unmarkFavorite = async (req, res, next) => {
     );
 
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Decrement vendor's favoriteCount (don't go below 0)
+    await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $inc: { favoriteCount: -1 } },
+      { new: true }
+    );
+
+    // Ensure favoriteCount doesn't go below 0
+    await Vendor.findOneAndUpdate(
+      { _id: vendorId, favoriteCount: { $lt: 0 } },
+      { $set: { favoriteCount: 0 } }
+    );
 
     res.json({ status: "success", message: "Vendor unfavorited!" });
   } catch (error) {

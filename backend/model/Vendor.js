@@ -68,6 +68,12 @@ const vendorSchema = new Schema({
     comment: "Maximum service radius in km for home services"
   },
 
+  favoriteCount: {
+    type: Number,
+    default: 0,
+    comment: "Number of times this vendor has been added to favorites"
+  },
+
   createdAt:           { type: Date, default: Date.now }
 });
 
