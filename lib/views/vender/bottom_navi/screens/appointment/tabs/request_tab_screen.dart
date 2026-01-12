@@ -8,6 +8,7 @@ import 'package:beautician_app/views/vender/bottom_navi/screens/appointment/tabs
 import 'package:beautician_app/views/vender/bottom_navi/screens/message/tabs/vendor_chat_screen.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:intl/intl.dart';
 
 class RequestTabScreen extends StatelessWidget {
   RequestTabScreen({super.key});
@@ -61,11 +62,41 @@ class RequestTabScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final booking = requestBookingController.bookings[index];
                 print("Bookings: $booking");
+                print("🔍 DEBUG - bookingDate: ${booking['bookingDate']}");
+                print("🔍 DEBUG - serviceLocationType: ${booking['serviceLocationType']}");
+                print("🔍 DEBUG - userLocation: ${booking['userLocation']}");
+                print("🔍 DEBUG - specialRequests: ${booking['specialRequests']}");
+                
                 final user = booking['user']?['userName'] ?? 'Unknown';
-                final address = booking['user']?['location'] ?? 'No address';
                 final services = booking['services'];
-                final profilemage =
-                    booking['user']?['profileImage'] ?? 'Unknown';
+                final profilemage = booking['user']?['profileImage'] ?? 'Unknown';
+                
+                // Extract booking details
+                final bookingDate = booking['bookingDate'];
+                final serviceLocationType = booking['serviceLocationType'] ?? 'salon';
+                final userLocation = booking['userLocation'];
+                final specialRequests = booking['specialRequests'];
+                
+                // Format date and time
+                String formattedDate = 'Not specified';
+                String formattedTime = 'Not specified';
+                if (bookingDate != null) {
+                  try {
+                    final date = DateTime.parse(bookingDate);
+                    formattedDate = DateFormat('EEE, MMM d, yyyy').format(date);
+                    formattedTime = DateFormat('h:mm a').format(date);
+                  } catch (e) {
+                    print('Error parsing date: $e');
+                  }
+                }
+                
+                // Get address based on service type
+                String displayAddress = 'No address';
+                if (serviceLocationType == 'home' && userLocation != null) {
+                  displayAddress = userLocation['address'] ?? 'Address not available';
+                } else if (serviceLocationType == 'salon') {
+                  displayAddress = 'Visit Salon';
+                }
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -132,16 +163,100 @@ class RequestTabScreen extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  Text(
-                                    address,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 14,
-                                      color: kGreyColor,
+                                  const SizedBox(height: 4),
+                                  // Service location type badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: serviceLocationType == 'home' 
+                                          ? Colors.orange.shade100 
+                                          : Colors.green.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          serviceLocationType == 'home' 
+                                              ? Icons.home 
+                                              : Icons.store,
+                                          size: 14,
+                                          color: serviceLocationType == 'home' 
+                                              ? Colors.orange.shade700 
+                                              : Colors.green.shade700,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          serviceLocationType == 'home' 
+                                              ? 'Home Service' 
+                                              : 'Salon Visit',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: serviceLocationType == 'home' 
+                                                ? Colors.orange.shade700 
+                                                : Colors.green.shade700,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                  const SizedBox(height: 6),
+                                  // Booking date and time
+                                  Row(
+                                    children: [
+                                      Icon(Icons.calendar_today, size: 14, color: kGreyColor),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          formattedDate,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.access_time, size: 14, color: kGreyColor),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        formattedTime,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  // Address (for home service) or location indicator
+                                  if (serviceLocationType == 'home') ...[
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(Icons.location_on, size: 14, color: Colors.red.shade400),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            displayAddress,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: kGreyColor,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                  ],
                                   RichText(
                                     text: TextSpan(
                                       children: [
@@ -167,8 +282,8 @@ class RequestTabScreen extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  if (booking['specialRequests'] != null && booking['specialRequests'].toString().isNotEmpty) ...[
-                                    const SizedBox(height: 8),
+                                  if (specialRequests != null && specialRequests.toString().isNotEmpty) ...[
+                                    const SizedBox(height: 10),
                                     Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
@@ -179,7 +294,7 @@ class RequestTabScreen extends StatelessWidget {
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Icon(Icons.note_outlined, size: 18, color: Colors.blue.shade700),
+                                          Icon(Icons.note_outlined, size: 16, color: Colors.blue.shade700),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Column(
@@ -188,16 +303,16 @@ class RequestTabScreen extends StatelessWidget {
                                                 Text(
                                                   'Special Request:',
                                                   style: TextStyle(
-                                                    fontSize: 12,
+                                                    fontSize: 11,
                                                     fontWeight: FontWeight.w600,
                                                     color: Colors.blue.shade900,
                                                   ),
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  booking['specialRequests'],
+                                                  specialRequests,
                                                   style: TextStyle(
-                                                    fontSize: 13,
+                                                    fontSize: 12,
                                                     color: Colors.blue.shade700,
                                                   ),
                                                 ),

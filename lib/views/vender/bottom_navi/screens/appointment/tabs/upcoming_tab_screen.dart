@@ -6,6 +6,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../../constants/globals.dart';
 
@@ -45,7 +46,22 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
             return const Center(child: Text("No upcoming bookings found."));
           }
 
-          final bookings = _bookingController.activeBooking;
+          // Sort bookings by date (latest first)
+          final bookings = List<dynamic>.from(_bookingController.activeBooking);
+          bookings.sort((a, b) {
+            try {
+              final dateA = DateTime.parse(a['bookingDate'] ?? '');
+              final dateB = DateTime.parse(b['bookingDate'] ?? '');
+              return dateB.compareTo(dateA);
+            } catch (e) {
+              return 0;
+            }
+          });
+          
+          // Debug: Print first booking to check data
+          if (bookings.isNotEmpty) {
+            print('🔍 Upcoming Booking Data: ${bookings[0]}');
+          }
 
 
           if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
@@ -100,17 +116,38 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
 
     final user = booking['user'] ?? {};
     final userName = user['userName'] ?? 'Client';
-    final location = user['location'] ?? 'No address';
     final serviceNames = booking['services'];
     final profileImage = booking['user']?['profileImage'] ?? '';
-    final bookingDate = booking['bookingDate'] ?? '';
-    final dateTime = DateTime.tryParse(bookingDate);
-    final formattedDate = dateTime != null
-        ? "${dateTime.day.toString().padLeft(2, '0')} ${_monthName(dateTime.month)}, ${dateTime.year}"
-        : 'N/A';
-    final formattedTime = dateTime != null
-        ? "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}"
-        : 'N/A';
+    
+    // Extract booking details
+    final bookingDateStr = booking['bookingDate'];
+    final serviceLocationType = booking['serviceLocationType'] ?? 'salon';
+    final userLocation = booking['userLocation'] ?? {};
+    final userPhone = user['phone'] ?? '';
+    
+    // Parse and format date/time
+    String formattedDate = 'N/A';
+    String formattedTime = 'N/A';
+    print('📅 Upcoming - bookingDateStr: $bookingDateStr');
+    print('📅 Upcoming - serviceLocationType: $serviceLocationType');
+    try {
+      if (bookingDateStr != null && bookingDateStr.toString().isNotEmpty) {
+        final dateTime = DateTime.parse(bookingDateStr.toString());
+        formattedDate = DateFormat('EEE, MMM d, yyyy').format(dateTime);
+        formattedTime = DateFormat('h:mm a').format(dateTime);
+        print('✅ Upcoming - Formatted Date: $formattedDate, Time: $formattedTime');
+      }
+    } catch (e) {
+      print('Error parsing date: $e');
+    }
+    
+    // Determine address to display
+    String displayAddress = 'No address';
+    if (serviceLocationType == 'home' && userLocation['address'] != null) {
+      displayAddress = userLocation['address'];
+    } else if (user['locationAdress'] != null) {
+      displayAddress = user['locationAdress'];
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -207,14 +244,87 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
+                        // Service Location Type Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: serviceLocationType == 'home' 
+                                ? Colors.orange.shade50 
+                                : Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: serviceLocationType == 'home'
+                                  ? Colors.orange.shade200
+                                  : Colors.green.shade200,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                serviceLocationType == 'home' ? Icons.home : Icons.store,
+                                size: 12,
+                                color: serviceLocationType == 'home'
+                                    ? Colors.orange.shade700
+                                    : Colors.green.shade700,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                serviceLocationType == 'home' ? 'Home Service' : 'Salon Visit',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: serviceLocationType == 'home'
+                                      ? Colors.orange.shade700
+                                      : Colors.green.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Date
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today, size: 14, color: kGreyColor),
+                            const SizedBox(width: 6),
+                            Text(
+                              formattedDate,
+                              style: GoogleFonts.manrope(
+                                fontSize: 12,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        // Time
+                        Row(
+                          children: [
+                            Icon(Icons.access_time, size: 14, color: kGreyColor),
+                            const SizedBox(width: 6),
+                            Text(
+                              formattedTime,
+                              style: GoogleFonts.manrope(
+                                fontSize: 12,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        // Address
                         Row(
                           children: [
                             Icon(Icons.location_on_outlined, size: 14, color: kGreyColor),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Expanded(
                               child: Text(
-                                location,
+                                displayAddress,
                                 style: GoogleFonts.manrope(
                                   fontSize: 12,
                                   color: kGreyColor,
@@ -226,7 +336,25 @@ class _VendorUpcomingTabScreenState extends State<VendorUpcomingTabScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        if (userPhone.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          // Phone Number
+                          Row(
+                            children: [
+                              Icon(Icons.phone_outlined, size: 14, color: kGreyColor),
+                              const SizedBox(width: 6),
+                              Text(
+                                userPhone,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        const SizedBox(height: 8),
                         Text(
                           getServiceNamesWithTotal(serviceNames),
                           style: GoogleFonts.manrope(

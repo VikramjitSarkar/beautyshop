@@ -98,7 +98,7 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
       case 'accept':
         return 'Accepted';
       case 'reject':
-        return 'Rejected';
+        return 'Cancelled';
       case 'active':
         return 'Active';
       case 'past':
@@ -618,7 +618,19 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
           if (_bookingController.bookings.isEmpty) {
             return Center(child: Text('No past bookings found'));
           }
-          final bookings = _bookingController.bookings;
+          
+          final bookings = List<Map<String, dynamic>>.from(_bookingController.bookings);
+          
+          // Sort bookings by date (latest first)
+          bookings.sort((a, b) {
+            try {
+              final dateA = DateTime.parse(a['bookingDate'] ?? '');
+              final dateB = DateTime.parse(b['bookingDate'] ?? '');
+              return dateB.compareTo(dateA);
+            } catch (e) {
+              return 0;
+            }
+          });
 
           if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
             return Padding(
@@ -825,6 +837,40 @@ class _UserpendingBookingscreenState extends State<UserpendingBookingscreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (booking['bookingDate'] != null) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(Icons.calendar_today, size: 14, color: kGreyColor),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    DateFormat('EEE, MMM d, yyyy').format(DateTime.parse(booking['bookingDate'])),
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 12,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Icon(Icons.access_time, size: 14, color: kGreyColor),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    DateFormat('h:mm a').format(DateTime.parse(booking['bookingDate'])),
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 12,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                           if (booking['serviceLocationType'] != null) ...[
                             const SizedBox(height: 6),
                             Container(

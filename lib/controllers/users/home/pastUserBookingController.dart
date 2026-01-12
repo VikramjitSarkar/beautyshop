@@ -19,23 +19,43 @@ class PastBookingController extends GetxController {
       isLoading(true);
       errorMessage('');
 
-      final token = GlobalsVariables.token; // Replace with actual token
-      final response = await http.get(
+      final token = GlobalsVariables.token;
+      
+      // Fetch both past and rejected (cancelled) bookings
+      final pastResponse = await http.get(
         Uri.parse(
           '${GlobalsVariables.baseUrlapp}/booking/user?status=past',
-        ), // Changed to 'past'
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      
+      final rejectedResponse = await http.get(
+        Uri.parse(
+          '${GlobalsVariables.baseUrlapp}/booking/user?status=reject',
+        ),
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['status'] == 'success') {
-          bookings.assignAll(List<Map<String, dynamic>>.from(data['data']));
-        } else {
-          throw Exception('Please Login');
+      List<Map<String, dynamic>> allBookings = [];
+
+      if (pastResponse.statusCode == 200) {
+        final pastData = json.decode(pastResponse.body);
+        if (pastData['status'] == 'success') {
+          allBookings.addAll(List<Map<String, dynamic>>.from(pastData['data']));
         }
-      } else {
-        // throw Exception('Failed to load bookings: ${response.statusCode}');
+      }
+
+      if (rejectedResponse.statusCode == 200) {
+        final rejectedData = json.decode(rejectedResponse.body);
+        if (rejectedData['status'] == 'success') {
+          allBookings.addAll(List<Map<String, dynamic>>.from(rejectedData['data']));
+        }
+      }
+
+      if (allBookings.isNotEmpty) {
+        bookings.assignAll(allBookings);
+      } else if (pastResponse.statusCode != 200 && rejectedResponse.statusCode != 200) {
+        throw Exception('Please Login');
       }
     } catch (e) {
       errorMessage(e.toString());

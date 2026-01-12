@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/Chat/chatRoomCreateController.dart';
 import 'package:beautician_app/controllers/users/auth/genralController.dart';
+import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/utils/text_styles.dart';
 import 'package:beautician_app/views/onboarding/user_vender_screen.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:math' show cos, sqrt, asin, sin, pi;
 
 class SaloonDetailPageAppBar extends StatelessWidget
     implements PreferredSizeWidget {
@@ -42,11 +45,50 @@ class SaloonDetailPageAppBar extends StatelessWidget
     required this.userName,
   });
 
+  // Calculate distance using Haversine formula
+  String calculateDistance(String userLat, String userLong) {
+    try {
+      final double? lat1 = double.tryParse(userLat);
+      final double? lon1 = double.tryParse(userLong);
+      final double? lat2 = double.tryParse(vendorLat);
+      final double? lon2 = double.tryParse(vendorLong);
+
+      if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
+        return 'Unknown';
+      }
+
+      const double earthRadius = 6371; // km
+      final double dLat = _toRadians(lat2 - lat1);
+      final double dLon = _toRadians(lon2 - lon1);
+
+      final double a = (sin(dLat / 2) * sin(dLat / 2)) +
+          (cos(_toRadians(lat1)) * cos(_toRadians(lat2)) *
+              sin(dLon / 2) * sin(dLon / 2));
+
+      final double c = 2 * asin(sqrt(a));
+      final double distance = earthRadius * c;
+
+      return distance.toStringAsFixed(2);
+    } catch (e) {
+      return 'Unknown';
+    }
+  }
+
+  double _toRadians(double degree) {
+    return degree * pi / 180;
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ChatRoomCreateController());
     final genralController = Get.put(GenralController());
+    final profileController = Get.put(UserProfileController());
     genralController.checkFavoriteStatus(vendorId);
+    
+    final distance = calculateDistance(
+      profileController.userLat.value,
+      profileController.userLong.value,
+    );
 
     void openGoogleMaps(String latitude, String longitude) async {
       final url =
@@ -173,7 +215,7 @@ class SaloonDetailPageAppBar extends StatelessWidget
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Status + Rating
+                    /// Status + Rating + Distance
                     Row(
                       children: [
                         Container(
@@ -191,6 +233,40 @@ class SaloonDetailPageAppBar extends StatelessWidget
                         ),
                         const SizedBox(width: 10),
                         _buildRatingStars(rating),
+                        if (distance != 'Unknown') ...[
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: kPrimaryColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: kPrimaryColor.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.location_on,
+                                  size: 14,
+                                  color: Colors.black87,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$distance km',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
 

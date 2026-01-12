@@ -68,12 +68,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {}); // Refresh the UI
   }
 
-  String getRatingEmoji() {
+  Widget getRatingStars() {
     final rating = double.tryParse(getAverageRating()) ?? 0.0;
-    if (rating <= 1.0) return '😡';
-    if (rating <= 2.0) return '🙁';
-    if (rating <= 3.0) return '🙂';
-    return '😃';
+    final starCount = rating.round().clamp(1, 5);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) => Icon(
+        index < starCount ? Icons.star : Icons.star_border,
+        color: Colors.orange,
+        size: 20,
+      )),
+    );
   }
 
   @override
@@ -340,12 +345,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                     ),
                                                   ),
                                                   const SizedBox(width: 6),
-                                                  Text(
-                                                    getRatingEmoji(),
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
+                                                  getRatingStars(),
                                                 ],
                                               ),
                                             ),

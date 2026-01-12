@@ -13,7 +13,6 @@ class SalonReviewCard extends StatefulWidget {
 
 class _SalonReviewCardState extends State<SalonReviewCard> {
   final UserReviewController controller = Get.put(UserReviewController());
-  final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
 
   @override
   void initState() {
@@ -83,12 +82,12 @@ class _SalonReviewCardState extends State<SalonReviewCard> {
                               const SizedBox(width: 10),
                               RatingBarIndicator(
                                 rating: rating.toDouble(),
-                                itemCount: 4,
-                                itemSize: 24,
-                                itemBuilder:
-                                    (context, index) => Text(
-                                      smileys[index],
-                                      style: TextStyle(fontSize: 20),
+                              itemCount: 5,
+                              itemSize: 20,
+                              itemBuilder:
+                                  (context, index) => Icon(
+                                    Icons.star,
+                                    color: Colors.orange,
                                     ),
                               ),
                             ],

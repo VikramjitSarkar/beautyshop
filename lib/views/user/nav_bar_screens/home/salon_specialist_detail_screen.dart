@@ -75,7 +75,6 @@ class _SalonSpecialistDetailScreenState
         final vendor = homeController.vendorData;
         print("here is the vendor data: $vendor");
         final userRevew = controller.reviews;
-        final List<String> smileys = ["😡", "🙁", "🙂", "😃"];
         final profileImage =
             vendor['profileImage']?.toString() ?? 'assets/layers.png';
         final userName = vendor['userName']?.toString() ?? 'Bessie Cooper';
@@ -234,9 +233,12 @@ class _SalonSpecialistDetailScreenState
                           RatingBarIndicator(
                             rating: calculateAverageRating(userRevew),
                             itemBuilder:
-                                (context, index) => Text(smileys[index]),
-                            itemCount: 4,
-                            itemSize: 20.0,
+                                (context, index) => Icon(
+                                  Icons.star,
+                                  color: Colors.orange,
+                                ),
+                            itemCount: 5,
+                            itemSize: 18.0,
                           ),
                         ],
                       ),

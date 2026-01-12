@@ -70,6 +70,19 @@ class _PastTabScreenState extends State<PastTabScreen> {
             if (controller.bookings.isEmpty) {
               return Center(child: Text('No past bookings found'));
             }
+            
+            final bookings = List<Map<String, dynamic>>.from(controller.bookings);
+            
+            // Sort bookings by date (latest first)
+            bookings.sort((a, b) {
+              try {
+                final dateA = DateTime.parse(a['bookingDate'] ?? '');
+                final dateB = DateTime.parse(b['bookingDate'] ?? '');
+                return dateB.compareTo(dateA);
+              } catch (e) {
+                return 0;
+              }
+            });
 
             if (sizingInformation.deviceScreenType ==
                 DeviceScreenType.desktop) {
@@ -83,9 +96,9 @@ class _PastTabScreenState extends State<PastTabScreen> {
                     mainAxisSpacing: 15,
                     mainAxisExtent: 230,
                   ),
-                  itemCount: controller.bookings.length,
+                  itemCount: bookings.length,
                   itemBuilder: (context, index) {
-                    final booking = controller.bookings[index];
+                    final booking = bookings[index];
                     return GestureDetector(
                       onTap: () {},
                       child: _buildBookingItem(booking, controller),
@@ -98,9 +111,9 @@ class _PastTabScreenState extends State<PastTabScreen> {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: padding),
               child: ListView.builder(
-                itemCount: controller.bookings.length,
+                itemCount: bookings.length,
                 itemBuilder: (context, index) {
-                  final booking = controller.bookings[index];
+                  final booking = bookings[index];
                   return GestureDetector(
                     onTap: () => _showBookingDetailsDialog(booking),
                     child: _buildBookingItem(booking, controller),
@@ -186,6 +199,23 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            if (booking['status'] == 'reject')
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'Cancelled',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ),
                             const SizedBox(width: 8),
                             InkWell(
                               onTap: () async {
@@ -463,7 +493,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
       case 'accept':
         return 'Accepted';
       case 'reject':
-        return 'Rejected';
+        return 'Cancelled';
       case 'active':
         return 'Active';
       case 'past':

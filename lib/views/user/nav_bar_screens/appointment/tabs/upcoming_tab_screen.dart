@@ -96,7 +96,7 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
       case 'accept':
         return 'Accepted';
       case 'reject':
-        return 'Rejected';
+        return 'Cancelled';
       case 'active':
         return 'Active';
       case 'past':
@@ -634,7 +634,18 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
   }
 
   Widget _buildBookingList(SizingInformation sizingInformation) {
-    final bookings = controller.pendingBookings;
+    final bookings = List<Map<String, dynamic>>.from(controller.pendingBookings);
+    
+    // Sort bookings by date (latest first)
+    bookings.sort((a, b) {
+      try {
+        final dateA = DateTime.parse(a['bookingDate'] ?? '');
+        final dateB = DateTime.parse(b['bookingDate'] ?? '');
+        return dateB.compareTo(dateA);
+      } catch (e) {
+        return 0;
+      }
+    });
 
     if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
       return GridView.builder(
@@ -824,6 +835,34 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (booking['bookingDate'] != null) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today, size: 14, color: kGreyColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormat('EEE, MMM d, yyyy').format(DateTime.parse(booking['bookingDate'])),
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Icon(Icons.access_time, size: 14, color: kGreyColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormat('h:mm a').format(DateTime.parse(booking['bookingDate'])),
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         if (booking['serviceLocationType'] != null) ...[
                           const SizedBox(height: 6),
                           Container(
@@ -921,6 +960,64 @@ class _UpcomingTabScreenState extends State<UpcomingTabScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            // Scan QR Code Button
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: InkWell(
+                onTap: () {
+                  final userId = GlobalsVariables.userId;
+                  if (userId != null) {
+                    Get.to(() => QRScannerScreen(
+                      userId: userId,
+                      qrCode: booking['qrCode'] ?? '',
+                    ));
+                  } else {
+                    Get.snackbar(
+                      'Error',
+                      'User not logged in',
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [kPrimaryColor, kPrimaryColor.withOpacity(0.8)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: kPrimaryColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.qr_code_scanner,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Scan Vendor QR Code',
+                        style: GoogleFonts.manrope(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             // Contact Buttons

@@ -179,6 +179,10 @@ class GenralController extends GetxController {
         final body = jsonDecode(response.body);
         final List<dynamic> data = body['data'];
         return data.map<Map<String, dynamic>>((item) {
+          // Handle both locationAddress and locationAddres (typo in some DB records)
+          final address = item['locationAddress'] ?? item['locationAddres'];
+          final hasAddress = address != null && address.toString().isNotEmpty;
+          
           return {
             '_id': item['_id'],
             'categoryId': categoryId,
@@ -186,8 +190,8 @@ class GenralController extends GetxController {
             'shopName': item['shopName'] ?? item['shopName'] ?? 'No Name',
 
             'avgRating': item['avgRating'] ?? '0.0',
-            'distance': item['distance'] ?? '0.0',
-            'locationAddress': item['locationAddress'] ?? 'No Address',
+            'distance': hasAddress ? (item['distance']?.toString() ?? 'Unknown') : 'Unknown',
+            'locationAddress': address ?? 'No Address',
             'status': item['status'] ?? 'offline',
             'charges': item['charges'] ?? '0',
           };
@@ -289,6 +293,10 @@ class GenralController extends GetxController {
 
         filteredSubcategories.value =
             data.map<Map<String, dynamic>>((item) {
+              // Handle both locationAddress and locationAddres (typo in some DB records)
+              final address = item['locationAddress'] ?? item['locationAddres'];
+              final hasAddress = address != null && address.toString().isNotEmpty;
+              
               return {
                 '_id': item['_id'],
                 'categoryId': categoryId,
@@ -299,11 +307,8 @@ class GenralController extends GetxController {
                 'shopName': item['shopName'] ?? '',
                 'avgRating': item['avgRating']?.toString() ?? '0.0',
                 'shopBanner': item['shopBanner']?.toString() ?? '',
-                'distance':
-                    (item['distance']?.toString() == '')
-                        ? '0.0'
-                        : item['distance']?.toString() ?? '0.0',
-                'locationAddress': item['locationAddress'] ?? 'No Address',
+                'distance': hasAddress ? (item['distance']?.toString() ?? 'Unknown') : 'Unknown',
+                'locationAddress': address ?? 'No Address',
                 'status': item['status'] ?? 'offline',
                 'charges': item['charges']?.toString() ?? '0',
                 'openingTime': item['openingTime'] ?? {},

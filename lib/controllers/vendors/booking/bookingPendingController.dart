@@ -41,6 +41,10 @@ class PendingBookingController extends GetxController {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         activeBooking.value = data['data'] ?? [];
+        print('📋 Upcoming Bookings Count: ${activeBooking.length}');
+        if (activeBooking.isNotEmpty) {
+          print('📋 First Upcoming Booking: ${activeBooking[0]}');
+        }
       } else {
         Get.snackbar("", "Failed to load Booking");
       }

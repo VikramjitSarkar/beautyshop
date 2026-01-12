@@ -8,6 +8,7 @@ import '../utils/libs.dart';
 import '../views/widgets/saloon_card_three.dart';
 import '../data/db_helper.dart';
 import '../controllers/users/auth/genralController.dart';
+import '../controllers/users/profile/profile_controller.dart';
 
 class SalonCategoryWidget extends StatefulWidget {
   final String title;
@@ -82,45 +83,45 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
       return Container();
     }
 
-    return FutureBuilder<Position?>(
-      future: _getUserLocation(),
-      builder: (context, snapshot) {
-        final userPosition = snapshot.data;
+    // Get shared location from profile controller
+    final profileController = Get.find<UserProfileController>();
+    final userLat = double.tryParse(profileController.userLat.value);
+    final userLong = double.tryParse(profileController.userLong.value);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap: () => Get.to(
-                          () => SalonListScreen(title: widget.title, categoryId: widget.categoryId),
-                    ),
-                    child: const Text(
-                      "View all",
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ),
-                ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// Title
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => Get.to(
+                      () => SalonListScreen(title: widget.title, categoryId: widget.categoryId),
+                ),
+                child: const Text(
+                  "View all",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
 
-            /// Horizontal List of Vendors
-            SizedBox(
-              height: 230,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: widget.vendors.length <= 4 ? widget.vendors.length : 4,
-                itemBuilder: (context, index) {
+        /// Horizontal List of Vendors
+        SizedBox(
+          height: 230,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.vendors.length <= 4 ? widget.vendors.length : 4,
+            itemBuilder: (context, index) {
                   final vendor = widget.vendors[index];
 
                   if (vendor == null || vendor is! Map<String, dynamic>) {
@@ -142,9 +143,9 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                       ? List<String>.from(vendor['gallery'])
                       : [];
 
-                  // calculate distance
+                  // calculate distance using shared location
                   String distanceKm = "Unknown";
-                  if (userPosition != null &&
+                  if (userLat != null && userLong != null &&
                       vendor['vendorLat'] != null &&
                       vendor['vendorLong'] != null) {
                     final vendorLat = double.tryParse(vendor['vendorLat'].toString());
@@ -152,8 +153,8 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
 
                     if (vendorLat != null && vendorLong != null) {
                       final meters = Geolocator.distanceBetween(
-                        userPosition.latitude,
-                        userPosition.longitude,
+                        userLat,
+                        userLong,
                         vendorLat,
                         vendorLong,
                       );
@@ -179,9 +180,9 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                               return SaloonCardThree(
                                 distanceKm: distanceKm,
                                 rating: rating,
-                                location: vendor['locationAddress'],
-                                imageUrl: vendor['shopBanner'] ?? '',
-                                shopName: vendor['shopName'] ?? 'No Name',
+                                location: (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '',
+                                imageUrl: vendor['shopBanner']?.toString() ?? '',
+                                shopName: vendor['shopName']?.toString() ?? 'No Name',
                                 categories: categories.take(3).toList(),
                                 isFavorite: isFav,
                                 onFavoriteTap: () {
@@ -192,20 +193,20 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                 onTap: () {
                               Get.to(
                                     () => SaloonDetailPageScreen(
-                                  phoneNumber: vendor['phone'] ?? '',
+                                  phoneNumber: vendor['phone']?.toString() ?? '',
                                   rating: rating,
-                                  longitude: vendor['vendorLong'] ?? '',
-                                  latitude: vendor["vendorLat"] ?? '',
+                                  longitude: vendor['vendorLong']?.toString() ?? '',
+                                  latitude: vendor["vendorLat"]?.toString() ?? '',
                                   galleryImage: galleryImages,
-                                  vendorId: vendor["_id"] ?? '',
-                                  desc: vendor["description"] ?? '',
-                                  imageUrl: vendor["shopBanner"] ?? '',
-                                  location: vendor["locationAddress"] ?? '',
+                                  vendorId: vendor["_id"]?.toString() ?? '',
+                                  desc: vendor["description"]?.toString() ?? '',
+                                  imageUrl: vendor["shopBanner"]?.toString() ?? '',
+                                  location: (vendor["locationAddress"] ?? vendor["locationAddres"])?.toString() ?? '',
                                   openingTime: openingTime,
-                                  shopName: vendor["shopName"] ?? '',
-                                  status: vendor["status"] ?? '',
-                                  title: vendor["title"] ?? '',
-                                  userName: vendor["userName"] ?? '',
+                                  shopName: vendor["shopName"]?.toString() ?? '',
+                                  status: vendor["status"]?.toString() ?? '',
+                                  title: vendor["title"]?.toString() ?? '',
+                                  userName: vendor["userName"]?.toString() ?? '',
                                   hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
                                   homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                 ),
@@ -223,26 +224,5 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
             ),
           ],
         );
-      },
-    );
   }
-
-  /// Helper function
-  Future<Position?> _getUserLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return null;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return null;
-    }
-
-    if (permission == LocationPermission.deniedForever) return null;
-
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-  }
-
 }

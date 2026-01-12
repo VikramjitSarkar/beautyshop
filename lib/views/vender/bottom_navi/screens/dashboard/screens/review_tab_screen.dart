@@ -172,30 +172,22 @@ class ReviewTabScreen extends StatelessWidget {
     return months[month - 1];
   }
 
-  List<String> _getEmojiSet(double rating) {
-    final fullSet = ['😡', '😐', '🙂', '😊', '😍'];
-
-    if (rating >= 4.0) {
-      return fullSet; // all 5 emojis
-    } else if (rating >= 3.0) {
-      return fullSet.sublist(0, 4); // 4 emojis
-    } else if (rating >= 2.0) {
-      return fullSet.sublist(0, 3); // 3 emojis
-    } else if (rating >= 1.0) {
-      return fullSet.sublist(0, 2); // 2 emojis
-    } else {
-      return fullSet.sublist(0, 1); // 1 emoji
-    }
+  int _getStarCount(double rating) {
+    return rating.round().clamp(1, 5);
   }
 
   Widget _buildEmojiRating(double rating) {
-    final emojiSet = _getEmojiSet(rating);
+    final starCount = _getStarCount(rating);
     return Row(
       children: [
-        for (final emoji in emojiSet)
+        for (int i = 0; i < 5; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(emoji, style: const TextStyle(fontSize: 20)),
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: Icon(
+              i < starCount ? Icons.star : Icons.star_border,
+              color: Colors.orange,
+              size: 18,
+            ),
           ),
       ],
     );

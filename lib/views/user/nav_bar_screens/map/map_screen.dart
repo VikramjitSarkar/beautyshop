@@ -10,7 +10,6 @@ import 'package:beautician_app/utils/colors.dart';
 import 'package:beautician_app/utils/constants.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/utils/text_styles.dart';
-import 'package:beautician_app/views/widgets/saloon_card_four.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../controllers/users/auth/genralController.dart';
+import '../../../../data/db_helper.dart';
 import '../../../widgets/saloon_card_three.dart';
+import '../../../widgets/saloon_card_four.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -149,14 +150,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
   bool nearby = false;
   bool homeVisitAvailable = false;
   bool hasSalonLocation = false;
-  RangeValues priceRange = const RangeValues(0, 300);
+  RangeValues priceRange = const RangeValues(0, 500);
   TimeOfDay selectedTime = TimeOfDay.now();
   bool isAvailableNow = true;
   TabController? _subCategoryTabController;
   String? _selectedSubCategoryId;
   int activeButtonIndex = 0;
-
-
 
   final GenralController _generalController = Get.put(GenralController());
 
@@ -345,10 +344,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
         await categoryController.fetchAndStoreServicesByVendorId(vendorId);
 
         // Create a new vendor map manually and attach a copy of the services list
-        final updatedVendor = {
-          ...vendor, // spreads the original map entries
-          'services': List<dynamic>.from(categoryController.vendorServices), // ensures a fresh list
-        };
+        final updatedVendor = Map<String, dynamic>.from(vendor);
+        updatedVendor['services'] = List<dynamic>.from(categoryController.vendorServices);
 
         if(!(_originalVendors.contains(updatedVendor))){
           _originalVendors.add(updatedVendor);
@@ -410,12 +407,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
     print("updating markers");
     _markers.clear();
     for (var vendor in vendors) {
-      final lat = double.tryParse(vendor['vendorLat'] ?? '0');
-      final lng = double.tryParse(vendor['vendorLong'] ?? '0');
+      final lat = double.tryParse(vendor['vendorLat']?.toString() ?? '0');
+      final lng = double.tryParse(vendor['vendorLong']?.toString() ?? '0');
       // final imageUrl = vendor['profileImage'] ?? '';
-      final rating = vendor['avgRating'] ?? '';
-      final imageUrl = vendor['shopBanner'] ?? '';
-      final shopName = vendor['shopName'] ?? '';
+      final rating = vendor['avgRating']?.toString() ?? '';
+      final imageUrl = vendor['shopBanner']?.toString() ?? '';
+      final shopName = vendor['shopName']?.toString() ?? '';
       double ratingValue = double.tryParse(rating.toString()) ?? 0.0;
       int index = ratingValue.floor();
       print("ratingss: $index");
@@ -461,10 +458,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
         _markers.add(Marker(
           onTap: (){
             Get.to(() => SaloonDetailPageScreen(
-              phoneNumber: vendor['phone'] ?? '',
+              phoneNumber: vendor['phone']?.toString() ?? '',
               rating: ratingValue,
-              longitude: vendor['vendorLong'] ?? '',
-              latitude: vendor["vendorLat"] ?? '',
+              longitude: vendor['vendorLong']?.toString() ?? '',
+              latitude: vendor["vendorLat"]?.toString() ?? '',
               galleryImage: galleryImages,
               vendorId: vendor["_id"] ?? '',
               desc: vendor["description"] ?? '',
@@ -800,7 +797,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
     }else if(activeButtonIndex == 2){
       //sort by popularity
-      sortVendorsByRatingHighFirst(filtered);
+      sortVendorsByPopularity(filtered);
 
     }else if(activeButtonIndex == 3){
       //sort by rating
@@ -808,7 +805,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
     }
 
-    _originalVendors.assignAll(filtered);
+    setState(() {
+      _originalVendors.assignAll(filtered);
+      _allVendors.assignAll(filtered);
+    });
     _filterVendors();
 
     print('Locally filtered vendors: ${_originalVendors.length}');
@@ -997,12 +997,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                             itemBuilder: (context, index) {
                               final vendor = filtered[index];
                               final rating = double.tryParse(vendor['avgRating']?.toString() ?? '0') ?? 0.0;
-                              final shopName = vendor['shopName'];
-                              final distance = vendor['distance'];
-                              final shopBanner = vendor['shopBanner'] ?? '';
-                              final location = vendor['locationAddress'];
-                              final status = vendor['status'];
-                              final id = vendor['_id'];
+                              final shopName = vendor['shopName']?.toString() ?? '';
+                              final distance = vendor['distance']?.toString() ?? 'Unknown';
+                              final shopBanner = vendor['shopBanner']?.toString() ?? '';
+                              final location = (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '';
+                              final status = vendor['status']?.toString() ?? '';
+                              final id = vendor['_id']?.toString() ?? '';
                               final openingTimeRaw = vendor['openingTime'];
                               final openingTime = (openingTimeRaw == null ||
                                   (openingTimeRaw is Map && openingTimeRaw.isEmpty))
@@ -1023,41 +1023,60 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                               int activeIndex = rating.floor()-1;
                               print("active index $activeIndex");
 
+                              final vendorId = vendor['_id']?.toString() ?? '';
+
                               // ...extract vendor fields as you already do...
 
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 12.0),
-                                child: SizedBox(
-                                  width: cardWidth, // IMPORTANT: give a fixed width
-                                  child: SaloonCardFour(
-                                    distanceKm: vendor['distance'],
-                                    rating: rating,
-                                    imageUrl: shopBanner,
-                                    shopeName: shopName,
-                                    location: location,
-                                    onTap: () {
-                                      print("opening time: $openingTime");
-                                      Get.to(() => SaloonDetailPageScreen(
-                                        phoneNumber: vendor['phone'] ?? '',
+                              return FutureBuilder<bool>(
+                                future: DBHelper.isFavorite(vendorId),
+                                builder: (context, favSnapshot) {
+                                  final isFav = favSnapshot.data ?? false;
+                                  
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 12.0),
+                                    child: SizedBox(
+                                      width: cardWidth, // IMPORTANT: give a fixed width
+                                      child: SaloonCardFour(
+                                        distanceKm: vendor['distance']?.toString() ?? 'Unknown',
                                         rating: rating,
-                                        longitude: vendor['vendorLong'] ?? '',
-                                        latitude: vendor["vendorLat"] ?? '',
-                                        galleryImage: galleryImages,
-                                        vendorId: vendor["_id"] ?? '',
-                                        desc: vendor["description"] ?? '',
-                                        imageUrl: vendor["shopBanner"] ?? '',
-                                        location: vendor["locationAddress"] ?? '',
-                                        openingTime: openingTime,
-                                        shopName: vendor["shopName"] ?? '',
-                                        status: vendor["status"] ?? '',
-                                        title: vendor["title"] ?? '',
-                                        userName: vendor["userName"] ?? '',
-                                        hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                        homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
-                                      ));
-                                    },
-                                  ),
-                                ),
+                                        imageUrl: shopBanner,
+                                        shopeName: shopName,
+                                        location: location,
+                                        isFavorite: isFav,
+                                        onFavoriteTap: () async {
+                                          final isFavorited = await DBHelper.isFavorite(vendorId);
+                                          if (isFavorited) {
+                                            await DBHelper.deleteFavorite(vendorId);
+                                          } else {
+                                            await DBHelper.insertFavorite(vendorId);
+                                          }
+                                          setState(() {});
+                                        },
+                                        onTap: () {
+                                          print("opening time: $openingTime");
+                                          Get.to(() => SaloonDetailPageScreen(
+                                            phoneNumber: vendor['phone']?.toString() ?? '',
+                                            rating: rating,
+                                            longitude: vendor['vendorLong']?.toString() ?? '',
+                                            latitude: vendor["vendorLat"]?.toString() ?? '',
+                                            galleryImage: galleryImages,
+                                            vendorId: vendor["_id"]?.toString() ?? '',
+                                            desc: vendor["description"]?.toString() ?? '',
+                                            imageUrl: vendor["shopBanner"]?.toString() ?? '',
+                                            location: (vendor["locationAddress"] ?? vendor["locationAddres"])?.toString() ?? '',
+                                            openingTime: openingTime,
+                                            shopName: vendor["shopName"]?.toString() ?? '',
+                                            status: vendor["status"]?.toString() ?? '',
+                                            title: vendor["title"]?.toString() ?? '',
+                                            userName: vendor["userName"]?.toString() ?? '',
+                                            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
+                                            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                          ));
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ),
@@ -1486,6 +1505,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
       double ratingB = _toDouble(b['avgRating']);
 
       return ratingB.compareTo(ratingA); // high → low
+    });
+  }
+
+  void sortVendorsByPopularity(List<dynamic> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      int countA = (a['favoriteCount'] is int) ? a['favoriteCount'] : (int.tryParse(a['favoriteCount']?.toString() ?? '0') ?? 0);
+      int countB = (b['favoriteCount'] is int) ? b['favoriteCount'] : (int.tryParse(b['favoriteCount']?.toString() ?? '0') ?? 0);
+
+      return countB.compareTo(countA); // high → low (most popular first)
     });
   }
 

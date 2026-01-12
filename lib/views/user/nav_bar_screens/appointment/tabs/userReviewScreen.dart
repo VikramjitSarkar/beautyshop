@@ -218,17 +218,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
   String _getRatingText(int rating) {
     switch (rating) {
       case 1:
-        return 'Very Bad 😡';
+        return 'Very Bad';
       case 2:
-        return 'Not Good 😕';
+        return 'Not Good';
       case 3:
-        return 'Okay 🙂';
+        return 'Okay';
       case 4:
-        return 'Great 😃';
+        return 'Great';
       case 5:
-        return 'Excellent 🤩';
+        return 'Excellent';
       default:
-        return 'Tap emojis to rate';
+        return 'Tap stars to rate';
     }
   }
 
@@ -274,14 +274,14 @@ class StarRating extends StatefulWidget {
 }
 
 class _StarRatingState extends State<StarRating> {
-  final List<String> emojis = ['😡', '🙁', '🙂', '😃', '🤩'];
   final List<String> labels = ['Very Bad', 'Bad', 'Good', 'Great', 'Excellent'];
+  final int totalStars = 5;
 
   void _handleGesture(Offset localPosition, double width) {
-    final itemWidth = width / emojis.length;
+    final itemWidth = width / totalStars;
     final index = (localPosition.dx / itemWidth).floor().clamp(
       0,
-      emojis.length - 1,
+      totalStars - 1,
     );
     widget.onRatingChanged(index + 1);
   }
@@ -311,7 +311,7 @@ class _StarRatingState extends State<StarRating> {
               : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(emojis.length, (index) {
+        children: List.generate(totalStars, (index) {
           final isFilled = index < widget.rating;
 
           return Column(
@@ -339,12 +339,10 @@ class _StarRatingState extends State<StarRating> {
                           : [],
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  isFilled ? emojis[index] : '',
-                  style: TextStyle(
-                    fontSize: 28,
-                    color: isFilled ? Colors.orange : Colors.grey,
-                  ),
+                child: Icon(
+                  isFilled ? Icons.star : Icons.star_border,
+                  color: isFilled ? Colors.orange : Colors.grey,
+                  size: 32,
                 ),
               ),
               const SizedBox(height: 6),

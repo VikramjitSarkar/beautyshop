@@ -201,7 +201,7 @@ class _SalonListScreenState extends State<SalonListScreen> {
 
       }else if(activeButtonIndex == 2){
         //sort by popularity
-        sortVendorsByRatingHighFirst(_generalController.filteredSubcategories);
+        sortVendorsByPopularity(_generalController.filteredSubcategories);
 
       }else if(activeButtonIndex == 3){
         //sort by rating
@@ -414,11 +414,11 @@ class _SalonListScreenState extends State<SalonListScreen> {
                               final isFav = favSnapshot.data ?? false;
                               
                               return SaloonCardThree(
-                                distanceKm: vendor['distance'],
+                                distanceKm: vendor['distance']?.toString() ?? 'Unknown',
                                 rating: rating,
                                 imageUrl: shopBanner,
                                 shopName: shopName,
-                                location: vendor['locationAddress'],
+                                location: (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '',
                                 categories: categories.take(3).toList(),
                                 isFavorite: isFav,
                                 onFavoriteTap: () {
@@ -429,20 +429,20 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                 onTap: () {
                               Get.to(
                                     () => SaloonDetailPageScreen(
-                                  phoneNumber: vendor['phone'] ?? '',
+                                  phoneNumber: vendor['phone']?.toString() ?? '',
                                   rating: rating,
-                                  longitude: vendor['vendorLong'] ?? '',
-                                  latitude: vendor["vendorLat"] ?? '',
+                                  longitude: vendor['vendorLong']?.toString() ?? '',
+                                  latitude: vendor["vendorLat"]?.toString() ?? '',
                                   galleryImage: galleryImages,
-                                  vendorId: vendor["_id"] ?? '',
-                                  desc: vendor["description"] ?? '',
-                                  imageUrl: vendor["shopBanner"] ?? '',
-                                  location: vendor["locationAddress"] ?? '',
+                                  vendorId: vendor["_id"]?.toString() ?? '',
+                                  desc: vendor["description"]?.toString() ?? '',
+                                  imageUrl: vendor["shopBanner"]?.toString() ?? '',
+                                  location: (vendor["locationAddress"] ?? vendor["locationAddres"])?.toString() ?? '',
                                   openingTime: openingTime,
-                                  shopName: vendor["shopName"] ?? '',
-                                  status: vendor["status"] ?? '',
-                                  title: vendor["title"] ?? '',
-                                  userName: vendor["userName"] ?? '',
+                                  shopName: vendor["shopName"]?.toString() ?? '',
+                                  status: vendor["status"]?.toString() ?? '',
+                                  title: vendor["title"]?.toString() ?? '',
+                                  userName: vendor["userName"]?.toString() ?? '',
                                   hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
                                   homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
                                 ),
@@ -1040,6 +1040,15 @@ class _SalonListScreenState extends State<SalonListScreen> {
       double ratingB = _toDouble(b['shopRating']);
 
       return ratingB.compareTo(ratingA); // high → low
+    });
+  }
+
+  void sortVendorsByPopularity(List<Map<String, dynamic>> fetchedVendors) {
+    fetchedVendors.sort((a, b) {
+      int countA = (a['favoriteCount'] is int) ? a['favoriteCount'] : (int.tryParse(a['favoriteCount']?.toString() ?? '0') ?? 0);
+      int countB = (b['favoriteCount'] is int) ? b['favoriteCount'] : (int.tryParse(b['favoriteCount']?.toString() ?? '0') ?? 0);
+
+      return countB.compareTo(countA); // high → low (most popular first)
     });
   }
 

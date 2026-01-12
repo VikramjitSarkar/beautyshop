@@ -438,26 +438,37 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               profileController.userLat.value = selectedLat.toString();
                               profileController.userLong.value = selectedLong.toString();
 
-                              // Save to database
-                              await profileController.updateUserProfile(
-                                locationAddress: fullAddress,
-                                userLat: selectedLat.toString(),
-                                userLong: selectedLong.toString(),
-                                userName: profileController.name.value,
-                                email: profileController.email.value,
-                                phoneNumber: profileController.phoneNumber.value,
-                                dateOfBirth: profileController.dateOfBirth.value,
-                                gender: profileController.gender.value,
-                              );
+                              try {
+                                // Save to database
+                                await profileController.updateUserProfile(
+                                  locationAddress: fullAddress,
+                                  userLat: selectedLat.toString(),
+                                  userLong: selectedLong.toString(),
+                                  userName: profileController.name.value,
+                                  email: profileController.email.value,
+                                  phoneNumber: profileController.phoneNumber.value,
+                                  dateOfBirth: profileController.dateOfBirth.value,
+                                  gender: profileController.gender.value,
+                                );
 
-                              Get.back();
-                              Get.snackbar(
-                                'Success',
-                                'Address saved successfully',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: kPrimaryColor,
-                                colorText: Colors.black,
-                              );
+                                Navigator.of(context).pop();
+                                Get.snackbar(
+                                  'Success',
+                                  'Address saved successfully',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: kPrimaryColor,
+                                  colorText: Colors.black,
+                                );
+                              } catch (e) {
+                                Navigator.of(context).pop();
+                                Get.snackbar(
+                                  'Error',
+                                  'Failed to save address: ${e.toString()}',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 16),
