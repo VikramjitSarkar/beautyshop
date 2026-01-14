@@ -41,13 +41,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   bool isDayNight = false;
   String? serviceLocationType; // 'salon' or 'home'
   
-  // Always show location selection section if at least one option is available
-  bool get showLocationSelection => widget.hasPhysicalShop || widget.homeServiceAvailable || 
-                                    (!widget.hasPhysicalShop && !widget.homeServiceAvailable);
-  
-  // Show both buttons only if both options available or both false (unconfigured)
-  bool get showBothButtons => (widget.hasPhysicalShop && widget.homeServiceAvailable) || 
-                              (!widget.hasPhysicalShop && !widget.homeServiceAvailable);
+  // Show location selection section if at least one service type is available
+  bool get showLocationSelection => widget.hasPhysicalShop || widget.homeServiceAvailable;
   
   List<int> get dates {
     final now = DateTime.now();
@@ -601,8 +596,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             const SizedBox(height: 15),
                             Row(
                               children: [
-                                // Show Visit Salon button if physical shop available or both false
-                                if (widget.hasPhysicalShop || !widget.homeServiceAvailable)
+                                // Show Visit Salon button only if physical shop is available
+                                if (widget.hasPhysicalShop)
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () => setState(() => serviceLocationType = 'salon'),
@@ -628,9 +623,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       ),
                                     ),
                                   ),
-                                if (showBothButtons) const SizedBox(width: 10),
-                                // Show Home Service button if home service available or both false
-                                if (widget.homeServiceAvailable || !widget.hasPhysicalShop)
+                                if (widget.hasPhysicalShop && widget.homeServiceAvailable) const SizedBox(width: 10),
+                                // Show Home Service button only if home service is available
+                                if (widget.homeServiceAvailable)
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () => setState(() => serviceLocationType = 'home'),
@@ -1234,8 +1229,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           const SizedBox(height: 15),
                           Row(
                             children: [
-                              // Show Visit Salon button if physical shop available or both false
-                              if (widget.hasPhysicalShop || !widget.homeServiceAvailable)
+                              // Show Visit Salon button only if physical shop is available
+                              if (widget.hasPhysicalShop)
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () => setState(() => serviceLocationType = 'salon'),
@@ -1261,9 +1256,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                     ),
                                   ),
                                 ),
-                              if (showBothButtons) const SizedBox(width: 10),
-                              // Show Home Service button if home service available or both false
-                              if (widget.homeServiceAvailable || !widget.hasPhysicalShop)
+                              if (widget.hasPhysicalShop && widget.homeServiceAvailable) const SizedBox(width: 10),
+                              // Show Home Service button only if home service is available
+                              if (widget.homeServiceAvailable)
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () => setState(() => serviceLocationType = 'home'),

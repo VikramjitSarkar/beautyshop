@@ -56,4 +56,4 @@ const bookingSchema = new mongoose.Schema({
   cancellationReason: { type: String },
 });
 
-export const Booking = mongoose.model("Booking", bookingSchema);
+export const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);

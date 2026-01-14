@@ -373,7 +373,7 @@ class _NearestSalonSearchScreenState extends State<NearestSalonSearchScreen> {
                               height: 44,
                               width: 44,
                               decoration: BoxDecoration(
-                                color: Color(0xffF8F8F8),
+                                color: kPrimaryColor,
                                 shape: BoxShape.circle,
                                 image: DecorationImage(image: AssetImage('assets/filter1.png'), scale: 4),
                               ),

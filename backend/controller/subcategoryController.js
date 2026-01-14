@@ -225,11 +225,7 @@ export const getVendorsByCategory = async (req, res, next) => {
           return null;
         }
 
-        const reviews = await Review.find({ vendor: vendor._id });
-        const avgRating =
-          reviews.length > 0
-            ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
-            : 0;
+        const avgRating = vendor.shopRating || 0;
 
         console.log(`[PASS] Vendor ${vendor._id} included — distance: ${distance.toFixed(2)}, price: ${service.charges}, rating: ${avgRating.toFixed(1)}`);
 

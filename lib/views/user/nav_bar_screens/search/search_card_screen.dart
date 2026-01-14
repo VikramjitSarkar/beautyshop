@@ -234,7 +234,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                       height: 44,
                       width: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0xffF8F8F8),
+                        color: kPrimaryColor,
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           image: AssetImage('assets/filter1.png'),
@@ -465,7 +465,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                       const Icon(Icons.star, color: Colors.amber, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        vendor['avgRating']?.toString() ?? '0.0',
+                        vendor['shopRating']?.toString() ?? '0.0',
                         style: kHeadingStyle.copyWith(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

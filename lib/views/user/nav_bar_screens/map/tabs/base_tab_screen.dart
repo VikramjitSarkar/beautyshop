@@ -705,7 +705,7 @@ class _BaseTabScreenState extends State<BaseTabScreen>
     // cache key (shop+rating+image)
     final id = (vendor['_id'] ?? '').toString();
     final name = (vendor['shopName'] ?? 'Salon').toString().trim();
-    final rating = double.tryParse(vendor['avgRating']?.toString() ?? '') ?? 0.0;
+    final rating = double.tryParse(vendor['shopRating']?.toString() ?? '') ?? 0.0;
     final imgUrl = (vendor['profileImage'] ?? '').toString();
 
     final cacheKey = 'bubble:$id|$name|$rating|$_dpr';
@@ -1388,7 +1388,7 @@ class _BaseTabScreenState extends State<BaseTabScreen>
             itemCount: _allVendors.length,
             itemBuilder: (context, index){
 
-              final double rating = double.tryParse(_allVendors[index]['avgRating']?.toString() ?? '') ?? 0.0;
+              final double rating = double.tryParse(_allVendors[index]['shopRating']?.toString() ?? '') ?? 0.0;
               final shopName = _allVendors[index]['shopName'];
               final distance = _allVendors[index]['distance']; // keep as dynamic; format via helper
               final id = _allVendors[index]['_id'];

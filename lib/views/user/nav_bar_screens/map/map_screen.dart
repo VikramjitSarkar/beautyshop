@@ -410,7 +410,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
       final lat = double.tryParse(vendor['vendorLat']?.toString() ?? '0');
       final lng = double.tryParse(vendor['vendorLong']?.toString() ?? '0');
       // final imageUrl = vendor['profileImage'] ?? '';
-      final rating = vendor['avgRating']?.toString() ?? '';
+      final rating = vendor['shopRating']?.toString() ?? '';
       final imageUrl = vendor['shopBanner']?.toString() ?? '';
       final shopName = vendor['shopName']?.toString() ?? '';
       double ratingValue = double.tryParse(rating.toString()) ?? 0.0;
@@ -864,7 +864,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                           height: 60,
                           width: 60,
                           decoration: BoxDecoration(
-                            color: const Color(0xffF8F8F8),
+                            color: kPrimaryColor,
                             shape: BoxShape.circle,
                             image: DecorationImage(
                                 image: AssetImage('assets/filter1.png'),
@@ -996,7 +996,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                             // add cacheExtent or itemExtent if items are same width
                             itemBuilder: (context, index) {
                               final vendor = filtered[index];
-                              final rating = double.tryParse(vendor['avgRating']?.toString() ?? '0') ?? 0.0;
+                              final rating = double.tryParse(vendor['shopRating']?.toString() ?? '0') ?? 0.0;
                               final shopName = vendor['shopName']?.toString() ?? '';
                               final distance = vendor['distance']?.toString() ?? 'Unknown';
                               final shopBanner = vendor['shopBanner']?.toString() ?? '';
@@ -1501,8 +1501,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
 
   void sortVendorsByRatingHighFirst(List<dynamic> fetchedVendors) {
     fetchedVendors.sort((a, b) {
-      double ratingA = _toDouble(a['avgRating']);
-      double ratingB = _toDouble(b['avgRating']);
+      double ratingA = _toDouble(a['shopRating']);
+      double ratingB = _toDouble(b['shopRating']);
 
       return ratingB.compareTo(ratingA); // high → low
     });

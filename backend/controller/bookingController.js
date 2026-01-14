@@ -554,10 +554,9 @@ export const getBookingsByUser = async (req, res, next) => {
     let avgRating = 0;
     const vendorId = booking.vendor?._id;
     if (vendorId) {
-      const reviews = await Review.find({ vendor: vendorId });
-      if (reviews.length > 0) {
-        avgRating =
-          reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+      const vendor = await Vendor.findById(vendorId);
+      if (vendor) {
+        avgRating = vendor.shopRating || 0;
       }
     }
 

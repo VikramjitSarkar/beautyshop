@@ -287,15 +287,9 @@ export const getFavoriteVendors = async (req, res, next) => {
 
     const enrichedVendors = await Promise.all(
       user.favoriteVendors.map(async (vendor) => {
-        const reviews = await Review.find({ vendor: vendor._id });
-        const avgRating =
-          reviews.length > 0
-            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-            : 0;
-
         return {
           ...vendor._doc,
-          avgRating: parseFloat(avgRating.toFixed(1)),
+          avgRating: parseFloat((vendor.shopRating || 0).toFixed(1)),
         };
       })
     );

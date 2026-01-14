@@ -348,7 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _deleteAccount() async {
     try {
-      final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/delete/${GlobalsVariables.userId}');
+      final url = Uri.parse('${GlobalsVariables.baseUrlapp}/user/delete');
       final response = await http.delete(
         url,
         headers: {

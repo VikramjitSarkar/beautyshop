@@ -6,6 +6,10 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../controllers/users/auth/login_controller.dart';
+import '../../../services/google_auth_service.dart';
+import '../../../controllers/users/home/home_controller.dart';
+import '../../../controllers/users/profile/profile_controller.dart';
+import '../../user/custom_nav_bar.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -18,7 +22,9 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final LoginController loginController = Get.put(LoginController());
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
   bool _passwordVisible = false;
+  bool _isGoogleLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +164,33 @@ class _SignInScreenState extends State<SignInScreen> {
                       ],
                     ),
                     SizedBox(height: 30),
+                    _isGoogleLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : GestureDetector(
+                            onTap: _handleGoogleSignIn,
+                            child: Container(
+                              height: 55,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/google.png',
+                                    height: 24,
+                                    width: 24,                                  color: Colors.black,                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Continue with Google',
+                                    style: kSubheadingStyle,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                    SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -183,5 +216,56 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       },
     );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final result = await _googleAuthService.signInWithGoogle();
+      
+      if (result != null && result['status'] == 'success') {
+        final userData = result['data'];
+        final token = result['token'];
+        
+        // Save token
+        await GlobalsVariables.saveToken(token);
+        await GlobalsVariables.loadToken();
+        
+        // Initialize controllers with the logged-in user data
+        Get.put(HomeController());
+        Get.put(UserProfileController());
+        
+        // Navigate to home screen
+        await Get.offAll(() => CustomerBottomNavBarScreen());
+        
+        Get.snackbar(
+          'Success',
+          'Signed in with Google successfully!',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to sign in with Google',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Google Sign In failed: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      setState(() {
+        _isGoogleLoading = false;
+      });
+    }
   }
 }

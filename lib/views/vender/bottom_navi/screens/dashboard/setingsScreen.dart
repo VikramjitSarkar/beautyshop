@@ -186,9 +186,10 @@ class VendorSettings extends StatelessWidget {
                         );
 
                         final response = await http.delete(
-                          Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/delete/${GlobalsVariables.vendorId}'),
+                          Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/delete'),
                           headers: {
                             'Authorization': 'Bearer ${GlobalsVariables.vendorLoginToken}',
+                            'Accept': 'application/json',
                           },
                         );
 

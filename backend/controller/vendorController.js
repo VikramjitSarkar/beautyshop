@@ -66,17 +66,11 @@ export const getVendorById = async (req, res, next) => {
       return res.status(404).json({ status: "fail", message: "Vendor not found" });
     }
 
-    const reviews = await Review.find({ vendor: id });
-    const avgRating =
-      reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
-
     res.json({
       status: "success",
       data: {
         ...vendor.toObject(),
-        avgRating: parseFloat(avgRating.toFixed(1)),
+        avgRating: parseFloat((vendor.shopRating || 0).toFixed(1)),
       },
     });
   } catch (error) {
@@ -96,20 +90,11 @@ export const getVendorById2 = async (req, res, next) => {
       });
     }
 
-    // Get all reviews for the vendor
-    const reviews = await Review.find({ vendor: id });
-
-    // Calculate average rating
-    const avgRating =
-      reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
-
     res.json({
       status: "success",
       data: {
         ...vendor.toObject(),
-        avgRating: avgRating.toFixed(1),
+        avgRating: (vendor.shopRating || 0).toFixed(1),
       },
     });
   } catch (error) {
@@ -270,7 +255,7 @@ export const getAllVendor = catchAsyncError(async (req, res, next) => {
 });
 // delet user
 export const deleteVendorById = async (req, res, next) => {
-  const id = req.params.id;
+  const id = req?.user?.userId;
   try {
     const delVendor = await Vendor.findByIdAndDelete(id);
     if (!delVendor) {

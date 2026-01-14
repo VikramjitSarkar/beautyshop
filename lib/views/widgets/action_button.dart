@@ -32,7 +32,12 @@ class ActionButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: ListTile(
-              leading: Image.asset('assets/$icon.png'),
+              leading: Image.asset(
+                'assets/$icon.png',
+                width: 24,
+                height: 24,
+                fit: BoxFit.contain,
+              ),
               title: Text(
                 title,
                 style: const TextStyle(

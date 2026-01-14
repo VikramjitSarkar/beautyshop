@@ -2,6 +2,7 @@ import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import { Service } from "../model/Service.js";
 import cloudinary from "cloudinary";
 import { Review } from "../model/Review.js";
+import { Vendor } from "../model/Vendor.js";
 
 cloudinary.v2.config({
   cloud_name: "ddu4sybue",
@@ -47,21 +48,10 @@ export const getServiceByUserId = async (req, res, next) => {
 
     const enhancedData = await Promise.all(
       data.map(async (service) => {
-        const reviews = await Review.find({ vendor: id });
-        const categoryId = service.categoryId?._id?.toString();
-
-        // Filter reviews for the same category
-        const categoryReviews = reviews.filter(
-          (rev) => rev?.vendor?.toString() === id
-        );
-
-        const avgRating =
-          categoryReviews.length > 0
-            ? (
-                categoryReviews.reduce((acc, r) => acc + r.rating, 0) /
-                categoryReviews.length
-              ).toFixed(1)
-            : "0.0";
+        const vendor = await Vendor.findById(id);
+        const avgRating = vendor?.shopRating
+          ? vendor.shopRating.toFixed(1)
+          : "0.0";
 
         return {
           ...service.toObject(),

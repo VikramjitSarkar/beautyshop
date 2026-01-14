@@ -36,7 +36,7 @@ vendorRoute.route("/update").put(authenticateToken, UpdateProfile);
 vendorRoute.route("/updateStatus/:id").put(UpdateStatus);
 vendorRoute.route("/byVendorId/:vendorId").get(getVendorById2);
 vendorRoute.route("/profileSetup").put(authenticateToken, ProfileSetup);
-vendorRoute.route("/delete").delete( deleteVendorById);
+vendorRoute.route("/delete").delete(authenticateToken, deleteVendorById);
 vendorRoute.route("/nearBy").post(getNearbyVendors);
 vendorRoute.route("/verifyID/:vendorId").put(async (req, res) => {
   await Vendor.findByIdAndUpdate(req.params.vendorId, { isIDVerified: true });

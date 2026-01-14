@@ -226,8 +226,8 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
           if (widget.phonenumber.isNotEmpty) ...[
             const SizedBox(height: 15),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ActionButton(
                   title: 'WhatsApp',
@@ -244,8 +244,6 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
                     }
                   },
                 ),
-                const SizedBox(width: 15),
-                const Spacer(),
               ],
             ),
           ],

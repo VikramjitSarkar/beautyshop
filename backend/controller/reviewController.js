@@ -1,4 +1,5 @@
 import { Review } from "../model/Review.js";
+import { Vendor } from "../model/Vendor.js";
 
 export const createReview = async (req, res, next) => {
   try {
@@ -6,9 +7,9 @@ export const createReview = async (req, res, next) => {
     const user = req.user.userId;
 
     const numericRating = Number(rating);
-    if (isNaN(numericRating) || numericRating < 1 || numericRating > 4) {
+    if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
       return res.status(400).json({
-        message: "Rating must be a number between 1 and 4",
+        message: "Rating must be a number between 1 and 5",
       });
     }
 
@@ -22,6 +23,11 @@ export const createReview = async (req, res, next) => {
 
     let review = await Review.create({ user, vendor, rating: numericRating, comment });
     review = await review.populate("user", "userName profileImage");
+
+    // Update vendor's average rating
+    const allReviews = await Review.find({ vendor });
+    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    await Vendor.findByIdAndUpdate(vendor, { shopRating: avgRating });
 
     res.status(201).json({ status: "success", data: review });
   } catch (error) {
@@ -47,6 +53,11 @@ export const updateReview = async (req, res, next) => {
         .json({ message: "Review not found or not authorized" });
     }
 
+    // Update vendor's average rating
+    const allReviews = await Review.find({ vendor: review.vendor });
+    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    await Vendor.findByIdAndUpdate(review.vendor, { shopRating: avgRating });
+
     res.json({ status: "success", data: review });
   } catch (error) {
     next(error);
@@ -62,6 +73,13 @@ export const deleteReview = async (req, res, next) => {
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
+
+    // Update vendor's average rating after deletion
+    const allReviews = await Review.find({ vendor: review.vendor });
+    const avgRating = allReviews.length > 0 
+      ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length 
+      : 0;
+    await Vendor.findByIdAndUpdate(review.vendor, { shopRating: avgRating });
 
     res.json({ status: "success", message: "Review deleted", data: review });
   } catch (error) {

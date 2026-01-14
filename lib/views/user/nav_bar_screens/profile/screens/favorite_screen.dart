@@ -187,7 +187,7 @@ class _VendorCardState extends State<_VendorCard> {
     final distance = (widget.v['distance'] ?? '0').toString();
 
     double rating = 0.0;
-    final rawRating = widget.v['avgRating'] ?? widget.v['rating'] ?? widget.v['shopRating'];
+    final rawRating = widget.v['shopRating'] ?? widget.v['rating'] ?? widget.v['avgRating'];
     if (rawRating is num) {
       rating = rawRating.toDouble();
     } else if (rawRating is String) {

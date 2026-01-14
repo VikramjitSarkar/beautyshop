@@ -74,6 +74,14 @@ const vendorSchema = new Schema({
     comment: "Number of times this vendor has been added to favorites"
   },
 
+  shopRating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5,
+    comment: "Average rating based on customer reviews"
+  },
+
   createdAt:           { type: Date, default: Date.now }
 });
 
