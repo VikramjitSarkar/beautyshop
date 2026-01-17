@@ -1,5 +1,6 @@
 import 'package:beautician_app/utils/colors.dart';
 import 'package:beautician_app/utils/text_styles.dart';
+import 'package:beautician_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -24,7 +25,8 @@ class TopSpecialistCardTwo extends StatelessWidget {
           color: kGreyColor2,
 
         ),
-        borderRadius: BorderRadius.circular(20)
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: kCardShadow,
       ),
       child: Column(
         children: [
@@ -34,6 +36,7 @@ class TopSpecialistCardTwo extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               color: Colors.grey[200],
+              boxShadow: kCardShadow,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),

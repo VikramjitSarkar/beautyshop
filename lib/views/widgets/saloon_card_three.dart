@@ -15,6 +15,8 @@ class SaloonCardThree extends StatelessWidget {
   final bool isFavorite;         // default false
   final VoidCallback? onFavoriteTap;
   final List<String>? categories; // Categories for this vendor
+  final bool? hasPhysicalShop;
+  final bool? homeServiceAvailable;
 
   const SaloonCardThree({
     super.key,
@@ -28,10 +30,22 @@ class SaloonCardThree extends StatelessWidget {
     this.isFavorite = false,
     this.onFavoriteTap,
     this.categories,
+    this.hasPhysicalShop,
+    this.homeServiceAvailable,
   });
+
+  String? _serviceTagLabel() {
+    final hasSalon = hasPhysicalShop == true;
+    final hasHome = homeServiceAvailable == true;
+    if (hasSalon && hasHome) return 'Home Visit & Salon Visit';
+    if (hasHome) return 'Home Service';
+    if (hasSalon) return 'Salon Visit';
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final tagLabel = _serviceTagLabel();
     return InkWell(
       onTap: onTap,
       child: Stack(
@@ -44,6 +58,7 @@ class SaloonCardThree extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               color: Colors.white,
               border: imageUrl.isNotEmpty ? null : Border.all(color: Colors.lightGreen, width: 0.5),
+              boxShadow: kCardShadow,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
@@ -162,7 +177,7 @@ class SaloonCardThree extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              location ?? '',
+                              location,
                               style: GoogleFonts.manrope(
                                 fontSize: 11,
                                 color: Colors.black87,
@@ -182,30 +197,49 @@ class SaloonCardThree extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      // Categories (show max 3)
-                      if (categories != null && categories!.isNotEmpty) ...[
+                      // Tags (service + categories)
+                      if (tagLabel != null || (categories != null && categories!.isNotEmpty)) ...[
                         const SizedBox(height: 6),
                         Wrap(
                           spacing: 6,
-                          children: categories!.take(3).map((cat) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFD4AF37), width: 1),
-                              ),
-                              child: Text(
-                                cat,
-                                style: GoogleFonts.manrope(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                          children: [
+                            if (tagLabel != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.85),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: kPrimaryColor, width: 1),
+                                ),
+                                child: Text(
+                                  tagLabel,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
                                 ),
                               ),
-                            );
-                          }).toList(),
+                            if (categories != null)
+                              ...categories!.take(3).map((cat) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.8),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFD4AF37), width: 1),
+                                  ),
+                                  child: Text(
+                                    cat,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                          ],
                         ),
                       ],
 

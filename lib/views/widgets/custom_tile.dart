@@ -1,4 +1,5 @@
 import 'package:beautician_app/utils/colors.dart';
+import 'package:beautician_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomTile extends StatelessWidget {
@@ -14,6 +15,7 @@ class CustomTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: kGreyColor2),
+        boxShadow: kCardShadow,
       ),
       child: MaterialButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

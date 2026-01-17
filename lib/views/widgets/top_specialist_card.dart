@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../utils/colors.dart';
+import '../../utils/constants.dart';
 
 class TopSpecialistCard extends StatelessWidget {
   final String imagePath;
@@ -39,6 +40,7 @@ class TopSpecialistCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey[200],
+                      boxShadow: kCardShadow,
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),

@@ -16,25 +16,48 @@ import transporter from "../utils/mailer.js";
 export const register = catchAsyncError(async (req, res, next) => {
   const data = req.body;
   const email = data?.email;
+  const phone = data?.phone;
+
+  // Check if email already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    res.status(400).json({ message: "Email already exist", status: "fail" });
-  } else {
-    const newUser = await User.create(data);
-    const token = jwt.sign(
-      {
-        userId: newUser._id.toString(),
-      },
-      "somesecretsecret",
-      { expiresIn: "30d" }
-    );
-    res.status(200).json({
-      status: "success",
-      message: "User registered successfully",
-      data: newUser,
-      token: token,
-    });
+    return res.status(400).json({ message: "Email already exists", status: "fail" });
   }
+
+  // Check if phone number already exists in User collection
+  if (phone) {
+    const existingUserPhone = await User.findOne({ phone });
+    if (existingUserPhone) {
+      return res.status(400).json({ 
+        message: "This phone number is already registered", 
+        status: "fail" 
+      });
+    }
+
+    // Check if phone number already exists in Vendor collection
+    const existingVendorPhone = await Vendor.findOne({ phone });
+    if (existingVendorPhone) {
+      return res.status(400).json({ 
+        message: "This phone number is already registered", 
+        status: "fail" 
+      });
+    }
+  }
+
+  const newUser = await User.create(data);
+  const token = jwt.sign(
+    {
+      userId: newUser._id.toString(),
+    },
+    "somesecretsecret",
+    { expiresIn: "30d" }
+  );
+  res.status(200).json({
+    status: "success",
+    message: "User registered successfully",
+    data: newUser,
+    token: token,
+  });
 });
 
 // login user

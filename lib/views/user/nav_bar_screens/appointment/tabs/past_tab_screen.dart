@@ -536,7 +536,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                         vendor['shopName'] ?? 'Unknown',
                         style: TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w100,
                           color: Colors.black,
                         ),
                       ),
@@ -553,7 +553,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                           vendor['locationAddress'] ??
                               vendor['location'] ??
                               'Unknown location',
-                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                          style: TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w100),
                         ),
                       ),
                     ],
@@ -579,6 +579,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w100,
                       ),
                     ),
                   ),
@@ -603,6 +604,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w100,
                       ),
                     ),
                   ),
@@ -645,7 +647,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                 : 'Salon Visit',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: booking['serviceLocationType'] == 'home' ? FontWeight.w100 : FontWeight.w600,
                               color: booking['serviceLocationType'] == 'home'
                                   ? Colors.orange.shade700
                                   : Colors.green.shade700,
@@ -664,7 +666,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                     Text(
                       'Your Address',
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w100,
                         fontSize: 16,
                         color: Colors.black87,
                       ),
@@ -688,6 +690,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade800,
+                                fontWeight: FontWeight.w100,
                               ),
                             ),
                           ),
@@ -703,7 +706,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                     Text(
                       'Special Requests',
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w100,
                         fontSize: 16,
                         color: Colors.black87,
                       ),
@@ -732,6 +735,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                 fontSize: 14,
                                 color: Colors.blue.shade900,
                                 fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w100,
                               ),
                             ),
                           ),
@@ -773,7 +777,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                           _getStatusText(booking['status']),
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w100,
                             color: _getStatusColor(booking['status']),
                           ),
                         ),
@@ -820,7 +824,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                       'Call',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w100,
                                         color: Colors.green.shade700,
                                       ),
                                     ),
@@ -858,7 +862,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                       'WhatsApp',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w100,
                                         color: Colors.green.shade700,
                                       ),
                                     ),
@@ -903,7 +907,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                             Text(
                               'Your Review',
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w100,
                                 fontSize: 16,
                                 color: Colors.black87,
                               ),
@@ -931,7 +935,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                         '$rating / 5',
                                         style: TextStyle(
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w100,
                                           color: Colors.amber.shade900,
                                         ),
                                       ),
@@ -955,6 +959,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                                         fontSize: 14,
                                         color: Colors.black87,
                                         fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.w100,
                                       ),
                                     ),
                                   ],
@@ -987,7 +992,7 @@ class _PastTabScreenState extends State<PastTabScreen> {
                       onPressed: () => Navigator.pop(context),
                       child: Text(
                         "Close",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w100),
                       ),
                     ),
                   ),

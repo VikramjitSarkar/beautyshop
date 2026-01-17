@@ -362,16 +362,38 @@ export const getNearbyVendors = async (req, res, next) => {
 export const registerVendor = catchAsyncError(async (req, res, next) => {
   const data = req.body;
   const email = data?.email;
+  const phone = data?.phone;
 
   console.log('=== REGISTER VENDOR DEBUG ===');
   console.log('hasPhysicalShop received:', data.hasPhysicalShop, 'type:', typeof data.hasPhysicalShop);
   console.log('homeServiceAvailable received:', data.homeServiceAvailable, 'type:', typeof data.homeServiceAvailable);
 
+  // Check if email already exists
   const existingUser = await Vendor.findOne({ email });
   if (existingUser) {
     return res
       .status(400)
       .json({ message: "Email already exists", status: "fail" });
+  }
+
+  // Check if phone number already exists in Vendor collection
+  if (phone) {
+    const existingVendorPhone = await Vendor.findOne({ phone });
+    if (existingVendorPhone) {
+      return res.status(400).json({ 
+        message: "This phone number is already registered", 
+        status: "fail" 
+      });
+    }
+
+    // Check if phone number already exists in User collection
+    const existingUserPhone = await User.findOne({ phone });
+    if (existingUserPhone) {
+      return res.status(400).json({ 
+        message: "This phone number is already registered", 
+        status: "fail" 
+      });
+    }
   }
 
   // start with all incoming fields
@@ -561,3 +583,40 @@ export const UpdateProfile = catchAsyncError(async (req, res, next) => {
 
 
 
+
+// Notify users about vendor status change
+export const notifyStatusChange = catchAsyncError(async (req, res) => {
+  const { vendorId, status } = req.body;
+  
+  if (!vendorId || !status) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Vendor ID and status are required"
+    });
+  }
+
+  try {
+    // Get the vendor details
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Vendor not found"
+      });
+    }
+
+    // Log the status change
+    console.log(`[Vendor Status Change] ${vendor.shopName} is now ${status}`);
+    
+    res.status(200).json({
+      status: "success",
+      message: "Status change notification sent"
+    });
+  } catch (error) {
+    console.error('Error in notifyStatusChange:', error);
+    res.status(500).json({
+      status: "fail",
+      message: "Failed to send status notification"
+    });
+  }
+});

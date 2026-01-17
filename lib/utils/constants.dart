@@ -1,3 +1,12 @@
+import 'package:flutter/material.dart';
+
+const List<BoxShadow> kCardShadow = [
+  BoxShadow(
+    color: Color(0x14000000),
+    blurRadius: 10,
+    offset: Offset(0, 4),
+  ),
+];
 
 double padding = 20;
 double padding2 = 15;

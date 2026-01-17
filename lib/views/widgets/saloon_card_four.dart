@@ -14,6 +14,8 @@ class SaloonCardFour extends StatelessWidget {
   final String distanceKm;      // e.g. 4.5
   final bool isFavorite;         // default false
   final VoidCallback? onFavoriteTap;
+  final bool? hasPhysicalShop;
+  final bool? homeServiceAvailable;
 
   const SaloonCardFour({
     super.key,
@@ -26,10 +28,22 @@ class SaloonCardFour extends StatelessWidget {
     required this.distanceKm,
     this.isFavorite = false,
     this.onFavoriteTap,
+    this.hasPhysicalShop,
+    this.homeServiceAvailable,
   });
+
+  String? _serviceTagLabel() {
+    final hasSalon = hasPhysicalShop == true;
+    final hasHome = homeServiceAvailable == true;
+    if (hasSalon && hasHome) return 'Home Visit & Salon Visit';
+    if (hasHome) return 'Home Service';
+    if (hasSalon) return 'Salon Visit';
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final tagLabel = _serviceTagLabel();
     return InkWell(
       onTap: onTap,
       child: Stack(
@@ -42,6 +56,7 @@ class SaloonCardFour extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               color: Colors.white,
               border: imageUrl.isNotEmpty ? null : Border.all(color: Colors.lightGreen, width: 0.5),
+              boxShadow: kCardShadow,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
@@ -150,6 +165,25 @@ class SaloonCardFour extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 6),
+                      if (tagLabel != null) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.85),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: kPrimaryColor, width: 1),
+                          ),
+                          child: Text(
+                            tagLabel,
+                            style: GoogleFonts.manrope(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
 
                       // Address
                       Text(

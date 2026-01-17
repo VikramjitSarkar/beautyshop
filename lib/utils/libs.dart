@@ -72,6 +72,7 @@ export 'package:beautician_app/views/vender/auth/add_service_screen.dart';
 export 'package:beautician_app/views/vender/auth/add_service_input_screen.dart';
 // Removed duplicate/incorrect-cased export to avoid clashes with the actual file path.
 export 'package:beautician_app/views/vender/auth/vendor_sign_up_screen.dart';
+export 'package:beautician_app/utils/parse_utils.dart';
 
 
 

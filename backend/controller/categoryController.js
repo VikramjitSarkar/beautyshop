@@ -214,6 +214,8 @@ export const getCategoriesWithVendors = async (req, res) => {
                 gallery: '$$vendor.gallery',
                 shopBanner: '$$vendor.shopBanner', // ✅ added
                 shopRating: { $ifNull: ['$$vendor.shopRating', 0] },
+                hasPhysicalShop: { $ifNull: ['$$vendor.hasPhysicalShop', false] }, // ✅ added
+                homeServiceAvailable: { $ifNull: ['$$vendor.homeServiceAvailable', false] }, // ✅ added
               },
             },
           },

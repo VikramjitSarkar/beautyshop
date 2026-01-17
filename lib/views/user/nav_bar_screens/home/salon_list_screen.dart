@@ -420,6 +420,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                 shopName: shopName,
                                 location: (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '',
                                 categories: categories.take(3).toList(),
+                                hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                 isFavorite: isFav,
                                 onFavoriteTap: () {
                                   final genCtrl = Get.find<GenralController>();
@@ -443,8 +445,9 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                   status: vendor["status"]?.toString() ?? '',
                                   title: vendor["title"]?.toString() ?? '',
                                   userName: vendor["userName"]?.toString() ?? '',
-                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                  hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                  homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
+                                  paymentMethods: vendor['paymentMethods'] as List<dynamic>?,
                                 ),
                               );
                             },
@@ -499,8 +502,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
             status: vendor["status"] ?? '',
             title: vendor["title"] ?? '',
             userName: vendor["userName"] ?? '',
-            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+            hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+            homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
           ));
         },
         child: Row(
@@ -632,8 +635,8 @@ class _SalonListScreenState extends State<SalonListScreen> {
                                 status: vendor["status"] ?? '',
                                 title: vendor["title"] ?? '',
                                 userName: vendor["userName"] ?? '',
-                                hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                               ),
                             );
                           },

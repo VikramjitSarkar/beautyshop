@@ -15,3 +15,14 @@
 # Kotlin
 -dontwarn kotlin.**
 -keep class kotlin.** { *; }
+
+# Google Sign-In / Credential Manager
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.android.libraries.identity.** { *; }
+-keep class androidx.credentials.** { *; }
+-dontwarn com.google.android.gms.**
+-dontwarn androidx.credentials.**
+
+# Firebase Auth
+-keep class com.google.firebase.auth.** { *; }
+-dontwarn com.google.firebase.auth.**

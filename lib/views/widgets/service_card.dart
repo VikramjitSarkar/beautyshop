@@ -40,6 +40,7 @@ class ServicesCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(color: const Color(0xffC0C0C0), width: 1),
+                boxShadow: kCardShadow,
                 image: DecorationImage(
                   image: AssetImage(image),
                   fit: BoxFit.cover, // fills the container

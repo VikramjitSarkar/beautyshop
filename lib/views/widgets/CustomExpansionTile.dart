@@ -1,4 +1,5 @@
 import 'package:beautician_app/utils/colors.dart';
+import 'package:beautician_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomExpansionTile extends StatefulWidget {
@@ -29,7 +30,13 @@ class _CustomExpansionTileState extends State<CustomExpansionTile> {
             });
           },
           child: Container(
-            color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: kCardShadow,
+              border: Border.all(color: kGreyColor2),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

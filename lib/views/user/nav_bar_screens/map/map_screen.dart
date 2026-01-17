@@ -472,8 +472,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
               status: vendor["status"] ?? '',
               title: vendor["title"] ?? '',
               userName: vendor["userName"] ?? '',
-              hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-              homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+              hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+              homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
             ));
           },
           markerId: MarkerId(vendor['_id']),
@@ -1042,6 +1042,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                                         imageUrl: shopBanner,
                                         shopeName: shopName,
                                         location: location,
+                                        hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                        homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                         isFavorite: isFav,
                                         onFavoriteTap: () async {
                                           final isFavorited = await DBHelper.isFavorite(vendorId);
@@ -1069,8 +1071,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin, Wi
                                             status: vendor["status"]?.toString() ?? '',
                                             title: vendor["title"]?.toString() ?? '',
                                             userName: vendor["userName"]?.toString() ?? '',
-                                            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                            hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                            homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                           ));
                                         },
                                       ),

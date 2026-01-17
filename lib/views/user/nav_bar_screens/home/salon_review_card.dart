@@ -51,75 +51,82 @@ class _SalonReviewCardState extends State<SalonReviewCard> {
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(userProfile),
-                      radius: 28,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: kCardShadow,
+                border: Border.all(color: kGreyColor2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(userProfile),
+                        radius: 28,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Text(
-                                rating.toStringAsFixed(1),
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                              const SizedBox(width: 10),
-                              RatingBarIndicator(
-                                rating: rating.toDouble(),
-                              itemCount: 5,
-                              itemSize: 20,
-                              itemBuilder:
-                                  (context, index) => Icon(
-                                    Icons.star,
-                                    color: Colors.orange,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  rating.toStringAsFixed(1),
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(width: 10),
+                                RatingBarIndicator(
+                                  rating: rating.toDouble(),
+                                  itemCount: 5,
+                                  itemSize: 20,
+                                  itemBuilder:
+                                      (context, index) => Icon(
+                                        Icons.star,
+                                        color: Colors.orange,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Image.asset('assets/booking.png', height: 14),
-                    const SizedBox(width: 5),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        color: kGreyColor,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Image.asset('assets/booking.png', height: 14),
+                      const SizedBox(width: 5),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(
+                          color: kGreyColor,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  comment,
-                  style: TextStyle(fontSize: 14, color: kGreyColor),
-                ),
-                const SizedBox(height: 16),
-                Divider(),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    comment,
+                    style: TextStyle(fontSize: 14, color: kGreyColor),
+                  ),
+                ],
+              ),
             ),
           );
         },

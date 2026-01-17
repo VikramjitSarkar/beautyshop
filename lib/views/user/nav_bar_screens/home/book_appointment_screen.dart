@@ -41,8 +41,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   bool isDayNight = false;
   String? serviceLocationType; // 'salon' or 'home'
   
-  // Show location selection section if at least one service type is available
-  bool get showLocationSelection => widget.hasPhysicalShop || widget.homeServiceAvailable;
+  // Determine what options are available based on vendor settings
+  bool get canVisitSalon => widget.hasPhysicalShop;
+  bool get canGetHomeService => widget.homeServiceAvailable;
+  
+  // Show location selection ONLY if both options are available
+  bool get showLocationSelection => canVisitSalon && canGetHomeService;
+  
+  // Check if we have at least one valid option
+  bool get hasValidOption => canVisitSalon || canGetHomeService;
+  
+  // For legacy vendors (both false), default to salon
+  bool get isLegacyVendor => !widget.hasPhysicalShop && !widget.homeServiceAvailable;
   
   List<int> get dates {
     final now = DateTime.now();
@@ -167,20 +177,39 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     final now = DateTime.now();
     currentMonth = DateTime(now.year, now.month);
     selectedDate = now.day;
     id = generateRandomNumericId();
     
+    // DEBUG: Print what values we received
+    print('=== BookAppointmentScreen initState ===');
+    print('Shop: ${widget.shopName}');
+    print('widget.hasPhysicalShop: ${widget.hasPhysicalShop} (${widget.hasPhysicalShop.runtimeType})');
+    print('widget.homeServiceAvailable: ${widget.homeServiceAvailable} (${widget.homeServiceAvailable.runtimeType})');
+    print('showLocationSelection will be: $showLocationSelection');
+    
     // Auto-select service location based on what's available
     if (widget.hasPhysicalShop && !widget.homeServiceAvailable) {
+      // Only salon available - auto-select
       serviceLocationType = 'salon';
+      print('✓ Selected: salon (only physical shop)');
     } else if (widget.homeServiceAvailable && !widget.hasPhysicalShop) {
+      // Only home service available - auto-select
       serviceLocationType = 'home';
+      print('✓ Selected: home (only home service)');
+    } else if (!widget.hasPhysicalShop && !widget.homeServiceAvailable) {
+      // Legacy vendor (both false) - default to salon
+      serviceLocationType = 'salon';
+      print('✓ Selected: salon (legacy vendor - both false)');
+    } else {
+      // Both options available - user must select
+      serviceLocationType = null;
+      print('✓ Both options available - user must select (serviceLocationType = null)');
     }
-    // If both or neither, user must select
+    print('Final serviceLocationType: $serviceLocationType');
+    print('=====================================');
   }
 
   Future<void> _showAddressDialog() async {
@@ -492,672 +521,723 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           },
         ),
       ),
-      barrierDismissible: false,
     );
   }
 
   String _formatDuration(Duration d) =>
-      '${d.inMinutes.toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
+          '${d.inMinutes.toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
-  int _calculateTotalDuration() {
-    // Calculate total duration from all services
-    // Default to 30 minutes per service if no duration specified
-    return widget.services.fold<int>(0, (sum, service) {
-      return sum + 30; // Default 30 minutes per service
-    });
-  }
+      int _calculateTotalDuration() {
+        // Calculate total duration from all services
+        // Default to 30 minutes per service if no duration specified
+        return widget.services.fold<int>(0, (sum, service) {
+          return sum + 30; // Default 30 minutes per service
+        });
+      }
 
-  @override
-  Widget build(BuildContext context) {
-    print('vendorId: ${widget.vendorId}');
-    print('hasPhysicalShop: ${widget.hasPhysicalShop}');
-    print('homeServiceAvailable: ${widget.homeServiceAvailable}');
-    print('showLocationSelection: $showLocationSelection');
-    print('serviceLocationType: $serviceLocationType');
-    print('Service: ${widget.services}');
-    final List<Map<String, dynamic>> subcategories = widget.services;
-    final totalPrice = subcategories.fold<double>(
-      0.0,
-      (sum, item) => sum + (double.tryParse(item['price'].toString()) ?? 0),
-    );
+      @override
+      Widget build(BuildContext context) {
+        print('vendorId: ${widget.vendorId}');
+        print('hasPhysicalShop: ${widget.hasPhysicalShop}');
+        print('homeServiceAvailable: ${widget.homeServiceAvailable}');
+        print('showLocationSelection: $showLocationSelection');
+        print('serviceLocationType: $serviceLocationType');
+        print('Service: ${widget.services}');
+        final List<Map<String, dynamic>> subcategories = widget.services;
+        final totalPrice = subcategories.fold<double>(
+          0.0,
+          (sum, item) => sum + (double.tryParse(item['price'].toString()) ?? 0),
+        );
 
-    final servicesId =
-        subcategories.map((item) => item['serviceId'].toString()).toList();
-    final serviceName =
-        subcategories.map((item) => item['serviceId'].toString()).toList();
-    print(servicesId);
-    return ResponsiveBuilder(
-      builder: (context, sizingInformation) {
-        if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              title:
-                  activeStep == 0
-                      ? Text(
-                        "Book Appointment",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                      : Text(
-                        "Review Booking",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              leading: IconButton(
-                icon: SvgPicture.asset('assets/back icon.svg'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            kGretLiteColor.withOpacity(0),
-                            kGretLiteColor,
-                            kGretLiteColor,
-                            kGretLiteColor.withOpacity(0),
-                          ],
-                        ),
-                      ),
-                      child: CustomStepper(
-                        listStep: ["Book Appointment", "Review Booking"],
-                        step: activeStep,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    if (activeStep == 0)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Service location selection (only if both options available)
-                          if (showLocationSelection) ...[
-                            const Text(
-                              "Select service location",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                // Show Visit Salon button only if physical shop is available
-                                if (widget.hasPhysicalShop)
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => serviceLocationType = 'salon'),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 15),
-                                        decoration: BoxDecoration(
-                                          color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Visit Salon",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                if (widget.hasPhysicalShop && widget.homeServiceAvailable) const SizedBox(width: 10),
-                                // Show Home Service button only if home service is available
-                                if (widget.homeServiceAvailable)
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => serviceLocationType = 'home'),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 15),
-                                        decoration: BoxDecoration(
-                                          color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Home Service",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 25),
-                          ],
-                          const Text(
-                            "Select date",
+        final servicesId =
+            subcategories.map((item) => item['serviceId'].toString()).toList();
+        final serviceName =
+            subcategories.map((item) => item['serviceId'].toString()).toList();
+        print(servicesId);
+        return ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+              return Scaffold(
+                backgroundColor: Colors.white,
+                appBar: AppBar(
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  title:
+                      activeStep == 0
+                          ? Text(
+                            "Book Appointment",
                             style: TextStyle(
-                              fontSize: 16,
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                          : Text(
+                            "Review Booking",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(height: 15),
-                          // Month & Year Selector
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  Icons.chevron_left,
-                                  color: kGreyColor,
-                                ),
-                                onPressed: () => changeMonth(false),
-                              ),
-                              Text(
-                                DateFormat('MMMM, yyyy').format(currentMonth),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.chevron_right,
-                                  color: kGreyColor,
-                                ),
-                                onPressed: () => changeMonth(true),
-                              ),
-                            ],
+                  leading: IconButton(
+                    icon: SvgPicture.asset('assets/back icon.svg'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+                body: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                kGretLiteColor.withOpacity(0),
+                                kGretLiteColor,
+                                kGretLiteColor,
+                                kGretLiteColor.withOpacity(0),
+                              ],
+                            ),
                           ),
-
-                          // Date Selection
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children:
-                                  dates.map((date) {
-                                    bool isSelected = date == selectedDate;
-                                    DateTime dateTime = DateTime(
-                                      currentMonth.year,
-                                      currentMonth.month,
-                                      date,
-                                    );
-                                    String dayName = DateFormat('E').format(
-                                      dateTime,
-                                    ); // Get short day name (Sun, Mon, Tue...)
-
-                                    return GestureDetector(
-                                      onTap:
-                                          () => setState(
-                                            () => selectedDate = date,
+                          child: CustomStepper(
+                            listStep: ["Book Appointment", "Review Booking"],
+                            step: activeStep,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        if (activeStep == 0)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // DEBUG INFO
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                margin: EdgeInsets.only(bottom: 10),
+                                color: Colors.yellow.shade100,
+                                child: Text(
+                                  'DEBUG: Shop=${widget.shopName}, hasPhysical=${widget.hasPhysicalShop}, homeService=${widget.homeServiceAvailable}, showSelection=$showLocationSelection, locationType=$serviceLocationType',
+                                  style: TextStyle(fontSize: 10, color: Colors.black),
+                                ),
+                              ),
+                              // Show info banner when only one option is available (auto-selected)
+                              if (!showLocationSelection && serviceLocationType != null) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: serviceLocationType == 'home' 
+                                        ? Colors.orange.shade50 
+                                        : Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: serviceLocationType == 'home' 
+                                          ? Colors.orange.shade200 
+                                          : Colors.green.shade200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        serviceLocationType == 'home' 
+                                            ? Icons.home_rounded 
+                                            : Icons.store_rounded,
+                                        color: serviceLocationType == 'home' 
+                                            ? Colors.orange.shade700 
+                                            : Colors.green.shade700,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          serviceLocationType == 'home'
+                                              ? "This vendor offers home service only"
+                                              : "This service will be at the salon",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: serviceLocationType == 'home' 
+                                                ? Colors.orange.shade700 
+                                                : Colors.green.shade700,
                                           ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            dayName,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: kGreyColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 25),
+                              ],
+                              // Show selection buttons ONLY when both options are available
+                              if (showLocationSelection) ...[
+                                const Text(
+                                  "Select service location",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(() => serviceLocationType = 'salon'),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 15),
+                                          decoration: BoxDecoration(
+                                            color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
                                             ),
                                           ),
-                                          // Show weekday
-                                          const SizedBox(height: 5),
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            margin: const EdgeInsets.symmetric(
-                                              horizontal: 5,
-                                              vertical: 5,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  isSelected
-                                                      ? Colors.green
-                                                      : Colors.white,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            alignment: Alignment.center,
+                                          child: Center(
                                             child: Text(
-                                              date.toString(),
+                                              "Visit Salon",
                                               style: TextStyle(
-                                                color:
-                                                    isSelected
-                                                        ? Colors.white
-                                                        : Colors.black,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 16,
+                                                color: Colors.black,
                                               ),
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-
-                          // Time Selection
-                          // Time Selection
-                          Row(
-                            children: [
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(() => serviceLocationType = 'home'),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 15),
+                                          decoration: BoxDecoration(
+                                            color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "Home Service",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 25),
+                              ],
                               const Text(
-                                "Select time",
+                                "Select date",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const Spacer(),
-                              CustomCheckBox(
-                                title: 'AM',
-                                isSelected: isAmSelected,
-                                onTap:
-                                    () => setState(() {
-                                      isAmSelected = true;
-                                      selectedTime = times.first;
-                                    }),
+                              SizedBox(height: 15),
+                              // Month & Year Selector
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.chevron_left,
+                                      color: kGreyColor,
+                                    ),
+                                    onPressed: () => changeMonth(false),
+                                  ),
+                                  Text(
+                                    DateFormat('MMMM, yyyy').format(currentMonth),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.chevron_right,
+                                      color: kGreyColor,
+                                    ),
+                                    onPressed: () => changeMonth(true),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 10,),
-                              CustomCheckBox(
-                                title: 'PM',
-                                isSelected: !isAmSelected,
-                                onTap:
-                                    () => setState(() {
-                                      isAmSelected = false;
-                                      selectedTime = times.first;
-                                    }),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
 
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children:
-                                times.map((time) {
-                                  bool isSelected = time == selectedTime;
-                                  return GestureDetector(
-                                    onTap:
-                                        () =>
-                                            setState(() => selectedTime = time),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                        horizontal: 15,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            isSelected
-                                                ? Colors.black
-                                                : Colors.white,
-                                        borderRadius: BorderRadius.circular(30),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        time,
-                                        style: TextStyle(
-                                          color:
-                                              isSelected
-                                                  ? Colors.white
-                                                  : kGreyColor,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
+                              // Date Selection
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children:
+                                      dates.map((date) {
+                                        bool isSelected = date == selectedDate;
+                                        DateTime dateTime = DateTime(
+                                          currentMonth.year,
+                                          currentMonth.month,
+                                          date,
+                                        );
+                                        String dayName = DateFormat('E').format(
+                                          dateTime,
+                                        ); // Get short day name (Sun, Mon, Tue...)
 
-                          const SizedBox(height: 25),
-                          
-                          // Buffer Time Info Banner
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.blue.shade200),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    'Note: We automatically add 1-hour buffer between appointments to account for delays and travel time.',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.blue.shade900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Special Requests Section
-                          const Text(
-                            "Special requests (Optional)",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextField(
-                            controller: specialRequestsController,
-                            maxLines: 3,
-                            maxLength: 500,
-                            decoration: InputDecoration(
-                              hintText: 'Any specific requirements, preferences, or notes for the vendor...',
-                              hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6), fontSize: 13),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: kGreyColor2),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: kGreyColor2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: kPrimaryColor, width: 2),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    if (activeStep == 1)
-                      Column(
-                        children: [
-                          Image(
-                            image: AssetImage('assets/sucessfully.png'),
-                            height: 64,
-                          ),
-                          SizedBox(height: 20),
-                          Center(
-                            child: Text(
-                              "Your appointment\nbooking is successfully.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Center(
-                            child: Text(
-                              "You can view the appointment booking info in the “Appointment” section.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                color: kGreyColor,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 93),
-                          Container(
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: kGreyColor),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'ID: ',
-                                      style: TextStyle(
-                                        color: kGreyColor,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    Text(
-                                      '#$id',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  widget.shopName,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  widget.shopAddress,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: kGreyColor,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
-                                SizedBox(height: 15),
-                                Divider(color: kGreyColor2),
-                                SizedBox(height: 15),
-                                ...widget.services.map((service) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      children: [
-                                        Image(
-                                          image: AssetImage('assets/cutter.png'),
-                                          height: 54,
-                                        ),
-                                        SizedBox(width: 15),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      service['serviceName'] ?? '',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.w700,
-                                                        fontSize: 13,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                    '\$${service['price']}',
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                ],
+                                        return GestureDetector(
+                                          onTap:
+                                              () => setState(
+                                                () => selectedDate = date,
                                               ),
-                                              SizedBox(height: 4),
+                                          child: Column(
+                                            children: [
                                               Text(
-                                                service['categoryName'] ?? '',
+                                                dayName,
                                                 style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 14,
                                                   color: kGreyColor,
+                                                ),
+                                              ),
+                                              // Show weekday
+                                              const SizedBox(height: 5),
+                                              Container(
+                                                width: 50,
+                                                height: 50,
+                                                margin: const EdgeInsets.symmetric(
+                                                  horizontal: 5,
+                                                  vertical: 5,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      isSelected
+                                                          ? Colors.green
+                                                          : Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  date.toString(),
+                                                  style: TextStyle(
+                                                    color:
+                                                        isSelected
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                                SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Image(
-                                      image: AssetImage(
-                                        'assets/timer.png',
-                                      ),
-                                      height: 14,
-                                    ),
-                                    SizedBox(width: 3),
-                                    Expanded(
-                                      child: Text(
-                                        '${DateFormat('d MMMM, yyyy').format(DateTime(currentMonth.year, currentMonth.month, selectedDate))} at $selectedTime',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 12,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                                        );
+                                      }).toList(),
+                              ),
+                            ),
+
+                            // Time Selection
+                            // Time Selection
+                            Row(
+                              children: [
+                                const Text(
+                                  "Select time",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(Icons.schedule, size: 14, color: kGreyColor),
-                                    SizedBox(width: 3),
-                                    Text(
-                                      'Estimated duration: ${_calculateTotalDuration()} minutes',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 12,
-                                        color: kGreyColor,
-                                      ),
-                                    ),
-                                  ],
+                                const Spacer(),
+                                CustomCheckBox(
+                                  title: 'AM',
+                                  isSelected: isAmSelected,
+                                  onTap:
+                                      () => setState(() {
+                                        isAmSelected = true;
+                                        selectedTime = times.first;
+                                      }),
+                                ),
+                                SizedBox(width: 10,),
+                                CustomCheckBox(
+                                  title: 'PM',
+                                  isSelected: !isAmSelected,
+                                  onTap:
+                                      () => setState(() {
+                                        isAmSelected = false;
+                                        selectedTime = times.first;
+                                      }),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: MaterialButton(
-                elevation: 0,
-                minWidth: double.maxFinite,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                height: 50,
-                onPressed: () async {
-                  print('vendorId: ${widget.vendorId}');
-                  print('Service: $servicesId');
-                  if (activeStep == 0) {
-                    final selectedDateTime = DateTime(
-                      currentMonth.year,
-                      currentMonth.month,
-                      selectedDate,
-                      _parseTimeTo24Hour(selectedTime).hour,
-                      _parseTimeTo24Hour(selectedTime).minute,
-                    );
-                    
-                    // Validate past date
-                    if (selectedDateTime.isBefore(DateTime.now())) {
-                      Get.snackbar(
-                        'Invalid Date',
-                        'Cannot book appointments in the past',
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                      );
-                      return;
-                    }
-                    
-                    // Validate service location selection if needed
-                    if (showLocationSelection && serviceLocationType == null) {
-                      Get.snackbar(
-                        'Selection Required',
-                        'Please select service location (Salon or Home)',
-                        backgroundColor: Colors.orange,
-                        colorText: Colors.white,
-                      );
-                      return;
-                    }
-                    
-                    print('vendorId: ${widget.vendorId}');
+                            const SizedBox(height: 25),
 
-                    final success = await bookingController.createBooking(
-                      vendorId: widget.vendorId,
-                      serviceIds: servicesId,
-                      bookingDate: selectedDateTime,
-                      userName: profileController.name.value,
-                      userAddress: profileController.locationAddress.value,
-                      userLat: profileController.userLat.value,
-                      userLong: profileController.userLong.value,
-                      specialRequests: specialRequestsController.text.trim(),
-                      serviceLocationType: serviceLocationType,
-                    );
-                    // await Get.offAll(() => CustomNavBar());
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children:
+                                  times.map((time) {
+                                    bool isSelected = time == selectedTime;
+                                    return GestureDetector(
+                                      onTap:
+                                          () =>
+                                              setState(() => selectedTime = time),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                          horizontal: 15,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isSelected
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                          borderRadius: BorderRadius.circular(30),
+                                          border: Border.all(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          time,
+                                          style: TextStyle(
+                                            color:
+                                                isSelected
+                                                    ? Colors.white
+                                                    : kGreyColor,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
 
-                    if (success) {
-                      setState(() => activeStep = 1);
-                    }
-                  }
-                },
-                color: kPrimaryColor,
-                child:
-                    activeStep == 0
-                        ? Text(
-                          "Continue",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        )
-                        : Text(
-                          "Continue booking",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                            const SizedBox(height: 25),
+                            
+                            // Buffer Time Info Banner
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.blue.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Note: We automatically add 1-hour buffer between appointments to account for delays and travel time.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blue.shade900,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Special Requests Section
+                            const Text(
+                              "Special requests (Optional)",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: specialRequestsController,
+                              maxLines: 3,
+                              maxLength: 500,
+                              decoration: InputDecoration(
+                                hintText: 'Any specific requirements, preferences, or notes for the vendor...',
+                                hintStyle: TextStyle(color: kGreyColor.withOpacity(0.6), fontSize: 13),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: kGreyColor2),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: kGreyColor2),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                          ],
                         ),
+                        if (activeStep == 1)
+                          Column(
+                            children: [
+                              Image(
+                                image: AssetImage('assets/sucessfully.png'),
+                                height: 64,
+                              ),
+                              SizedBox(height: 20),
+                              Center(
+                                child: Text(
+                                  "Your appointment\nbooking is successfully.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w100, // Reduced font weight
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Center(
+                                child: Text(
+                                  "You can view the appointment booking info in the “Appointment” section.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w100, // Reduced font weight
+                                    color: kGreyColor,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              Container(
+                                padding: EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: kGreyColor),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'ID: ',
+                                          style: TextStyle(
+                                            color: kGreyColor,
+                                            fontWeight: FontWeight.w100, // Reduced font weight
+                                          ),
+                                        ),
+                                        Text(
+                                          '#$id',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w100, // Reduced font weight
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      widget.shopName,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      widget.shopAddress,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: kGreyColor,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                    SizedBox(height: 15),
+                                    Divider(color: kGreyColor2),
+                                    SizedBox(height: 15),
+                                    ...widget.services.map((service) {
+                                      return Padding(
+                                        padding: EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          children: [
+                                            Image(
+                                              image: AssetImage('assets/cutter.png'),
+                                              height: 54,
+                                            ),
+                                            SizedBox(width: 15),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          service['serviceName'] ?? '',
+                                                          style: TextStyle(
+                                                            fontWeight: FontWeight.w700,
+                                                            fontSize: 13,
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Text(
+                                                        '\$${service['price']}',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    service['categoryName'] ?? '',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: kGreyColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Image(
+                                          image: AssetImage(
+                                            'assets/timer.png',
+                                          ),
+                                          height: 14,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Expanded(
+                                          child: Text(
+                                            '${DateFormat('d MMMM, yyyy').format(DateTime(currentMonth.year, currentMonth.month, selectedDate))} at $selectedTime',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 12,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.schedule, size: 14, color: kGreyColor),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          'Estimated duration: ${_calculateTotalDuration()} minutes',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 12,
+                                            color: kGreyColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.centerFloat,
+                floatingActionButton: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: MaterialButton(
+                    elevation: 0,
+                    minWidth: double.maxFinite,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    height: 50,
+                    onPressed: () async {
+                      print('vendorId: ${widget.vendorId}');
+                      print('Service: $servicesId');
+                      if (activeStep == 0) {
+                        final selectedDateTime = DateTime(
+                          currentMonth.year,
+                          currentMonth.month,
+                          selectedDate,
+                          _parseTimeTo24Hour(selectedTime).hour,
+                          _parseTimeTo24Hour(selectedTime).minute,
+                        );
+                        
+                        // Validate past date
+                        if (selectedDateTime.isBefore(DateTime.now())) {
+                          Get.snackbar(
+                            'Invalid Date',
+                            'Cannot book appointments in the past',
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                          return;
+                        }
+                        
+                        // Validate service location selection if needed
+                        if (showLocationSelection && serviceLocationType == null) {
+                          Get.snackbar(
+                            'Selection Required',
+                            'Please select service location (Salon or Home)',
+                            backgroundColor: Colors.orange,
+                            colorText: Colors.white,
+                          );
+                          return;
+                        }
+                        
+                        print('vendorId: ${widget.vendorId}');
+
+                        final success = await bookingController.createBooking(
+                          vendorId: widget.vendorId,
+                          serviceIds: servicesId,
+                          bookingDate: selectedDateTime,
+                          userName: profileController.name.value,
+                          userAddress: profileController.locationAddress.value,
+                          userLat: profileController.userLat.value,
+                          userLong: profileController.userLong.value,
+                          specialRequests: specialRequestsController.text.trim(),
+                          serviceLocationType: serviceLocationType,
+                        );
+                        // await Get.offAll(() => CustomNavBar());
+
+                        if (success) {
+                          setState(() => activeStep = 1);
+                        }
+                      }
+                    },
+                    color: kPrimaryColor,
+                    child:
+                        activeStep == 0
+                            ? Text(
+                              "Continue",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                            : Text(
+                              "Continue booking",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
               ),
             ),
           );
@@ -1217,7 +1297,53 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Service location selection
+                        // Show info banner when only one option is available (auto-selected)
+                        if (!showLocationSelection && serviceLocationType != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: serviceLocationType == 'home' 
+                                  ? Colors.orange.shade50 
+                                  : Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: serviceLocationType == 'home' 
+                                    ? Colors.orange.shade200 
+                                    : Colors.green.shade200,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  serviceLocationType == 'home' 
+                                      ? Icons.home_rounded 
+                                      : Icons.store_rounded,
+                                  color: serviceLocationType == 'home' 
+                                      ? Colors.orange.shade700 
+                                      : Colors.green.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    serviceLocationType == 'home'
+                                        ? "This vendor offers home service only"
+                                        : "This service will be at the salon",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: serviceLocationType == 'home' 
+                                          ? Colors.orange.shade700 
+                                          : Colors.green.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                        ],
+                        // Show selection buttons ONLY when both options are available
                         if (showLocationSelection) ...[
                           const Text(
                             "Select service location",
@@ -1229,61 +1355,57 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           const SizedBox(height: 15),
                           Row(
                             children: [
-                              // Show Visit Salon button only if physical shop is available
-                              if (widget.hasPhysicalShop)
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => setState(() => serviceLocationType = 'salon'),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 15),
-                                      decoration: BoxDecoration(
-                                        color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
-                                        ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => serviceLocationType = 'salon'),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 15),
+                                    decoration: BoxDecoration(
+                                      color: serviceLocationType == 'salon' ? kPrimaryColor : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: serviceLocationType == 'salon' ? kPrimaryColor : kGreyColor2,
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          "Visit Salon",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                          ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Visit Salon",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              if (widget.hasPhysicalShop && widget.homeServiceAvailable) const SizedBox(width: 10),
-                              // Show Home Service button only if home service is available
-                              if (widget.homeServiceAvailable)
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => setState(() => serviceLocationType = 'home'),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 15),
-                                      decoration: BoxDecoration(
-                                        color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
-                                        ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => serviceLocationType = 'home'),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 15),
+                                    decoration: BoxDecoration(
+                                      color: serviceLocationType == 'home' ? kPrimaryColor : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: serviceLocationType == 'home' ? kPrimaryColor : kGreyColor2,
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          "Home Service",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                          ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Home Service",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 25),
@@ -1463,40 +1585,32 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
-                          children:
-                              times.map((time) {
-                                bool isSelected = time == selectedTime;
-                                return GestureDetector(
-                                  onTap:
-                                      () => setState(() => selectedTime = time),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 15,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          isSelected
-                                              ? Colors.black
-                                              : Colors.white,
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      time,
-                                      style: TextStyle(
-                                        color:
-                                            isSelected
-                                                ? Colors.white
-                                                : kGreyColor,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
+                          children: times.map((time) {
+                            bool isSelected = time == selectedTime;
+                            return GestureDetector(
+                              onTap: () => setState(() => selectedTime = time),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 15,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.black : Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
                                   ),
-                                );
-                              }).toList(),
+                                ),
+                                child: Text(
+                                  time,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : kGreyColor,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
 
                         const SizedBox(height: 25),
@@ -1661,7 +1775,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             "You can view the appointment booking info in the “Appointment” section.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w100, // Reduced font weight
                               color: kGreyColor,
                             ),
                           ),
@@ -1682,13 +1796,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                     'ID: ',
                                     style: TextStyle(
                                       color: kGreyColor,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w100, // Reduced font weight
                                     ),
                                   ),
                                   Text(
                                     '#$id',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w100, // Reduced font weight
                                     ),
                                   ),
                                 ],
@@ -1832,7 +1946,29 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   ),
                                 );
                               }).toList(),
+                              SizedBox(height: 4),
+                              Divider(color: kGreyColor2),
                               SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Estimated total',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$${totalPrice.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12),
                               Row(
                                 children: [
                                   Image(

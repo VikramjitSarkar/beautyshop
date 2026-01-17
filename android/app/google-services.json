@@ -9,10 +9,23 @@
       "client_info": {
         "mobilesdk_app_id": "1:916801022458:android:200c499718cbfd334b9c43",
         "android_client_info": {
-          "package_name": "com.beautician.beautician_app"
+          "package_name": "com.beautician_app.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "916801022458-vg7sqmeuk0q7siq9mvu6vp9hh7hf9i0c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.beautician_app.app",
+            "certificate_hash": "b0906257e8e057d07a0d0d62b1809f9471dc3b56"
+          }
+        },
+        {
+          "client_id": "916801022458-1075t3021i26e0lphpm68dlc8vt152j7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCUNMGI0DR9qq_FtdewSk5W8uMbjmwcmfk"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "916801022458-1075t3021i26e0lphpm68dlc8vt152j7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "916801022458-q4o9uoo2hvvj7si4jhlkensjt7hbos0k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.beautician.beauticianApp"
+              }
+            }
+          ]
         }
       }
     }

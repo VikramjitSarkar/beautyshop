@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:async';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/users/profile/profile_controller.dart';
 import 'package:beautician_app/controllers/vendors/auth/profile_setup_Controller.dart';
@@ -20,11 +21,59 @@ class HomeController extends GetxController {
   var controller = Get.put(UserProfileControllers());
   var profileController = Get.put(UserProfileController());
   
+  Timer? _refreshTimer;
+  
   @override
   void onInit() {
     super.onInit();
     // fetchCategories(); // 🟢 Call when controller initializes
     _initializeData();
+    _startPeriodicRefresh();
+  }
+  
+  @override
+  void onClose() {
+    _refreshTimer?.cancel();
+    super.onClose();
+  }
+  
+  /// Start periodic refresh every 30 seconds to update vendor statuses
+  void _startPeriodicRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      print('[HomeController] Periodic refresh triggered');
+      refreshVendorData();
+    });
+  }
+  
+  /// Refresh vendor data without showing loading indicator
+  Future<void> refreshVendorData() async {
+    try {
+      // Fetch vendors silently (without loading indicator)
+      final url = Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/getAll');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newVendors = data['data'] ?? [];
+        
+        // Update vendors list
+        vendors.value = newVendors;
+        
+        // Reapply location filters if location is available
+        double? userLat = double.tryParse(profileController.userLat.value);
+        double? userLong = double.tryParse(profileController.userLong.value);
+        
+        if (userLat != null && userLong != null && 
+            !(userLat == 0.0 && userLong == 0.0)) {
+          filterVendorsWithin30Km(userLat: userLat, userLong: userLong);
+          filterVendorsInCategoryByLocation(userLat: userLat, userLong: userLong);
+        }
+        
+        print('[HomeController] Vendor data refreshed: ${newVendors.length} vendors');
+      }
+    } catch (e) {
+      print('[HomeController] Error refreshing vendor data: $e');
+    }
   }
 
   Future<void> _initializeData() async {

@@ -4,7 +4,7 @@ import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/views/user/nav_bar_screens/profile/screens/notifications_details.dart';
 import 'package:get/get.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   final UserNotificationController notificationController = Get.put(
     UserNotificationController(),
   );
@@ -12,9 +12,22 @@ class NotificationsScreen extends StatelessWidget {
   NotificationsScreen({super.key});
 
   @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final userId = GlobalsVariables.userId;
+    if (userId != null && userId.isNotEmpty) {
+      widget.notificationController.fetchNotifications(userId);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Replace with actual user ID
-    notificationController.fetchNotifications(GlobalsVariables.userId!);
+    final userId = GlobalsVariables.userId;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -47,15 +60,17 @@ class NotificationsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: padding, vertical: 10),
-        child: Obx(() {
-          if (notificationController.isLoading.value) {
+        child: userId == null || userId.isEmpty
+            ? const Center(child: Text("Please sign in to view notifications"))
+            : Obx(() {
+          if (widget.notificationController.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (notificationController.notifications.isEmpty) {
+          if (widget.notificationController.notifications.isEmpty) {
             return const Center(child: Text("No notifications available"));
           }
 
-          final all = notificationController.notifications;
+          final all = widget.notificationController.notifications;
           final now = DateTime.now();
 
           final newNotifications =

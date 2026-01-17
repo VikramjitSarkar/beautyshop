@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ro
         //desktop responsive screen code
         if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: const Color(0xFFF6F7F5),
 
             // appBar: PreferredSize(
             //   preferredSize: Size.fromHeight(160),
@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ro
               preferredSize: Size.fromHeight(55),
               child: AppBar(
                 surfaceTintColor: Colors.transparent,
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xFFF6F7F5),
                 automaticallyImplyLeading: false,
                 title: Row(
                   children: [
@@ -405,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ro
             preferredSize: Size.fromHeight(55),
             child: AppBar(
               surfaceTintColor: Colors.transparent,
-              backgroundColor: Colors.white,
+              backgroundColor: const Color(0xFFF6F7F5),
               automaticallyImplyLeading: false,
               title: Row(
                 children: [
@@ -472,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ro
               ],
             ),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF6F7F5),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(

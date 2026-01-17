@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
+import '../../utils/constants.dart';
 
 class SalonAboutCard extends StatefulWidget {
   final String vendorId;
@@ -93,6 +94,7 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: kGreyColor2),
+              boxShadow: kCardShadow,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,6 +160,7 @@ class _SalonAboutCardState extends State<SalonAboutCard> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: kGreyColor2),
+              boxShadow: kCardShadow,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),

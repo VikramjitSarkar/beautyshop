@@ -216,6 +216,8 @@ class _VendorCardState extends State<_VendorCard> {
           imageUrl: shopBanner,
           shopName: name,
           categories: _categories,
+          hasPhysicalShop: parseBool(widget.v["hasPhysicalShop"]),
+          homeServiceAvailable: parseBool(widget.v["homeServiceAvailable"]),
           isFavorite: isFav,
           onFavoriteTap: () {
             final genCtrl = Get.find<GenralController>();

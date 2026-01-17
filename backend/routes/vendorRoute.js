@@ -48,5 +48,11 @@ vendorRoute.route("/verifyCertificate/:vendorId").put(async (req, res) => {
   res.json({ success: true });
 });
 
+vendorRoute.route("/updateLocation/:vendorId").put(async (req, res) => {
+  const { vendorLat, vendorLong, locationAddress } = req.body;
+  await Vendor.findByIdAndUpdate(req.params.vendorId, { vendorLat, vendorLong, locationAddress });
+  res.json({ success: true });
+});
+
 export default vendorRoute;
 // 91867769407

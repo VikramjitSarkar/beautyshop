@@ -10,6 +10,7 @@ class AddServicesController extends GetxController {
   var subcategories = [].obs;
   String? selectedCategoryId;
   String? selectedSubcategoryId;
+  String? _servicesVendorId;
   @override
   void onInit() {
     super.onInit();
@@ -70,7 +71,8 @@ class AddServicesController extends GetxController {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         services.value = data['data'] ?? [];
-        print('Service : ${services.value}');
+        _servicesVendorId = vendorId;
+        print('Service : ${services.toList()}');
       } else {
         // Get.snackbar(
         //   "Error",
@@ -89,6 +91,20 @@ class AddServicesController extends GetxController {
     required String charges,
     required String createdBy, // vendor ID
   }) async {
+    if (createdBy.isNotEmpty) {
+      if (_servicesVendorId != createdBy || services.isEmpty) {
+        await fetchServicesByVendorId(createdBy);
+      }
+      if (_isDuplicateService(categoryId: categoryId, subcategoryId: subcategoryId)) {
+        Get.snackbar(
+          "Duplicate",
+          "This service already exists for your shop",
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
     try {
       isLoading.value = true;
       final response = await http.post(
@@ -103,6 +119,12 @@ class AddServicesController extends GetxController {
       );
       isLoading.value = false;
       if (response.statusCode == 200 || response.statusCode == 201) {
+        services.add({
+          "categoryId": categoryId,
+          "subcategoryId": subcategoryId,
+          "charges": charges,
+          "createdBy": createdBy,
+        });
         Get.snackbar("Success", "Service created successfully");
       } else {
         Get.snackbar("Error", "Failed to create service");
@@ -111,5 +133,28 @@ class AddServicesController extends GetxController {
       isLoading.value = false;
       Get.snackbar("Exception", e.toString());
     }
+  }
+
+  bool _isDuplicateService({
+    required String categoryId,
+    required String subcategoryId,
+  }) {
+    for (final service in services) {
+      if (service is! Map) continue;
+      final existingCategoryId = _extractId(service['categoryId']);
+      final existingSubcategoryId = _extractId(service['subcategoryId']);
+      if (existingCategoryId == categoryId &&
+          existingSubcategoryId == subcategoryId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  String? _extractId(dynamic value) {
+    if (value is Map && value['_id'] != null) {
+      return value['_id'].toString();
+    }
+    return value?.toString();
   }
 }

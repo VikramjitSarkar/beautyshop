@@ -2,6 +2,7 @@ import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/vendors/dashboard/dashboardController.dart';
 import 'package:beautician_app/utils/libs.dart';
 import 'package:beautician_app/views/vender/bottom_navi/screens/dashboard/refralScreen.dart';
+import 'package:beautician_app/views/vender/auth/payment_method_selection_screen.dart';
 import 'package:beautician_app/views/user/custom_nav_bar.dart';
 import 'package:http/http.dart' as http;
 
@@ -96,6 +97,19 @@ class VendorSettings extends StatelessWidget {
                   ),
                   onTap: () {
                     Get.to(() => CancelShowPlanForMonthlyOrYearScreen());
+                  },
+                ),
+                SizedBox(height: 10),
+                ListTile(
+                  title: Text("Payment Methods"),
+                  leading: Icon(Icons.payment),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    side: BorderSide(color: Colors.grey),
+                  ),
+                  onTap: () {
+                    Get.to(() => const PaymentMethodSelectionScreen());
                   },
                 ),
                 SizedBox(height: 10),

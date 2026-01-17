@@ -123,11 +123,15 @@ export const createBooking = async (req, res, next) => {
       }
     }
 
-    // Check vendor online status
-    if (vendorData.status === "offline") {
+    // Check vendor online status - ONLY for immediate bookings (within 2 hours)
+    // For scheduled/future bookings, allow booking even if vendor is currently offline
+    const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+    const isImmediateBooking = (requestedDate.getTime() - now.getTime()) < TWO_HOURS_MS;
+    
+    if (isImmediateBooking && vendorData.status === "offline") {
       return res.status(400).json({
         status: "fail",
-        message: "Vendor is currently offline and not accepting bookings",
+        message: "Vendor is currently offline and not accepting immediate bookings. Try scheduling for a later time.",
       });
     }
 

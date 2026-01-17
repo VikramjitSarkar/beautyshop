@@ -19,9 +19,10 @@ class SearchCardScreen extends StatefulWidget {
     required this.categoryId,
     required this.searchQuery,
   });
+
   final String title;
   final String categoryId;
-  String searchQuery;
+  final String searchQuery;
 
   @override
   State<SearchCardScreen> createState() => _SearchCardScreenState();
@@ -29,12 +30,8 @@ class SearchCardScreen extends StatefulWidget {
 
 class _SearchCardScreenState extends State<SearchCardScreen> {
   final GenralController _generalController = Get.put(GenralController());
-  final TextEditingController _searchController = TextEditingController();
-  
   // Cache for vendor categories
   final Map<String, List<String>> _vendorCategoriesCache = {};
-
-  // Filter states
   bool onlineNow = false;
   bool nearby = false;
   bool homeVisitAvailable = false;
@@ -324,6 +321,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                                     shopName: shopName,
                                     location: (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '',
                                     categories: categories.take(3).toList(),
+                                    hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                    homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                     isFavorite: isFav,
                                     onFavoriteTap: () {
                                       final genCtrl = Get.find<GenralController>();
@@ -347,8 +346,8 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                                   status: vendor["status"]?.toString() ?? '',
                                   title: vendor["title"]?.toString() ?? '',
                                   userName: vendor["userName"]?.toString() ?? '',
-                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                  hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                  homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                 ),
                               );
                             },
@@ -365,211 +364,6 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSalonCard(Map<String, dynamic> vendor) {
-
-    final rating =
-        double.tryParse(vendor['shopRating']?.toString() ?? '0') ?? 0;
-
-    final openingTime = Map<String, dynamic>.from(
-      vendor['openingTime'] ??
-          {
-            "weekdays": {"from": "", "to": ""},
-            "weekends": {"from": "", "to": ""},
-          },
-    );
-
-    final galleryImages =
-    vendor['gallery'] is List
-        ? List<String>.from(vendor['gallery'])
-        : [];
-    final shopName =
-        (vendor['shopName']?.toString().trim().isNotEmpty ?? false)
-            ? vendor['shopName']
-            : 'Unnamed Salon';
-
-    final shopBanner =
-        (vendor['shopBanner']?.toString().isNotEmpty ?? false)
-            ? vendor['shopBanner']
-            : null;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: InkWell(
-        onTap: () {
-          Get.to(() => SaloonDetailPageScreen(
-            phoneNumber: vendor['phone']?.toString() ?? '',
-            rating: rating,
-            longitude: vendor['vendorLong']?.toString() ?? '',
-            latitude: vendor["vendorLat"]?.toString() ?? '',
-            galleryImage: galleryImages,
-            vendorId: vendor["_id"] ?? '',
-            desc: vendor["description"] ?? '',
-            imageUrl: vendor["shopBanner"] ?? '',
-            location: vendor["locationAddress"] ?? '',
-            openingTime: openingTime,
-            shopName: vendor["shopName"] ?? '',
-            status: vendor["status"] ?? '',
-            title: vendor["title"] ?? '',
-            userName: vendor["userName"] ?? '',
-            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
-          ));
-        },
-        child: Row(
-          children: [
-            Container(
-              width: 130,
-              height: 120,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                border: shopBanner != null? null : Border.all(color: Colors.lightGreen, width: 0.5),
-
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child:
-                    shopBanner != null
-                        ? Image.network(
-                          shopBanner,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, stackTrace) =>
-                                  Image.asset(
-                                    'assets/app icon 2.png',
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                        )
-                        : Image.asset(
-                      'assets/app icon 2.png',
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.cover,
-                    ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        vendor['shopRating']?.toString() ?? '0.0',
-                        style: kHeadingStyle.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const Spacer(),
-                      if (vendor['status'] == "online")
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            'Online',
-                            style: TextStyle(color: Colors.white, fontSize: 10),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    shopName,
-                    style: kHeadingStyle.copyWith(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  Text(
-                    vendor['locationAddress'] ?? 'No Address',
-                    style: kSubheadingStyle,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 14,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          '${vendor['distance'] ?? 'N/A'} km',
-                          style: kSubheadingStyle,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      Container(
-                        height: 27,
-                        width: 58,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: MaterialButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          onPressed: () {
-                            Get.to(
-                              () => SaloonDetailPageScreen(
-                                phoneNumber: vendor['phone'] ?? '',
-                                rating: rating,
-                                longitude: vendor['vendorLong'] ?? '',
-                                latitude: vendor["vendorLat"] ?? '',
-                                galleryImage: galleryImages,
-                                vendorId: vendor["_id"] ?? '',
-                                desc: vendor["description"] ?? '',
-                                imageUrl: vendor["shopBanner"] ?? '',
-                                location: vendor["locationAddress"] ?? '',
-                                openingTime: openingTime,
-                                shopName: vendor["shopName"] ?? '',
-                                status: vendor["status"] ?? '',
-                                title: vendor["title"] ?? '',
-                                userName: vendor["userName"] ?? '',
-                                hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
-                              )
-                            );
-                          },
-                          child: const FittedBox(
-                            child: Text(
-                              'Book',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

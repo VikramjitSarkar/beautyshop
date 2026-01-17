@@ -83,10 +83,19 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
       return Container();
     }
 
-    // Get shared location from profile controller
-    final profileController = Get.find<UserProfileController>();
-    final userLat = double.tryParse(profileController.userLat.value);
-    final userLong = double.tryParse(profileController.userLong.value);
+    // Get shared location from profile controller (safely)
+    double? userLat;
+    double? userLong;
+    
+    try {
+      if (Get.isRegistered<UserProfileController>()) {
+        final profileController = Get.find<UserProfileController>();
+        userLat = double.tryParse(profileController.userLat.value);
+        userLong = double.tryParse(profileController.userLong.value);
+      }
+    } catch (e) {
+      print('Error getting UserProfileController: $e');
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,6 +193,8 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                 imageUrl: vendor['shopBanner']?.toString() ?? '',
                                 shopName: vendor['shopName']?.toString() ?? 'No Name',
                                 categories: categories.take(3).toList(),
+                                hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                 isFavorite: isFav,
                                 onFavoriteTap: () {
                                   final genCtrl = Get.find<GenralController>();
@@ -207,8 +218,8 @@ class _SalonCategoryWidgetState extends State<SalonCategoryWidget> {
                                   status: vendor["status"]?.toString() ?? '',
                                   title: vendor["title"]?.toString() ?? '',
                                   userName: vendor["userName"]?.toString() ?? '',
-                                  hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                                  homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                                  hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                                  homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                                 ),
                               );
                             },

@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/utils/libs.dart';
+import 'package:beautician_app/views/vender/auth/payment_method_selection_screen.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileSetupController extends GetxController {
   var isLoading = false.obs;
@@ -77,7 +77,7 @@ class ProfileSetupController extends GetxController {
         print('===========================================');
         
         Get.snackbar('Success', 'Profile setup completed');
-        Get.off(() => FreeAndPaidListingServicesScreen());
+        Get.off(() => const PaymentMethodSelectionScreen());
       } else {
         Get.snackbar('Error', 'Failed: ${res.body}');
       }

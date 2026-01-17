@@ -21,6 +21,7 @@ class SaloonDetailPageScreen extends StatefulWidget {
   final Map<String, dynamic> openingTime;
   final bool hasPhysicalShop;
   final bool homeServiceAvailable;
+  final List<dynamic>? paymentMethods;
 
   const SaloonDetailPageScreen({
     super.key,
@@ -40,6 +41,7 @@ class SaloonDetailPageScreen extends StatefulWidget {
     required this.userName,
     required this.hasPhysicalShop,
     required this.homeServiceAvailable,
+    this.paymentMethods,
   });
 
   @override
@@ -70,6 +72,15 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
       builder: (context, sizingInfo) {
         final isDesktop =
             sizingInfo.deviceScreenType == DeviceScreenType.desktop;
+        final hasSalon = widget.hasPhysicalShop == true;
+        final hasHome = widget.homeServiceAvailable == true;
+        final serviceTag = hasSalon && hasHome
+            ? 'Home Visit & Salon Visit'
+            : hasHome
+                ? 'Home Service'
+                : hasSalon
+                    ? 'Salon Visit'
+                    : null;
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -105,6 +116,124 @@ class _SaloonDetailPageScreenState extends State<SaloonDetailPageScreen>
               padding: EdgeInsets.all(8.0),
               child: Column(
                 children: [
+                  if (serviceTag != null) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: kPrimaryColor, width: 1),
+                          boxShadow: kCardShadow,
+                        ),
+                        child: Text(
+                          serviceTag,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (widget.paymentMethods != null && widget.paymentMethods!.isNotEmpty) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Accepted Payment Methods:',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: widget.paymentMethods!.map((method) {
+                              IconData icon;
+                              String displayName;
+                              
+                              switch (method.toString().toLowerCase()) {
+                                case 'paypal':
+                                  icon = Icons.payment;
+                                  displayName = 'PayPal';
+                                  break;
+                                case 'stripe':
+                                  icon = Icons.credit_card;
+                                  displayName = 'Stripe';
+                                  break;
+                                case 'razorpay':
+                                  icon = Icons.account_balance_wallet;
+                                  displayName = 'Razorpay';
+                                  break;
+                                case 'cash':
+                                  icon = Icons.money;
+                                  displayName = 'Cash';
+                                  break;
+                                case 'card':
+                                  icon = Icons.credit_card_outlined;
+                                  displayName = 'Card';
+                                  break;
+                                case 'bank_transfer':
+                                  icon = Icons.account_balance;
+                                  displayName = 'Bank Transfer';
+                                  break;
+                                default:
+                                  icon = Icons.payment;
+                                  displayName = method.toString();
+                              }
+                              
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: kPrimaryColor.withOpacity(0.5)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(icon, size: 16, color: Colors.black87),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      displayName,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   /// ✅ TabBar
                   TabBar(
                     controller: _tabController,

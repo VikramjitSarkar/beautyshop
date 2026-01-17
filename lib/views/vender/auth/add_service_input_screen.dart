@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/vendors/dashboard/servicesController.dart';
 import 'package:beautician_app/utils/libs.dart';
@@ -20,6 +19,15 @@ class _AddServiceInputScreenState extends State<AddServiceInputScreen> {
   String? selectedSubcategoryId;
   final List<Map<String, dynamic>> services = [];
   final List<TextEditingController> priceControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final vendorId = GlobalsVariables.vendorId ?? '';
+    if (vendorId.isNotEmpty) {
+      controller.fetchServicesByVendorId(vendorId);
+    }
+  }
 
   @override
   void dispose() {

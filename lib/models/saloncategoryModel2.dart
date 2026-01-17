@@ -105,6 +105,8 @@ class _SalonCategoryWidget2State extends State<SalonCategoryWidget2> {
                       location: (vendor['locationAddress'] ?? vendor['locationAddres'])?.toString() ?? '',
                       imageUrl: vendor['profileImage']?.toString() ?? '',
                       shopName: vendor['shopName']?.toString() ?? 'No Name',
+                      hasPhysicalShop: parseBool(vendor["hasPhysicalShop"]),
+                      homeServiceAvailable: parseBool(vendor["homeServiceAvailable"]),
                       isFavorite: isFav,
                       onFavoriteTap: () async {
                         final isFavorited = await DBHelper.isFavorite(vendorId);
@@ -117,6 +119,17 @@ class _SalonCategoryWidget2State extends State<SalonCategoryWidget2> {
                       },
                       onTap: () {
                         print('galleryImages: ---------$galleyImages');
+                        print('=== Tapping vendor: ${vendor["shopName"]} ===');
+                        print('RAW hasPhysicalShop: ${vendor["hasPhysicalShop"]}');
+                        print('RAW homeServiceAvailable: ${vendor["homeServiceAvailable"]}');
+                        print('hasPhysicalShop type: ${vendor["hasPhysicalShop"].runtimeType}');
+                        print('homeServiceAvailable type: ${vendor["homeServiceAvailable"].runtimeType}');
+                        
+                        final hasShop = parseBool(vendor["hasPhysicalShop"]);
+                        final hasHome = parseBool(vendor["homeServiceAvailable"]);
+                        print('PARSED hasPhysicalShop: $hasShop');
+                        print('PARSED homeServiceAvailable: $hasHome');
+                        
                         Get.to(
                           () => SaloonDetailPageScreen(
                             phoneNumber: vendor['phone']?.toString() ?? '',
@@ -133,8 +146,8 @@ class _SalonCategoryWidget2State extends State<SalonCategoryWidget2> {
                             status: vendor["status"]?.toString() ?? '',
                             title: vendor["title"]?.toString() ?? '',
                             userName: vendor["userName"]?.toString() ?? '',
-                            hasPhysicalShop: vendor["hasPhysicalShop"] ?? false,
-                            homeServiceAvailable: vendor["homeServiceAvailable"] ?? false,
+                            hasPhysicalShop: hasShop,
+                            homeServiceAvailable: hasHome,
                           ),
                         );
                       },

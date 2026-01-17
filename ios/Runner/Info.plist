@@ -57,12 +57,48 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs your location to show nearby beauty services and help vendors find you.</string>
+	<string>TheBeautyShop needs your location to show nearby beauty services, salons, and help connect you with local beauticians.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs your location to provide location-based services.</string>
+	<string>TheBeautyShop needs your location to provide location-based services and notify you about nearby offers.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>TheBeautyShop needs your location to show nearby beauty services and send you relevant notifications about nearby salons.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to your camera to take photos for your profile and services.</string>
+	<string>TheBeautyShop needs camera access to take photos for your profile, capture before/after images, and scan QR codes for appointments.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to your photo library to select photos for your profile and services.</string>
+	<string>TheBeautyShop needs access to your photo library to select profile pictures, upload service images, and share your beauty transformations.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>TheBeautyShop needs permission to save photos to your library for your beauty journey memories.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TheBeautyShop needs microphone access for video calls with beauticians and recording video testimonials.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>TheBeautyShop can access your contacts to help you invite friends and share beauty experiences.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>TheBeautyShop needs calendar access to add your beauty appointments and send you reminders.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>TheBeautyShop needs full calendar access to manage your beauty appointments and schedule reminders.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>TheBeautyShop needs calendar access to add your beauty appointments.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>TheBeautyShop uses Face ID for secure and quick login to your account.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>TheBeautyShop may use Bluetooth to connect with nearby devices for payment processing.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>TheBeautyShop may use Bluetooth for connecting with payment devices.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>TheBeautyShop uses this to provide personalized beauty recommendations and relevant advertisements.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>TheBeautyShop can play background music during your virtual beauty sessions.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TheBeautyShop uses speech recognition for voice search and hands-free navigation.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>TheBeautyShop uses motion data to enhance AR beauty try-on features.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>location</string>
+	</array>
 </dict>
 </plist>
