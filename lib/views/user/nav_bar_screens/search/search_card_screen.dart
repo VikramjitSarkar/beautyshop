@@ -39,6 +39,17 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
   RangeValues priceRange = const RangeValues(0, 500);
   TimeOfDay selectedTime = TimeOfDay.now();
   bool isAvailableNow = true;
+  
+  // Payment method filter
+  List<String> selectedPaymentMethods = [];
+  final List<Map<String, dynamic>> availablePaymentMethods = [
+    {'name': 'PayPal', 'icon': Icons.account_balance_wallet, 'color': Colors.blue},
+    {'name': 'Stripe', 'icon': Icons.credit_card, 'color': Colors.purple},
+    {'name': 'Razorpay', 'icon': Icons.payment, 'color': Colors.indigo},
+    {'name': 'Cash', 'icon': Icons.money, 'color': Colors.green},
+    {'name': 'Card', 'icon': Icons.credit_card, 'color': Colors.orange},
+    {'name': 'Bank Transfer', 'icon': Icons.account_balance, 'color': Colors.teal},
+  ];
 
   int activeButtonIndex = 0;
 
@@ -184,6 +195,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
         isAvailableNow: isAvailableNow,
         userLat: position.latitude.toString(),
         userLong: position.longitude.toString(),
+        paymentMethods: selectedPaymentMethods.isNotEmpty ? selectedPaymentMethods : null,
       );
 
       if(activeButtonIndex == 1){
@@ -548,6 +560,71 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                         (value) => setState(() => hasSalonLocation = value),
                   ),
 
+                  const SizedBox(height: 20),
+                  Text('Payment Methods', style: TextStyle(color: kBlackColor, fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: availablePaymentMethods.map((method) {
+                      final isSelected = selectedPaymentMethods.contains(method['name']);
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              selectedPaymentMethods.remove(method['name']);
+                            } else {
+                              selectedPaymentMethods.add(method['name']);
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? method['color'].withOpacity(0.2)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected
+                                  ? method['color']
+                                  : kGreyColor2,
+                              width: isSelected ? 2 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                method['icon'],
+                                size: 18,
+                                color: isSelected
+                                    ? method['color']
+                                    : kGreyColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                method['name'],
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? method['color']
+                                      : kGreyColor,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
                   const SizedBox(height: 16),
                   Text('Price Range', style: TextStyle(color: kBlackColor)),
                   const SizedBox(height: 8),
@@ -673,6 +750,7 @@ class _SearchCardScreenState extends State<SearchCardScreen> {
                               isAvailableNow = true;
                               selectedTime = TimeOfDay.now();
                               activeButtonIndex = 0;
+                              selectedPaymentMethods.clear();
                             });
                             setState(() {
                               // Also update dialog state

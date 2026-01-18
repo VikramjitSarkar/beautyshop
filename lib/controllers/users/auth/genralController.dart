@@ -221,6 +221,7 @@ class GenralController extends GetxController {
     bool? nearby,
     TimeOfDay? selectedTime,
     bool? isAvailableNow,
+    List<String>? paymentMethods,
   }) async {
     isLoading.value = true;
 
@@ -245,6 +246,8 @@ class GenralController extends GetxController {
           if (selectedTime != null)
             "selectedTime": "${selectedTime.hour}:${selectedTime.minute}",
           if (isAvailableNow != null) "isAvailableNow": isAvailableNow,
+          if (paymentMethods != null && paymentMethods.isNotEmpty) 
+            "paymentMethods": paymentMethods,
         }),
       );
 

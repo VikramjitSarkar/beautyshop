@@ -140,7 +140,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 export const getVendorsByCategory = async (req, res, next) => {
   try {
-    const { userLat, userLong, categoryId, homeVisit, hasSalon, status: bodyStatus } = req.body;
+    const { userLat, userLong, categoryId, homeVisit, hasSalon, status: bodyStatus, paymentMethods } = req.body;
     const { minPrice, maxPrice } = req.query;
 
     console.log("[DEBUG] req.body:", JSON.stringify(req.body, null, 2));
@@ -167,6 +167,12 @@ export const getVendorsByCategory = async (req, res, next) => {
       filter.hasPhysicalShop =
         hasSalonParam === "true" || hasSalonParam === "on" || hasSalonParam === true;
       console.log("[DEBUG] hasSalon filter set to:", filter.hasPhysicalShop, "from param:", hasSalonParam);
+    }
+
+    // Payment methods filter
+    if (paymentMethods && Array.isArray(paymentMethods) && paymentMethods.length > 0) {
+      filter.paymentMethods = { $in: paymentMethods };
+      console.log("[DEBUG] paymentMethods filter set to:", paymentMethods);
     }
 
     console.log("[FILTER] Vendor query filter:", filter);

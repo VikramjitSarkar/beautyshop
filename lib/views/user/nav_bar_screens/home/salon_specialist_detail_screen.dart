@@ -88,6 +88,7 @@ class _SalonSpecialistDetailScreenState
         final listing = vendor['listingPlan']?.toString() ?? '';
         final isVerified = vendor['isIDVerified'] ?? false;
         final isCertified = vendor['isCertificateVerified'] ?? false;
+        final paymentMethods = vendor['paymentMethods'] is List ? List<String>.from(vendor['paymentMethods']) : <String>[];
         return NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
@@ -332,6 +333,91 @@ class _SalonSpecialistDetailScreenState
                       //     color: Colors.black,
                       //   ),
                       // ),
+                      
+                      // Payment Methods Section
+                      if (paymentMethods.isNotEmpty) ...[
+                        const SizedBox(height: 15),
+                        const Text(
+                          "Payment Methods",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: paymentMethods.map((method) {
+                            IconData icon;
+                            Color color;
+                            
+                            switch (method.toLowerCase()) {
+                              case 'paypal':
+                                icon = Icons.account_balance_wallet;
+                                color = Colors.blue;
+                                break;
+                              case 'stripe':
+                                icon = Icons.credit_card;
+                                color = Colors.purple;
+                                break;
+                              case 'razorpay':
+                                icon = Icons.payment;
+                                color = Colors.indigo;
+                                break;
+                              case 'cash':
+                                icon = Icons.money;
+                                color = Colors.green;
+                                break;
+                              case 'card':
+                                icon = Icons.credit_card;
+                                color = Colors.orange;
+                                break;
+                              case 'bank transfer':
+                                icon = Icons.account_balance;
+                                color = Colors.teal;
+                                break;
+                              default:
+                                icon = Icons.payments;
+                                color = Colors.grey;
+                            }
+                            
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: color.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    icon,
+                                    size: 18,
+                                    color: color,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    method,
+                                    style: TextStyle(
+                                      color: color,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ],
                   ),
                 ),
