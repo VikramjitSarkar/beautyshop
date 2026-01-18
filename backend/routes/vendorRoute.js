@@ -12,16 +12,29 @@ import {
   ProfileSetup,
   getVendorById2,
   getNearbyVendors,
+  updatePaymentMethods,
 } from "../controller/vendorController.js";
 
 import jwt from "jsonwebtoken";
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
+  console.log('=== AUTH MIDDLEWARE ===');
+  console.log('Authorization header:', authHeader);
+  
   const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
+  console.log('Extracted token:', token ? token.substring(0, 20) + '...' : 'null');
+  
+  if (token == null) {
+    console.log('No token provided, returning 401');
+    return res.sendStatus(401);
+  }
 
   jwt.verify(token, "somesecretsecret", (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      console.log('JWT verification failed:', err.message);
+      return res.sendStatus(403);
+    }
+    console.log('JWT verified successfully. Decoded user:', user);
     req.user = user;
     next();
   });
@@ -37,6 +50,7 @@ vendorRoute.route("/updateStatus/:id").put(UpdateStatus);
 vendorRoute.route("/byVendorId/:vendorId").get(getVendorById2);
 vendorRoute.route("/profileSetup").put(authenticateToken, ProfileSetup);
 vendorRoute.route("/delete").delete(authenticateToken, deleteVendorById);
+vendorRoute.route("/updatePaymentMethods").put(authenticateToken, updatePaymentMethods);
 vendorRoute.route("/nearBy").post(getNearbyVendors);
 vendorRoute.route("/verifyID/:vendorId").put(async (req, res) => {
   await Vendor.findByIdAndUpdate(req.params.vendorId, { isIDVerified: true });

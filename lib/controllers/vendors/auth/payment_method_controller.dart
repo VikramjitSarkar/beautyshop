@@ -63,20 +63,33 @@ class PaymentMethodController extends GetxController {
         );
         Get.off(() => FreeAndPaidListingServicesScreen());
       } else {
-        final body = jsonDecode(response.body);
+        // Check if response is JSON or HTML
+        String errorMessage = 'Failed to save payment methods';
+        try {
+          if (response.body.trim().startsWith('{') || response.body.trim().startsWith('[')) {
+            final body = jsonDecode(response.body);
+            errorMessage = body['message'] ?? errorMessage;
+          } else {
+            errorMessage = 'Server error (${response.statusCode}): Endpoint not found or returned HTML';
+          }
+        } catch (_) {
+          errorMessage = 'Server error: ${response.statusCode}';
+        }
+        
         Get.snackbar(
           'Error',
-          body['message'] ?? 'Failed to save payment methods',
+          errorMessage,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
+          duration: Duration(seconds: 5),
         );
       }
     } catch (e) {
       isLoading.value = false;
       Get.snackbar(
         'Exception',
-        e.toString(),
+        'Error: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

@@ -82,6 +82,12 @@ const vendorSchema = new Schema({
     comment: "Average rating based on customer reviews"
   },
 
+  paymentMethods: {
+    type: [String],
+    default: [],
+    comment: "Accepted payment methods: paypal, stripe, razorpay, cash, card, bank_transfer"
+  },
+
   createdAt:           { type: Date, default: Date.now }
 });
 

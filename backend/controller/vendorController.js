@@ -256,17 +256,79 @@ export const getAllVendor = catchAsyncError(async (req, res, next) => {
 // delet user
 export const deleteVendorById = async (req, res, next) => {
   const id = req?.user?.userId;
+  console.log('Delete vendor request - User ID from token:', id);
+  console.log('Full req.user:', req.user);
+  
   try {
+    // First check if vendor exists
+    const vendorExists = await Vendor.findById(id);
+    console.log('Vendor exists check:', vendorExists ? 'Found' : 'Not found');
+    if (vendorExists) {
+      console.log('Vendor details:', { id: vendorExists._id, email: vendorExists.email });
+    }
+    
     const delVendor = await Vendor.findByIdAndDelete(id);
     if (!delVendor) {
       return res.status(404).json({ status: "fail", message: "Vendor not found" });
     }
+    console.log('Vendor deleted successfully:', id);
     res.json({ status: "success", message: "Vendor deleted successfully!" });
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting vendor:', error);
     next(error);
   }
 };
+
+export const updatePaymentMethods = async (req, res, next) => {
+  const vendorId = req?.user?.userId;
+  const { paymentMethods } = req.body;
+  
+  console.log('Updating payment methods for vendor:', vendorId);
+  console.log('Payment methods:', paymentMethods);
+  
+  try {
+    if (!paymentMethods || !Array.isArray(paymentMethods)) {
+      return res.status(400).json({ 
+        status: "fail", 
+        message: "Payment methods must be an array" 
+      });
+    }
+
+    const validMethods = ['paypal', 'stripe', 'razorpay', 'cash', 'card', 'bank_transfer'];
+    const invalidMethods = paymentMethods.filter(m => !validMethods.includes(m));
+    
+    if (invalidMethods.length > 0) {
+      return res.status(400).json({ 
+        status: "fail", 
+        message: `Invalid payment methods: ${invalidMethods.join(', ')}` 
+      });
+    }
+
+    const vendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { paymentMethods },
+      { new: true }
+    );
+
+    if (!vendor) {
+      return res.status(404).json({ 
+        status: "fail", 
+        message: "Vendor not found" 
+      });
+    }
+
+    console.log('Payment methods updated successfully');
+    res.status(200).json({ 
+      status: "success", 
+      message: "Payment methods updated successfully",
+      data: { paymentMethods: vendor.paymentMethods }
+    });
+  } catch (error) {
+    console.error('Error updating payment methods:', error);
+    next(error);
+  }
+};
+
 
 export const getNearbyVendors = async (req, res, next) => {
   try {
