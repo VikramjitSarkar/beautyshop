@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:beautician_app/constants/globals.dart';
 import 'package:beautician_app/controllers/vendors/dashboard/dashboardController.dart';
 import 'package:beautician_app/utils/libs.dart';
@@ -113,6 +115,28 @@ class VendorSettings extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: 10),
+                // Debug info tile
+                if (GlobalsVariables.vendorLoginToken != null)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Debug Info:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text('Vendor ID: ${GlobalsVariables.vendorId ?? 'Not set'}', style: TextStyle(fontSize: 12)),
+                        SizedBox(height: 4),
+                        Text('Token: ${GlobalsVariables.vendorLoginToken?.substring(0, 20)}...', style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                SizedBox(height: 10),
                 ListTile(
                   title: Text("Logout"),
                   leading: Icon(Icons.logout),
@@ -199,17 +223,25 @@ class VendorSettings extends StatelessWidget {
                           barrierDismissible: false,
                         );
 
+                        print('Deleting vendor account...');
+                        print('Token: ${GlobalsVariables.vendorLoginToken}');
+                        print('URL: ${GlobalsVariables.baseUrlapp}/vendor/delete');
+
                         final response = await http.delete(
                           Uri.parse('${GlobalsVariables.baseUrlapp}/vendor/delete'),
                           headers: {
                             'Authorization': 'Bearer ${GlobalsVariables.vendorLoginToken}',
                             'Accept': 'application/json',
+                            'Content-Type': 'application/json',
                           },
                         );
 
+                        print('Delete response status: ${response.statusCode}');
+                        print('Delete response body: ${response.body}');
+
                         Get.back(); // Close loading dialog
 
-                        if (response.statusCode == 200) {
+                        if (response.statusCode == 200 || response.statusCode == 204) {
                           await GlobalsVariables.clearAllTokens();
                           Get.delete<DashBoardController>();
                           Get.offAll(() => SplashScreen());
@@ -220,11 +252,24 @@ class VendorSettings extends StatelessWidget {
                             colorText: Colors.white,
                           );
                         } else {
+                          // Parse error message from response
+                          String errorMessage = 'Failed to delete account. Please try again.';
+                          try {
+                            final errorBody = response.body;
+                            if (errorBody.isNotEmpty) {
+                              final errorJson = jsonDecode(errorBody);
+                              errorMessage = errorJson['message'] ?? errorMessage;
+                            }
+                          } catch (_) {
+                            errorMessage = 'Server error: ${response.statusCode}';
+                          }
+                          
                           Get.snackbar(
                             'Error',
-                            'Failed to delete account. Please try again.',
+                            errorMessage,
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
+                            duration: Duration(seconds: 4),
                           );
                         }
                       } catch (e) {
